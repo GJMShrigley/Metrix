@@ -1,15 +1,16 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import { mockLineData as data } from "../data/mockData";
+import { useSelector } from "react-redux"
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
+  const userData = useSelector((state) => state.userData.habits);
+ 
   return (
     <ResponsiveLine
-      data={data}
+      data={userData}
       theme={{
         axis: {
           domain: {
@@ -61,7 +62,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         tickSize: 0,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "transportation", // added
+        legend: isDashboard ? undefined : "Date", // added
         legendOffset: 36,
         legendPosition: "middle",
       }}
@@ -71,7 +72,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         tickSize: 3,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "count", // added
+        legend: isDashboard ? undefined : "Words Written", // added
         legendOffset: -40,
         legendPosition: "middle",
       }}

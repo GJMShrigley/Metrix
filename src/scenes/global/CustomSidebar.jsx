@@ -43,55 +43,55 @@ const CustomSidebar = () => {
 
     return (
         <Box
-        sx={{
-          position: "sticky",
-          display: "flex",
-          height: "100vh",
-          top: 0,
-          bottom: 0,
-          zIndex: 10000,
-        //   "& .sidebar": {
-        //     border: "none",
-        //   },
-        //   "& .menu-icon": {
-        //     backgroundColor: "transparent !important",
-        //   },
-        //   "& .menu-item": {
-        //     // padding: "5px 35px 5px 20px !important",
-        //     backgroundColor: "transparent !important",
-        //   },
-        //   "& .menu-anchor": {
-        //     color: "inherit !important",
-        //     backgroundColor: "transparent !important",
-        //   },
-        //   "& .menu-item:hover": {
-        //     color: `${colors.blueAccent[500]} !important`,
-        //     backgroundColor: "transparent !important",
-        //   },
-        //   "& .menu-item.active": {
-        //     color: `${colors.greenAccent[500]} !important`,
-        //     backgroundColor: "transparent !important",
-        //   },
-        }}
-      >
+            sx={{
+                position: "sticky",
+                display: "flex",
+                height: "100vh",
+                top: 0,
+                bottom: 0,
+                zIndex: 10000,
+                //   "& .sidebar": {
+                //     border: "none",
+                //   },
+                //   "& .menu-icon": {
+                //     backgroundColor: "transparent !important",
+                //   },
+                //   "& .menu-item": {
+                //     // padding: "5px 35px 5px 20px !important",
+                //     backgroundColor: "transparent !important",
+                //   },
+                //   "& .menu-anchor": {
+                //     color: "inherit !important",
+                //     backgroundColor: "transparent !important",
+                //   },
+                //   "& .menu-item:hover": {
+                //     color: `${colors.blueAccent[500]} !important`,
+                //     backgroundColor: "transparent !important",
+                //   },
+                //   "& .menu-item.active": {
+                //     color: `${colors.greenAccent[500]} !important`,
+                //     backgroundColor: "transparent !important",
+                //   },
+            }}
+        >
             <Sidebar collapsed={isCollapsed} backgroundColor={colors.primary[400]}>
                 <Menu iconShape="square"
-                menuItemStyles={{
-                    button: ({ level, active, disabled }) => {
-                      if (level === 0) {
-                        return {
-                          color: disabled ? "#eee" : "#455A64",
-                          backgroundColor: active ? "#335B8C" : undefined,
-                          "&:hover": {
-                             backgroundColor: "#335B8C !important",
-                             color: "white !important",
-                            //  borderRadius: "8px !important",
-                             fontWeight: "bold !important"
-                           },
-                        };
-                      }
-                    },
-                  }}>
+                    menuItemStyles={{
+                        button: ({ level, active, disabled }) => {
+                            if (level === 0) {
+                                return {
+                                    color: disabled ? "#eee" : "#455A64",
+                                    backgroundColor: active ? "#335B8C" : undefined,
+                                    "&:hover": {
+                                        backgroundColor: "#335B8C !important",
+                                        color: "white !important",
+                                        //  borderRadius: "8px !important",
+                                        fontWeight: "bold !important"
+                                    },
+                                };
+                            }
+                        },
+                    }}>
                     {/* *LOGO AND MENU ICON */}
                     <MenuItem
                         onClick={() => setIsCollapsed(!isCollapsed)}

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store";
 import Topbar from "./scenes/global/Topbar";
 import CustomSidebar from "./scenes/global/CustomSidebar";
 import Dashboard from "./scenes/dashboard";
@@ -10,6 +12,7 @@ import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
 import FAQ from "./scenes/faq";
+import ChartPage from "./scenes/chartPage";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import Calendar from "./scenes/calendar";
@@ -19,6 +22,7 @@ function App() {
   const [isSidebar, setIsSidebar] = useState(true);
 
   return (
+    <Provider store={store}>
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -36,11 +40,13 @@ function App() {
               <Route path="/line" element={<Line />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calendar" element={<Calendar />} />
+              <Route path="/chart" element={<ChartPage />} />
             </Routes>
           </main>
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
+    </Provider>
   );
 }
 
