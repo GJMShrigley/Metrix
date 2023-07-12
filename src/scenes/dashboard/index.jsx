@@ -1,40 +1,96 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Button, IconButton, Typography, useTheme, TextField } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
 import LineChart from "../../components/LineChart";
-import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
-import ProgressCircle from "../../components/ProgressCircle";
-
+import { Formik } from "formik";
+import { useDispatch, useSelector } from "react-redux"
+import { addMetric, saveFile, exportFile, importFile } from "../../store/userDataSlice";
+import * as yup from "yup";
+import { MuiFileInput } from 'mui-file-input'
 
 const Dashboard = () => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const userData = useSelector((state) => state.userData.metrics);
+  const dispatch = useDispatch();
 
-   return (
-    <Box m="20px">
+  const currentDate = (new Date()).toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  const newMetric = (values) => {
+    dispatch(addMetric(values));
+    dispatch(saveFile());
+  };
+
+  const initialValues = {
+    metric: "",
+    x: `${currentDate}`,
+    y: 0,
+  };
+
+  const userSchema = yup.object().shape({
+    metric: yup.string().required("required"),
+    x: yup.date().required("required"),
+    y: yup.string().required("required"),
+  });
+
+  const fileLoad = (e) => {
+    const file = e;
+    const reader = new FileReader();
+
+    if (file.length > 1) {
+      alert("Please select a single file to load");
+      return;
+    }
+
+    reader.addEventListener("load", () => {
+      const loadedFile = JSON.parse(reader.result);
+      dispatch(importFile(loadedFile))
+    }, false);
+    reader.readAsText(file);
+  }
+
+  const dataItems = userData.map((data, i) =>
+    <Box
+      gridColumn="span 3"
+      backgroundColor={colors.primary[400]}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <StatBox
+        title={`${data.id}`}
+      />
+    </Box>
+  )
+
+  return (
+    <Box m="15px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
-        <Box>
+        <Box display="flex" flexDirection="column" justifyContent="space-around" alignItems="center" p="5px">
+          <MuiFileInput placeholder="Insert a file" onChange={fileLoad} />
           <Button
             sx={{
               backgroundColor: colors.blueAccent[700],
               color: colors.grey[100],
               fontSize: "14px",
               fontWeight: "bold",
-              padding: "10px 20px",
+              padding: "10px 78px",
+            }}
+            onClick={() => {
+              dispatch(exportFile());
             }}
           >
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
+            Export User Data
           </Button>
         </Box>
       </Box>
@@ -48,125 +104,26 @@ const Dashboard = () => {
       >
         {/* ROW 1 */}
         <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
           display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
-            progress="0.75"
-            increase="+14%"
-            icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
+          gridColumn="span 12"
+          gridRow="span 1"
+          overflow="auto">
+          {dataItems}
         </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
-            icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="32,441"
-            subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
-            icon={
-              <PersonAddIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
-            progress="0.80"
-            increase="+43%"
-            icon={
-              <TrafficIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
+
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
+          gridColumn="span 12"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
         >
-          <Box
-            mt="25px"
-            p="0 30px"
-            display="flex "
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.grey[100]}
-              >
-                Revenue Generated
-              </Typography>
-              <Typography
-                variant="h3"
-                fontWeight="bold"
-                color={colors.greenAccent[500]}
-              >
-                $59,342.32
-              </Typography>
-            </Box>
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
-              </IconButton>
-            </Box>
-          </Box>
-          <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
+          <Box height="100%" m="-20px 10px">
+            {<LineChart isDashboard={true} />}
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
+          gridColumn="span 9"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
@@ -177,10 +134,11 @@ const Dashboard = () => {
             alignItems="center"
             borderBottom={`4px solid ${colors.primary[500]}`}
             colors={colors.grey[100]}
-            p="15px"
+            p="5px"
           >
-            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Recent Transactions
+            <Typography color={colors.grey[100]} variant="h4"
+              fontWeight="bold">
+              RECENT ACTIVITY
             </Typography>
           </Box>
           {mockTransactions.map((transaction, i) => (
@@ -218,46 +176,76 @@ const Dashboard = () => {
 
         {/* ROW 3 */}
         <Box
-          gridColumn="span 4"
+          gridColumn="span 3"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
-          p="30px"
-        >
-          <Typography variant="h5" fontWeight="600">
-            Campaign
-          </Typography>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            mt="25px"
-          >
-            <ProgressCircle size="125" />
-            <Typography
-              variant="h5"
-              color={colors.greenAccent[500]}
-              sx={{ mt: "15px" }}
-            >
-              $48,352 revenue generated
-            </Typography>
-            <Typography>Includes extra misc expenditures and costs</Typography>
-          </Box>
-        </Box>
-        <Box
-          gridColumn="span 8"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
+          p="10px"
         >
           <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
+            variant="h4"
+            fontWeight="bold"
+            textAlign="center"
+            m="10px"
+            sx={{ color: colors.grey[100] }}
           >
-            Sales Quantity
+            ADD NEW METRIC
           </Typography>
-          <Box height="250px" mt="-20px">
-            <BarChart isDashboard={true} />
-          </Box>
+          <Formik
+            onSubmit={newMetric}
+            initialValues={initialValues}
+            validationSchema={userSchema}
+          >
+            {({ values, errors, touched, handleBlur, handleChange, handleSubmit }) => (
+              <form onSubmit={handleSubmit}>
+                <Box
+                  display="grid">
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Metric Name"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.metric}
+                    name="metric"
+                    error={!!touched.metric && !!errors.metric}
+                    helperText={touched.metric && errors.metric}
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Time Logged"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.x}
+                    name="x"
+                    error={!!touched.x && !!errors.x}
+                    helperText={touched.x && errors.x}
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Value"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.y}
+                    name="y"
+                    error={!!touched.y && !!errors.y}
+                    helperText={touched.y && errors.y}
+                    sx={{ gridColumn: "span 1" }}
+                  />
+                  <Button type="submit" color="secondary" variant="contained">
+                    Track New Metric
+                  </Button>
+                </Box>
+              </form>
+            )}
+
+          </Formik>
         </Box>
       </Box>
     </Box>

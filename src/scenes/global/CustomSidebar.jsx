@@ -3,14 +3,8 @@ import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import { tokens } from "../../theme";
+import { useSelector } from "react-redux";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 
@@ -35,11 +29,22 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 };
 
 const CustomSidebar = () => {
-
+    const userData = useSelector((state) => state.userData.metrics);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState('Dashboard');
+
+    const dataItems = userData.map((data, i) =>
+        <Item
+            key={`${i}`}
+            title={`${data.id}`}
+            to={`/chart/${i}`}
+            icon={<TimelineOutlinedIcon />}
+            selected={selected}
+            setSelected={setSelected}
+        />
+    )
 
     return (
         <Box
@@ -50,28 +55,6 @@ const CustomSidebar = () => {
                 top: 0,
                 bottom: 0,
                 zIndex: 10000,
-                //   "& .sidebar": {
-                //     border: "none",
-                //   },
-                //   "& .menu-icon": {
-                //     backgroundColor: "transparent !important",
-                //   },
-                //   "& .menu-item": {
-                //     // padding: "5px 35px 5px 20px !important",
-                //     backgroundColor: "transparent !important",
-                //   },
-                //   "& .menu-anchor": {
-                //     color: "inherit !important",
-                //     backgroundColor: "transparent !important",
-                //   },
-                //   "& .menu-item:hover": {
-                //     color: `${colors.blueAccent[500]} !important`,
-                //     backgroundColor: "transparent !important",
-                //   },
-                //   "& .menu-item.active": {
-                //     color: `${colors.greenAccent[500]} !important`,
-                //     backgroundColor: "transparent !important",
-                //   },
             }}
         >
             <Sidebar collapsed={isCollapsed} backgroundColor={colors.primary[400]}>
@@ -85,7 +68,6 @@ const CustomSidebar = () => {
                                     "&:hover": {
                                         backgroundColor: "#335B8C !important",
                                         color: "white !important",
-                                        //  borderRadius: "8px !important",
                                         fontWeight: "bold !important"
                                     },
                                 };
@@ -161,79 +143,7 @@ const CustomSidebar = () => {
                         >
                             Data
                         </Typography>
-                        <Item
-                            title="Manage Team"
-                            to="/team"
-                            icon={<PeopleOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Contacts Information"
-                            to="/contacts"
-                            icon={<ContactsOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Invoices Balances"
-                            to="/invoices"
-                            icon={<ReceiptOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-
-                        <Typography
-                            variant="h6"
-                            color={colors.grey[300]}
-                            sx={{ m: "15px 0 5px 20px" }}
-                        >
-                            Pages
-                        </Typography>
-                        <Item
-                            title="Profile Form"
-                            to="/form"
-                            icon={<PersonOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Calendar"
-                            to="/calendar"
-                            icon={<CalendarTodayOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="FAQ Page"
-                            to="/faq"
-                            icon={<HelpOutlineOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-
-                        <Typography
-                            variant="h6"
-                            color={colors.grey[300]}
-                            sx={{ m: "15px 0 5px 20px" }}
-                        >
-                            Charts
-                        </Typography>
-                        <Item
-                            title="Bar Chart"
-                            to="/bar"
-                            icon={<BarChartOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Line Chart"
-                            to="/line"
-                            icon={<TimelineOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-
+                        {dataItems}
                     </Box>
                 </Menu>
             </Sidebar>

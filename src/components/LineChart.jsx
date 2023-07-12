@@ -1,16 +1,25 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import { useSelector } from "react-redux"
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const userData = useSelector((state) => state.userData.habits);
- 
+  const userData = useSelector((state) => state.userData.metrics);
+  const dataId = []
+  const params = useParams();
+  const chartId = parseInt(params.id);
+  
+  if (!isDashboard) {
+    dataId.push(userData[chartId]);
+  } else {
+    dataId.push(userData);
+  }
   return (
     <ResponsiveLine
-      data={userData}
+      data={isDashboard ? userData : dataId}
       theme={{
         axis: {
           domain: {
@@ -51,7 +60,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         type: "linear",
         min: "auto",
         max: "auto",
-        stacked: true,
+        stacked: false,
         reverse: false,
       }}
       yFormat=" >-.2f"
@@ -72,7 +81,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         tickSize: 3,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "Words Written", // added
+        legend: "", // added
         legendOffset: -40,
         legendPosition: "middle",
       }}

@@ -1,11 +1,14 @@
+import { useEffect, useState } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import { Formik } from "formik";
-import { useSelector, useDispatch } from "react-redux"
+import { useSelector, useDispatch } from "react-redux";
+import { useParams, Link } from "react-router-dom";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import { addDate, replaceDate } from "../../store/userDataSlice";
+import { tokens } from "../../theme";
+import { addDate, saveFile } from "../../store/userDataSlice";
 
 const currentDate = (new Date()).toLocaleDateString('en-US', {
     day: '2-digit',
@@ -14,28 +17,29 @@ const currentDate = (new Date()).toLocaleDateString('en-US', {
 });
 
 const initialValues = {
-    // id: "",
     x: `${currentDate}`,
     y: 0,
-    // data: "",
+    
 };
 
 const userSchema = yup.object().shape({
-    // id: yup.string().required("required"),
     x: yup.date().required("required"),
     y: yup.string().required("required"),
-    // data: yup.string().required("required")
 });
 
 const ChartPage = () => {
-    // const userData = useSelector((state) => state.userData.habits);
+    const params = useParams();
+    const chartId = parseInt(params.id);
+    const userData = useSelector((state) => state.userData.metrics);
+    const selectionId = userData[chartId];
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
     const handleFormSubmit = (values) => {
-            dispatch(addDate(values))
+        dispatch(addDate({values: values, selectionId: selectionId}));
+        dispatch(saveFile());
     };
-
+    
     return (
         <Box m="20px">
             <Header title="LINE CHART" subtitle="Simple Line Chart" />
@@ -57,19 +61,6 @@ const ChartPage = () => {
                                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                                     }}
                                 >
-                                    {/* <TextField
-                                        fullWidth
-                                        variant="filled"
-                                        type="text"
-                                        label="Type of Habit"
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        value={values.id}
-                                        name="id"
-                                        error={!!touched.id && !!errors.id}
-                                        helperText={touched.id && errors.id}
-                                        sx={{ gridColumn: "span 1" }}
-                                    /> */}
                                     <TextField
                                         fullWidth
                                         variant="filled"
@@ -96,20 +87,6 @@ const ChartPage = () => {
                                         helperText={touched.y && errors.y}
                                         sx={{ gridColumn: "span 1" }}
                                     />
-                                    {/* <TextField
-                                        fullWidth
-                                        variant="filled"
-                                        type="text"
-                                        label="Value"
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        value={values.data}
-                                        name="data"
-                                        error={!!touched.data && !!errors.data}
-                                        helperText={touched.data && errors.data}
-                                        sx={{ gridColumn: "span 1" }}
-                                    /> */}
-
                                     <Button type="submit" color="secondary" variant="contained">
                                         Add Measurement
                                     </Button>
