@@ -27,7 +27,6 @@ const StatBox = ({ title }) => {
     const initialValues = {
         x: `${currentDate}`,
         y: 0,
-
     };
 
     const userSchema = yup.object().shape({
@@ -42,10 +41,10 @@ const StatBox = ({ title }) => {
     };
 
     return (
-        <Box width="350px" height="100%" m="30px">
+        <Box width="350px" height="100%" m="10px">
             <Box m="10px">
                 <Typography
-                    variant="h4"
+                    variant="h5"
                     fontWeight="bold"
                     textAlign="center"
                     sx={{ color: colors.grey[100] }}

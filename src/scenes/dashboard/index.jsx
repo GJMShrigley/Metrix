@@ -9,13 +9,17 @@ import { Formik } from "formik";
 import { useDispatch, useSelector } from "react-redux"
 import { addMetric, saveFile, exportFile, importFile } from "../../store/userDataSlice";
 import * as yup from "yup";
+import * as moment from "moment";
 import { MuiFileInput } from 'mui-file-input'
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const userData = useSelector((state) => state.userData.metrics);
+  const userActivity = useSelector((state) => state.userData.dates);
   const dispatch = useDispatch();
+  const [recentActivity, setRecentActivity] = useState([{ x: 0, 0: { y: 0, id: "" } }])
 
   const currentDate = (new Date()).toLocaleDateString('en-US', {
     day: '2-digit',
@@ -56,19 +60,76 @@ const Dashboard = () => {
     reader.readAsText(file);
   }
 
-  const dataItems = userData.map((data, i) =>
+  const inputItems = userData.map((data, i) =>
     <Box
       gridColumn="span 3"
       backgroundColor={colors.primary[400]}
       display="flex"
       alignItems="center"
       justifyContent="center"
+      key={`${data.id}`}
     >
       <StatBox
         title={`${data.id}`}
+        key={`${data.id}`}
       />
     </Box>
   )
+
+  const activity = recentActivity.map((date, i) => {
+    const entries = Object.entries(date);
+
+    const data = entries.map((metric, i) => {
+      return (
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%">
+          <Typography color={colors.grey[100]}>
+            {metric[1].id}
+          </Typography>
+          <Typography
+            color={colors.greenAccent[500]}
+            variant="h5"
+            fontWeight="600"
+          >
+            {metric[1].y}
+          </Typography>
+        </Box>
+      )
+    });
+
+    return (
+      <Box
+        key={`${date.x}`}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        borderBottom={`4px solid ${colors.primary[500]}`}
+        p="15px"
+        width="100%"
+      >
+        <Typography
+          color={colors.greenAccent[500]}
+          variant="h5"
+          fontWeight="600"
+          m="0 30px 0 0"
+        >
+          {date.x}
+        </Typography>
+        <Box
+          width="100%">
+          {data}
+        </Box>
+      </Box >)
+  });
+
+  useEffect(() => {
+    let activityCopy = [...userActivity];
+    activityCopy.reverse();
+    setRecentActivity(activityCopy);
+  }, [userActivity])
 
   return (
     <Box m="15px">
@@ -103,14 +164,6 @@ const Dashboard = () => {
         gap="20px"
       >
         {/* ROW 1 */}
-        <Box
-          display="flex"
-          gridColumn="span 12"
-          gridRow="span 1"
-          overflow="auto">
-          {dataItems}
-        </Box>
-
 
         {/* ROW 2 */}
         <Box
@@ -123,60 +176,33 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 9"
+          gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
         >
           <Box
             display="flex"
-            justifyContent="space-between"
+            justifyContent="center"
             alignItems="center"
             borderBottom={`4px solid ${colors.primary[500]}`}
             colors={colors.grey[100]}
             p="5px"
           >
-            <Typography color={colors.grey[100]} variant="h4"
-              fontWeight="bold">
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              m="10px"
+              sx={{ color: colors.grey[100] }}
+            >
               RECENT ACTIVITY
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
-            <Box
-              key={`${transaction.txId}-${i}`}
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px"
-            >
-              <Box>
-                <Typography
-                  color={colors.greenAccent[500]}
-                  variant="h5"
-                  fontWeight="600"
-                >
-                  {transaction.txId}
-                </Typography>
-                <Typography color={colors.grey[100]}>
-                  {transaction.user}
-                </Typography>
-              </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
-              <Box
-                backgroundColor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                ${transaction.cost}
-              </Box>
-            </Box>
-          ))}
+          {activity}
         </Box>
-
         {/* ROW 3 */}
         <Box
-          gridColumn="span 3"
+          gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="10px"
@@ -244,8 +270,26 @@ const Dashboard = () => {
                 </Box>
               </form>
             )}
-
           </Formik>
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          gridColumn="span 4"
+          gridRow="span 2"
+          overflow="auto"
+          backgroundColor={colors.primary[400]}
+        >
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            textAlign="center"
+            m="10px"
+            sx={{ color: colors.grey[100] }}
+          >
+            UPDATE METRIC
+          </Typography>
+          {inputItems}
         </Box>
       </Box>
     </Box>

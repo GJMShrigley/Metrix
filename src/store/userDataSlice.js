@@ -16,6 +16,7 @@ const initialState = {
             y: 0
         }]
     }],
+    dates: [],
     status: "idle",
     error: null,
 };
@@ -28,12 +29,14 @@ const userDataSlice = createSlice({
             for (let i = 0; i < state.metrics.length; i++) {
                 if (state.metrics[i].id === action.payload.selectionId.id) {
                     let dataCopy = [...current(state.metrics[i].data)];
-                    let lastDate = dataCopy.at(-1).x;
+                    const lastDate = dataCopy.at(-1).x;
+                    const firstDate = dataCopy.at(0).x;
 
                     const yesterdayDate = moment(currentDate).subtract(1, "days").format("MM/DD/YYYY");
                     const futureDate = moment(action.payload.values.x).isAfter(currentDate);
-                    
-                    if (futureDate) {
+                    const pastDate = moment(action.payload.values.x).isBefore(firstDate);
+
+                    if (futureDate || pastDate) {
                         return
                     }
 
@@ -66,6 +69,7 @@ const userDataSlice = createSlice({
                     } else {
                         addCurrentDate();
                     }
+                    state.metrics[i].color = action.payload.color;
                 }
             }
         },
@@ -101,7 +105,7 @@ const userDataSlice = createSlice({
             if (futureDate) {
                 return
             }
-            
+
             const newMetric = {
                 id: action.payload.metric,
                 color: tokens("dark").redAccent[100],
@@ -111,11 +115,43 @@ const userDataSlice = createSlice({
                 }]
             }
             state.metrics.push(newMetric)
+        },
+        activity: (state, action) => {
+            const dataCopy = [...current(state.metrics)];
+            const startDate = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
+            const endDate = currentDate;
+            let activityDate = startDate;
+            let activityData = [];
+            let activityObj = {};
+
+            function combineDates() {
+                for (let i = 0; i < dataCopy.length; i++) {
+                    const metricCopy = [dataCopy[i].data];
+                    metricCopy[0].filter(obj => {
+                        if (obj.x === activityDate) {
+                            const newObj = {
+                                y: obj.y,
+                                id: dataCopy[i].id
+                            }
+                            activityData.push(newObj)
+                        }
+                    });
+                };
+                activityObj = { x: activityDate, ...activityData };
+                state.dates.push(activityObj)
+                activityData = []
+            }
+
+            while (state.dates.length < 7) {
+                combineDates();
+                activityDate = moment(activityDate).add(1, "days").format("MM/DD/YYYY");
+            }
+            state.dates.reverse();
         }
     }
 });
 
-export const { addDate, saveFile, loadFile, exportFile, importFile, addMetric } = userDataSlice.actions;
+export const { addDate, saveFile, loadFile, exportFile, importFile, addMetric, activity } = userDataSlice.actions;
 
 
 export default userDataSlice

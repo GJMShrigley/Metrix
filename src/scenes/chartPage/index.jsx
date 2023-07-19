@@ -9,6 +9,7 @@ import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
 import { tokens } from "../../theme";
 import { addDate, saveFile } from "../../store/userDataSlice";
+import { HexColorPicker } from "react-colorful";
 
 const currentDate = (new Date()).toLocaleDateString('en-US', {
     day: '2-digit',
@@ -19,7 +20,7 @@ const currentDate = (new Date()).toLocaleDateString('en-US', {
 const initialValues = {
     x: `${currentDate}`,
     y: 0,
-    
+
 };
 
 const userSchema = yup.object().shape({
@@ -34,18 +35,19 @@ const ChartPage = () => {
     const selectionId = userData[chartId];
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const [color, setColor] = useState("#aabbcc");
 
     const handleFormSubmit = (values) => {
-        dispatch(addDate({values: values, selectionId: selectionId}));
+        dispatch(addDate({ values: values, selectionId: selectionId, color: color }));
         dispatch(saveFile());
     };
-    
+
     return (
-        <Box m="20px">
+        <Box ml="20px">
             <Header title="LINE CHART" subtitle="Simple Line Chart" />
-            <Box height="75vh">
+            <Box height="67vh">
                 <LineChart />
-                <Box>
+                <Box sx={{ "& > .react-colorful": { marginTop: "10px", width: "90%", height: "70px"}}}>
                     <Formik
                         onSubmit={handleFormSubmit}
                         initialValues={initialValues}
@@ -55,10 +57,10 @@ const ChartPage = () => {
                             <form onSubmit={handleSubmit}>
                                 <Box
                                     display="grid"
-                                    gap="30px"
+                                    gap="20px"
                                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                                     sx={{
-                                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4"}
                                     }}
                                 >
                                     <TextField
@@ -87,13 +89,15 @@ const ChartPage = () => {
                                         helperText={touched.y && errors.y}
                                         sx={{ gridColumn: "span 1" }}
                                     />
-                                    <Button type="submit" color="secondary" variant="contained">
+                                    <Button type="submit" color="secondary" variant="contained" sx={{ gridColumn: "span 1" }}>
                                         Add Measurement
                                     </Button>
+                                    
                                 </Box>
                             </form>
                         )}
                     </Formik>
+                    <HexColorPicker color={color} onChange={setColor} />
                 </Box>
             </Box>
         </Box>
