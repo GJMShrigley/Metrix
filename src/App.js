@@ -6,9 +6,11 @@ import Topbar from "./scenes/global/Topbar";
 import CustomSidebar from "./scenes/global/CustomSidebar";
 import Dashboard from "./scenes/dashboard";
 import ChartPage from "./scenes/chartPage";
+import CategoryPage from "./scenes/categoryPage";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import LayoutPage from "./scenes/layout";
+import ActivityPage from "./scenes/activityPage/activity";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -27,6 +29,8 @@ function App() {
                 <Route path="/" element={<LayoutPage />} >
                   <Route index element={<Dashboard />} />
                   <Route path="/chart/:id" element={<ChartPage />}  loader={({ params }) => { console.log(params.id); }} action={({ params }) => { }} />
+                  <Route path="/category/:id" element={<CategoryPage />}  loader={({ params }) => { console.log(params.id); }} action={({ params }) => { }} />
+                  <Route path="/activity/:id" element={<ActivityPage />}  loader={({ params }) => { console.log(params.id); }} action={({ params }) => { }} />
                 </Route>
               </Routes>
             </main>

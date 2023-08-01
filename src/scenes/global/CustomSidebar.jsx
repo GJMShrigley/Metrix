@@ -7,6 +7,8 @@ import { useSelector } from "react-redux";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ClassIcon from '@mui/icons-material/Class';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
     const theme = useTheme();
@@ -15,6 +17,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     return (
         <Link to={to} style={{ textDecoration: 'none' }}>
             <MenuItem
+                to={to}
                 active={selected === title}
                 style={{
                     color: colors.grey[100],
@@ -29,11 +32,25 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 };
 
 const CustomSidebar = () => {
+    const userCategories = useSelector((state) => state.userData.categories);
     const userData = useSelector((state) => state.userData.metrics);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState('Dashboard');
+
+    const categoryItems = userCategories.map((category, i) => {
+        return (
+        <Item
+            key={`${i}`}
+            title={`${category.categoryId}`}
+            to={`/category/${i}`}
+            icon={<ClassIcon />}
+            selected={selected}
+            setSelected={setSelected}
+        />
+        )
+    })
 
     const dataItems = userData.map((data, i) =>
         <Item
@@ -98,13 +115,15 @@ const CustomSidebar = () => {
                     {!isCollapsed && (
                         <Box mb="25px">
                             <Box display="flex" justifyContent="center" alignItems="center">
-                                <img
+                                <AccountCircleIcon
+                                    fontSize="large" />
+                                {/* <img
                                     alt="profile-user"
                                     width="100px"
                                     height="100px"
                                     src={`../../assets/user.png`}
                                     style={{ cursor: "pointer", borderRadius: "50%" }}
-                                />
+                                /> */}
                             </Box>
                             <Box textAlign="center">
                                 <Typography
@@ -126,6 +145,7 @@ const CustomSidebar = () => {
                     )}
 
                     {/* MENU ITEMS */}
+
                     <Box paddingLeft={isCollapsed ? undefined : "10%"}>
                         <Item
                             title="Dashboard"
@@ -134,14 +154,22 @@ const CustomSidebar = () => {
                             selected={selected}
                             setSelected={setSelected}
                         />
-
                         <Typography
                             variant="h6"
                             color={colors.grey[300]}
 
                             sx={{ m: "15px 0 5px 20px" }}
                         >
-                            Data
+                            Categories
+                        </Typography>
+                        {categoryItems}
+                        <Typography
+                            variant="h6"
+                            color={colors.grey[300]}
+
+                            sx={{ m: "15px 0 5px 20px" }}
+                        >
+                            Metrics
                         </Typography>
                         {dataItems}
                     </Box>

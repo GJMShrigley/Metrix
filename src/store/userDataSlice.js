@@ -2,19 +2,24 @@ import { createSlice, current } from "@reduxjs/toolkit";
 import { tokens } from "../theme";
 import FileSaver from 'file-saver';
 import * as moment from "moment";
-import Cookies from 'universal-cookie';
+import Cookies from "universal-cookie";
 
 let currentDate = (new Date())
 currentDate = moment(currentDate).format("MM/DD/YYYY");
 
 const initialState = {
+    categories: [{
+        categoryId: "default category",
+        contents: ["Concentration"]
+    }],
     metrics: [{
         id: "default data",
         color: tokens("dark").redAccent[100],
         data: [{
             x: `${currentDate}`,
             y: 0
-        }]
+        }], 
+        type: "Scale"
     }],
     dates: [],
     status: "idle",
@@ -27,7 +32,8 @@ const userDataSlice = createSlice({
     reducers: {
         addDate: (state, action) => {
             for (let i = 0; i < state.metrics.length; i++) {
-                if (state.metrics[i].id === action.payload.selectionId.id) {
+                state.metrics[i].type = action.payload.type
+                if (state.metrics[i].id === action.payload.selectedMetric) {
                     let dataCopy = [...current(state.metrics[i].data)];
                     const lastDate = dataCopy.at(-1).x;
                     const firstDate = dataCopy.at(0).x;
@@ -73,29 +79,53 @@ const userDataSlice = createSlice({
                 }
             }
         },
+        changeTitle: (state, action) => {
+            if (action.payload.isCategory) {
+                for (let i = 0; i < state.categories.length; i++) {
+                    if (state.categories[i].categoryId === action.payload.selectionId) {
+                        state.categories[i].categoryId = action.payload.values
+                    }
+                }
+            } else {
+                for (let i = 0; i < state.metrics.length; i++) {
+                    if (state.metrics[i].id === action.payload.selectionId) {
+                        state.metrics[i].id = action.payload.values
+                    }
+                }
+                for (let i = 0; i < state.categories.length; i++) {
+                    const match = current(state.categories[i].contents).find(data => data === action.payload.selectionId);
+                    const index = state.categories[i].contents.indexOf(match)
+                    if (index != -1) {
+                        state.categories[i].contents[index] = action.payload.values;
+                    }
+                }
+            };
+        },
         saveFile: (state, action) => {
-            const fileContents = JSON.stringify(current(state.metrics));
-            const cookies = new Cookies();
-            cookies.set("userData", fileContents, { path: '/' });
+            const fileContents = JSON.stringify(current(state));
+            localStorage.setItem("userData", fileContents)
         },
         loadFile: (state, action) => {
-            const cookies = new Cookies();
-            const userData = cookies.get("userData");
+            const userData = JSON.parse(localStorage.getItem("userData"))
 
             if (userData) {
-                state.metrics = userData;
+                state.metrics = userData.metrics;
+                state.categories = userData.categories;
             } else {
                 console.log("no user data found")
             }
         },
         exportFile: (state, action) => {
-            const fileContents = JSON.stringify(current(state.metrics));
+            const fileContents = JSON.stringify(current(state));
             const file = new File([fileContents], "userData.txt", { type: "text/plain;charset=utf-8" });
             FileSaver.saveAs(file);
         },
         importFile: (state, action) => {
-            state.metrics = action.payload;
-
+            const newState = action.payload
+            state.metrics = newState.metrics;
+            state.categories = newState.categories;
+            const fileContents = JSON.stringify(current(state));
+            localStorage.setItem("userData", fileContents);
         },
         addMetric: (state, action) => {
             let currentDate = (new Date())
@@ -116,7 +146,7 @@ const userDataSlice = createSlice({
             }
             state.metrics.push(newMetric)
         },
-        activity: (state, action) => {
+        recentActivity: (state, action) => {
             const dataCopy = [...current(state.metrics)];
             const startDate = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
             const endDate = currentDate;
@@ -147,11 +177,45 @@ const userDataSlice = createSlice({
                 activityDate = moment(activityDate).add(1, "days").format("MM/DD/YYYY");
             }
             state.dates.reverse();
+        },
+        deleteMetric: (state, action) => {
+            for (let i = 0; i < state.metrics.length; i++) {
+                if (state.metrics[i].id === action.payload) {
+                    state.metrics.splice(i, 1)
+                }
+            }
+        },
+        deleteAll: (state, action) => {
+            state = initialState
+        },
+        addCategory: (state, action) => {
+            const newCategory = {
+                categoryId: action.payload,
+                contents: []
+            }
+            state.categories.push(newCategory)
+        },
+        addMetricToCategory: (state, action) => {
+            const metricsCopy = [...current(state.metrics)];
+            const selectionIds = [...action.payload.selectionValues];
+            const categoryId = action.payload.categoryId;
+            let categoryCopy = [...current(state.categories[categoryId].contents)];
+
+            selectionIds.forEach(selection => {
+                const found = categoryCopy.includes(metricsCopy[selection].id);
+
+                if (found) {
+                    const index = categoryCopy.findIndex((element) => (element === metricsCopy[selection].id))
+                    categoryCopy.splice(index, 1)
+                } else {
+                    categoryCopy.push(metricsCopy[selection].id);
+                }
+                state.categories[categoryId].contents = categoryCopy;
+            });
         }
     }
 });
 
-export const { addDate, saveFile, loadFile, exportFile, importFile, addMetric, activity } = userDataSlice.actions;
-
+export const { addDate, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteAll, addCategory, addMetricToCategory } = userDataSlice.actions;
 
 export default userDataSlice

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { Formik } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, Link } from "react-router-dom";
@@ -10,6 +10,7 @@ import LineChart from "../../components/LineChart";
 import { tokens } from "../../theme";
 import { addDate, saveFile } from "../../store/userDataSlice";
 import { HexColorPicker } from "react-colorful";
+import { type } from "@testing-library/user-event/dist/type";
 
 const currentDate = (new Date()).toLocaleDateString('en-US', {
     day: '2-digit',
@@ -20,7 +21,6 @@ const currentDate = (new Date()).toLocaleDateString('en-US', {
 const initialValues = {
     x: `${currentDate}`,
     y: 0,
-
 };
 
 const userSchema = yup.object().shape({
@@ -32,22 +32,41 @@ const ChartPage = () => {
     const params = useParams();
     const chartId = parseInt(params.id);
     const userData = useSelector((state) => state.userData.metrics);
-    const selectionId = userData[chartId];
+    const selectedMetric = userData[chartId];
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const [color, setColor] = useState("#aabbcc");
+    const [color, setColor] = useState("#0000");
+    const [typeSelection, setTypeSelection] = useState("Scale");
+
+    useEffect(() => {
+        for (let i = 0; i < userData.length; i++) {
+            if (i === chartId) {
+                setColor(userData[i].color)
+            }
+        }
+    }, [userData, params]);
+
+    const handleTypeChange = (value) => {
+        const newValue = value.target.value
+        setTypeSelection(newValue);
+    }
 
     const handleFormSubmit = (values) => {
-        dispatch(addDate({ values: values, selectionId: selectionId, color: color }));
+        dispatch(addDate({ values: values, selectedMetric: selectedMetric.id, color: color, type: typeSelection }));
         dispatch(saveFile());
     };
 
     return (
         <Box ml="20px">
-            <Header title="LINE CHART" subtitle="Simple Line Chart" />
+            <Header title={selectedMetric.id} subtitle="" />
             <Box height="67vh">
-                <LineChart />
-                <Box sx={{ "& > .react-colorful": { marginTop: "10px", width: "90%", height: "70px"}}}>
+                <LineChart dataType="metric" measurementType={selectedMetric.type} />
+                <Box sx={{
+                    "& > .react-colorful": { marginTop: "10px", width: "75%", height: "50px" },
+                    ".react-colorful__saturation": { height: "100%", position: "relative", top: "30%" },
+                    ".react-colorful__hue": { height: "100%" },
+                    ".react-colorful__hue-pointer, .react-colorful__saturation-pointer": { width: "25px", height: "25px" }
+                }}>
                     <Formik
                         onSubmit={handleFormSubmit}
                         initialValues={initialValues}
@@ -60,7 +79,7 @@ const ChartPage = () => {
                                     gap="20px"
                                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                                     sx={{
-                                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4"}
+                                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
                                     }}
                                 >
                                     <TextField
@@ -89,10 +108,26 @@ const ChartPage = () => {
                                         helperText={touched.y && errors.y}
                                         sx={{ gridColumn: "span 1" }}
                                     />
+                                    <FormControl fullWidth >
+                                        <InputLabel>Select Measurement Type</InputLabel>
+                                        <Select
+                                            id="type"
+                                            name="type"
+                                            label="type"
+                                            onChange={handleTypeChange}
+                                            value={typeSelection}
+                                        >
+                                              <MenuItem value={"Scale"}>Scale</MenuItem>
+                                              <MenuItem value={"Number"}>Number</MenuItem>
+                                              <MenuItem value={"Minutes"}>Minutes</MenuItem>
+                                              <MenuItem value={"Hours"}>Hours</MenuItem>
+                                              <MenuItem value={"Percentage"}>Percentage</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                     <Button type="submit" color="secondary" variant="contained" sx={{ gridColumn: "span 1" }}>
                                         Add Measurement
                                     </Button>
-                                    
+
                                 </Box>
                             </form>
                         )}

@@ -3,23 +3,70 @@ import { useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
-const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
+const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const userData = useSelector((state) => state.userData.metrics);
-  const dataId = []
   const params = useParams();
   const chartId = parseInt(params.id);
-  
-  if (!isDashboard) {
-    dataId.push(userData[chartId]);
-  } else {
-    dataId.push(userData);
+  const userData = useSelector((state) => state.userData);
+  const metricsArray = userData.metrics;
+  const categoryArray = userData.categories[chartId];
+  const activityDate = userData.dates[chartId];
+  let chartData = [];
+  let maxY;
+
+  switch (props.dataType) {
+    case "dashboard":
+      chartData.push(...metricsArray);
+      break;
+    case "category":
+      for (let i = 0; i < categoryArray.contents.length; i++) {
+        const metricsMatch = metricsArray.find(data => data.id === categoryArray.contents[i]);
+        chartData.push(metricsMatch)
+      }
+      break;
+    case "metric":
+      chartData.push(metricsArray[params.id])
+      break;
+    case "date":
+      let dateArray = [];
+      metricsArray.map((metric, i) => {
+        for (let i = 0; i < metric.data.length; i++) {
+          if (metric.data[i].x === activityDate.x) {
+            let tempArray = [];
+            tempArray.push(metric.data.slice(i - 1, i + 2))
+            const temp = tempArray.reduce((temp, data) => ({ ...metricsArray, data: temp }))
+            dateArray.push({ ...metric, data: [...temp] })
+          }
+        }
+      })
+      chartData = dateArray
+      break;
   }
+
+  switch (props.measurementType) {
+    case "Scale":
+      maxY = 10;
+      break;
+    case "Number":
+      maxY = Math.max(...chartData[0].data.map(o => o.y), 0);
+      break;
+    case "Percentage":
+      maxY = 100;
+      break;
+    case "Minutes":
+      maxY = 60;
+      break;
+    case "Hours":
+      maxY = 24;
+      break;
+  }
+
   return (
     <ResponsiveLine
-      data={isDashboard ? userData : dataId}
+      data={chartData}
       theme={{
         axis: {
           domain: {
@@ -53,13 +100,14 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
           },
         },
       }}
-      colors={isDashboard ? { datum: "color" } : { datum: "color" }} // added
+      colors={props.dataType ? { datum: "color" } : { datum: "color" }} // added
       margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+
       xScale={{ type: "point" }}
       yScale={{
         type: "linear",
-        min: "auto",
-        max: "auto",
+        min: 0,
+        max: maxY,
         stacked: false,
         reverse: false,
       }}
@@ -71,7 +119,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         tickSize: 0,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "Date", // added
+        legend: "Date", // added
         legendOffset: 36,
         legendPosition: "middle",
       }}
@@ -92,6 +140,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
       pointLabelYOffset={-12}
       useMesh={true}
       legends={[
+
         {
           anchor: "bottom-right",
           direction: "column",
@@ -112,7 +161,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
               style: {
                 itemBackground: "rgba(0, 0, 0, .03)",
                 itemOpacity: 1,
-              },
+              }
             },
           ],
         },
