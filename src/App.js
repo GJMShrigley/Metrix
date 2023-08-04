@@ -10,7 +10,7 @@ import CategoryPage from "./scenes/categoryPage";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import LayoutPage from "./scenes/layout";
-import ActivityPage from "./scenes/activityPage/activity";
+import ActivityPage from "./scenes/activityPage";
 
 function App() {
   const [theme, colorMode] = useMode();

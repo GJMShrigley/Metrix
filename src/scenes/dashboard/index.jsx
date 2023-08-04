@@ -90,13 +90,13 @@ const Dashboard = () => {
 
   const activity = recentActivity.map((date, i) => {
     const entries = Object.entries(date);
-    const dateString = date.x.toString().split('/').join('')
 
     return (
       <Link 
       to={`/activity/${i}`} 
       style={{ textDecoration: 'none'}}
-      state={{i}}
+      state={{startDate: date.x}}
+      key={`${i}`}
       >
         <Box
           key={`${date.x}`}
@@ -171,7 +171,7 @@ const Dashboard = () => {
           backgroundColor={colors.primary[400]}
         >
           <Box height="100%" m="10px 10px">
-            {<LineChart dataType="dashboard" />}
+            {<LineChart dataType="dashboard" chartData={userData} />}
           </Box>
         </Box>
         {/* ROW 2 */}

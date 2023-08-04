@@ -45,7 +45,6 @@ const StatBox = ({ title, lineColor }) => {
                     fontWeight="bold"
                     textAlign="center"
                     overflow="hidden"
-                    overflowWrap=""
                     sx={{ color: colors.grey[100] }}
                 >
                     {title}

@@ -4,64 +4,29 @@ import { tokens } from "../theme";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const params = useParams();
   const chartId = parseInt(params.id);
+  const location = useLocation().state
   const userData = useSelector((state) => state.userData);
   const metricsArray = userData.metrics;
   const categoryArray = userData.categories[chartId];
-  const activityDate = userData.dates[chartId];
-  let chartData = [];
-  let maxY;
-
-  switch (props.dataType) {
-    case "dashboard":
-      chartData.push(...metricsArray);
-      break;
-    case "category":
-      for (let i = 0; i < categoryArray.contents.length; i++) {
-        const metricsMatch = metricsArray.find(data => data.id === categoryArray.contents[i]);
-        chartData.push(metricsMatch)
-      }
-      break;
-    case "metric":
-      chartData.push(metricsArray[params.id])
-      break;
-    case "date":
-      let dateArray = [];
-      metricsArray.map((metric, i) => {
-        for (let i = 0; i < metric.data.length; i++) {
-          if (metric.data[i].x === activityDate.x) {
-            let tempArray = [];
-            tempArray.push(metric.data.slice(i - 1, i + 2))
-            const temp = tempArray.reduce((temp, data) => ({ ...metricsArray, data: temp }))
-            dateArray.push({ ...metric, data: [...temp] })
-          }
-        }
-      })
-      chartData = dateArray
-      break;
-  }
-
-  switch (props.measurementType) {
-    case "Scale":
-      maxY = 10;
-      break;
-    case "Number":
-      maxY = Math.max(...chartData[0].data.map(o => o.y), 0);
-      break;
-    case "Percentage":
-      maxY = 100;
-      break;
-    case "Minutes":
-      maxY = 60;
-      break;
-    case "Hours":
-      maxY = 24;
-      break;
+  let chartData = props.chartData;
+  let maxY = "auto";
+ 
+  if (props.chartData.type === "Scale") {
+    maxY = 10;
+  } else {
+    let tempY = []
+    
+    for (let i = 0; i < chartData.length; i++) {
+      tempY.push(Math.max(...chartData[i].data.map(o => o.y), 0));
+    }
+    maxY = Math.max(...tempY.map(o => o), 0);
   }
 
   return (
@@ -100,12 +65,12 @@ const LineChart = (props) => {
           },
         },
       }}
-      colors={props.dataType ? { datum: "color" } : { datum: "color" }} // added
+      colors={{ datum: "color" }} // added
       margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
 
       xScale={{ type: "point" }}
       yScale={{
-        type: "linear",
+        type: "symlog",
         min: 0,
         max: maxY,
         stacked: false,
@@ -125,8 +90,8 @@ const LineChart = (props) => {
       }}
       axisLeft={{
         orient: "left",
-        tickValues: 5, // added
-        tickSize: 3,
+        tickValues: maxY > 10 ? 5 : maxY , // added
+        tickSize: 1,
         tickPadding: 5,
         tickRotation: 0,
         legend: "", // added
