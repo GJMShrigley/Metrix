@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { recentActivity, loadFile } from "../../store/userDataSlice";
+import { Box } from "@mui/material"
 
 function LayoutPage() {
   const dispatch = useDispatch();
@@ -12,9 +13,7 @@ function LayoutPage() {
   }, [])
 
   return (
-    <div className="App">
-      <Outlet />
-    </div>
+    <Box component={Outlet} />
   );
 }
 

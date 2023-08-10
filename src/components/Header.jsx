@@ -34,7 +34,7 @@ const Header = ({ title, subtitle, isCategory, isDate }) => {
     }
 
     return (
-        <Box m="5px" display="flex" gap="10px" justifyContent="center">
+        <Box m="5px" width="auto" display="flex" gap="10px" justifyContent="center">
             <Typography
                 variant="h5"
                 fontWeight="bold"

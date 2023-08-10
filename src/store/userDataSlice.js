@@ -2,7 +2,6 @@ import { createSlice, current } from "@reduxjs/toolkit";
 import { tokens } from "../theme";
 import FileSaver from 'file-saver';
 import * as moment from "moment";
-import Cookies from "universal-cookie";
 
 let currentDate = (new Date())
 currentDate = moment(currentDate).format("MM/DD/YYYY");
@@ -10,7 +9,7 @@ currentDate = moment(currentDate).format("MM/DD/YYYY");
 const initialState = {
     categories: [{
         categoryId: "default category",
-        contents: ["Concentration"]
+        contents: ["default data"]
     }],
     metrics: [{
         id: "default data",
@@ -18,8 +17,9 @@ const initialState = {
         data: [{
             x: `${currentDate}`,
             y: 0
-        }], 
-        type: "Scale"
+        }],
+        type: "Scale",
+        goal: ""
     }],
     dates: [],
     status: "idle",
@@ -32,12 +32,11 @@ const userDataSlice = createSlice({
     reducers: {
         addDate: (state, action) => {
             for (let i = 0; i < state.metrics.length; i++) {
-                state.metrics[i].type = action.payload.type
                 if (state.metrics[i].id === action.payload.selectedMetric) {
+                    state.metrics[i].type = action.payload.type
                     let dataCopy = [...current(state.metrics[i].data)];
                     const lastDate = dataCopy.at(-1).x;
                     const firstDate = dataCopy.at(0).x;
-
                     const yesterdayDate = moment(currentDate).subtract(1, "days").format("MM/DD/YYYY");
                     const futureDate = moment(action.payload.values.x).isAfter(currentDate);
                     const pastDate = moment(action.payload.values.x).isBefore(firstDate);
@@ -212,10 +211,29 @@ const userDataSlice = createSlice({
                 }
                 state.categories[categoryId].contents = categoryCopy;
             });
+        },
+        addGoal: (state, action) => {
+            for (let i = 0; i < state.metrics.length; i++) {
+                if (state.metrics[i].id === action.payload.chartId) {
+                    state.metrics[i].goal = action.payload.goal;
+                }
+            }
+
+        },
+        addNote: (state, action) => {
+            for (let i = 0; i < state.metrics.length; i++) {
+                if (state.metrics[i].id === action.payload.chartId) {
+                    for (let e = 0; e < state.metrics[i].data.length; e++) {
+                        if (state.metrics[i].data[e].x === action.payload.x) {
+                            state.metrics[i].data[e].note = action.payload.note
+                        }
+                    }
+                }
+            }
         }
     }
 });
 
-export const { addDate, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteAll, addCategory, addMetricToCategory } = userDataSlice.actions;
+export const { addDate, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteAll, addCategory, addMetricToCategory, addGoal, addNote } = userDataSlice.actions;
 
 export default userDataSlice

@@ -1,4 +1,4 @@
-import { Box, Typography, useTheme, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, FormLabel, RadioGroup, FormControlLabel, Radio, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import { Formik } from "formik";
 import { useDispatch } from "react-redux";
@@ -7,7 +7,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { addDate, saveFile } from "../store/userDataSlice";
 
 
-const StatBox = ({ title, lineColor }) => {
+const EntryBox = ({ title, lineColor, type, defaultValue }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -22,7 +22,6 @@ const StatBox = ({ title, lineColor }) => {
     const initialValues = {
         x: `${currentDate}`,
         y: 0,
-        title: ""
     };
 
     const userSchema = yup.object().shape({
@@ -31,7 +30,7 @@ const StatBox = ({ title, lineColor }) => {
 
 
     const handleFormSubmit = (values) => {
-        dispatch(addDate({ values: values, selectedMetric: title, color: lineColor }));
+        dispatch(addDate({ values: values, selectedMetric: title, color: lineColor, type: type }));
         dispatch(saveFile());
     };
 
@@ -58,27 +57,52 @@ const StatBox = ({ title, lineColor }) => {
                 {({ values, errors, touched, handleBlur, handleChange, handleSubmit }) => (
                     <form onSubmit={handleSubmit}>
                         <Box
-                             display="flex" 
-                             flexDirection="column"
+                            display="flex"
+                            flexDirection="column"
                             gridTemplateRows="repeat(3, minmax(0, 1fr))"
                             sx={{
                                 "& > div": { gridRow: isNonMobile ? undefined : "span 3" },
                             }}
                         >
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                type="text"
-                                size="small"
-                                label="Value"
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                value={values.y}
-                                name="y"
-                                error={!!touched.y && !!errors.y}
-                                helperText={touched.y && errors.y}
-                                sx={{ gridRow: "span 1" }}
-                            />
+                            {type === "Scale"
+                                ?
+                                <FormControl sx={{ gridColumn: "span 3" }} >
+                                    <InputLabel>Value</InputLabel>
+                                    <Select
+                                        label="Value"
+                                        onChange={handleChange}
+                                        name="y"
+                                        value={values.y}
+                                        size="small"
+                                    >
+                                        <MenuItem key={0} value={0}>0</MenuItem>
+                                        <MenuItem key={1} value={1}>1</MenuItem>
+                                        <MenuItem key={2} value={2}>2</MenuItem>
+                                        <MenuItem key={3} value={3}>3</MenuItem>
+                                        <MenuItem key={4} value={4}>4</MenuItem>
+                                        <MenuItem key={5} value={5}>5</MenuItem>
+                                        <MenuItem key={6} value={6}>6</MenuItem>
+                                        <MenuItem key={7} value={7}>7</MenuItem>
+                                        <MenuItem key={8} value={8}>8</MenuItem>
+                                        <MenuItem key={9} value={9}>9</MenuItem>
+                                        <MenuItem key={10} value={10}>10</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                :
+                                <TextField
+                                    fullWidth
+                                    variant="filled"
+                                    type="text"
+                                    size="small"
+                                    label="Value"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={values.y}
+                                    name="y"
+                                    error={!!touched.y && !!errors.y}
+                                    helperText={touched.y && errors.y}
+                                    sx={{ gridRow: "span 1" }}
+                                />}
                             <Button type="submit" color="secondary" variant="contained" >
                                 Add
                             </Button>
@@ -90,4 +114,4 @@ const StatBox = ({ title, lineColor }) => {
     );
 };
 
-export default StatBox;
+export default EntryBox;

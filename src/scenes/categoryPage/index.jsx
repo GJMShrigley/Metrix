@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
+import BiaxialChart from "../../components/BiaxialChart";
 import { useState, useEffect } from "react";
 import { addMetricToCategory, saveFile, loadFile } from "../../store/userDataSlice";
 
@@ -67,7 +68,8 @@ const Category = () => {
         <Box ml="20px">
             <Header title={chartData.categoryId} subtitle="" isCategory={true} />
             <Box height="67vh">
-                <LineChart dataType="category" chartData={chartData.contents} />
+                <BiaxialChart dataType="category" chartData={chartData.contents}/>
+                {/* <LineChart dataType="category" chartData={chartData.contents} /> */}
                 <Box width="50%" display="flex">
                     <FormControl fullWidth >
                         <InputLabel>Add/Remove Metric</InputLabel>

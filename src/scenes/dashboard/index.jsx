@@ -14,6 +14,7 @@ import { MuiFileInput } from 'mui-file-input'
 import { useEffect, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import { Link } from "react-router-dom";
+import DateSearch from "../../components/DateSearch";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -83,6 +84,7 @@ const Dashboard = () => {
     >
       <EntryBox
         title={`${data.id}`}
+        type={`${data.type}`}
         lineColor={`${data.color}`}
       />
     </Box>
@@ -92,11 +94,11 @@ const Dashboard = () => {
     const entries = Object.entries(date);
 
     return (
-      <Link 
-      to={`/activity/${i}`} 
-      style={{ textDecoration: 'none'}}
-      state={{startDate: date.x}}
-      key={`${i}`}
+      <Link
+        to={`/activity/${i}`}
+        style={{ textDecoration: 'none' }}
+        state={{ startDate: date.x }}
+        key={`${i}`}
       >
         <Box
           key={`${date.x}`}
@@ -151,13 +153,7 @@ const Dashboard = () => {
   }, [userActivity])
 
   return (
-    <Box m="15px">
-      {/* HEADER */}
-      {/* <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="OVERVIEW" subtitle="" />
-      </Box> */}
-
-      {/* GRID & CHARTS */}
+    <Box m="15px"  sx={{height: "100%", overflow: "auto"}}>
       <Box
         display="grid"
         gridTemplateColumns="repeat(12, 1fr)"
@@ -184,15 +180,6 @@ const Dashboard = () => {
           overflow="auto"
           backgroundColor={colors.primary[400]}
         >
-          {/* <Typography
-            variant="h4"
-            fontWeight="bold"
-            textAlign="center"
-            m="4px 0 0 0"
-            sx={{ color: colors.grey[100] }}
-          >
-            QUICK UPDATE
-          </Typography> */}
           <Box display="flex" width="100%">
             {inputItems}
           </Box>
@@ -220,6 +207,7 @@ const Dashboard = () => {
               RECENT ACTIVITY
             </Typography>
           </Box>
+          <DateSearch />
           {activity}
         </Box>
         {/* ROW 3 */}

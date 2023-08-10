@@ -1,28 +1,17 @@
 import { ResponsiveLine } from "@nivo/line";
-import { useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 
 const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const params = useParams();
-  const chartId = parseInt(params.id);
-  const location = useLocation().state
-  const userData = useSelector((state) => state.userData);
-  const metricsArray = userData.metrics;
-  const categoryArray = userData.categories[chartId];
   let chartData = props.chartData;
   let maxY = "auto";
- 
-  if (props.chartData.type === "Scale") {
-    maxY = 10;
+
+  if (chartData.every((val, i, chartData) => val.type === "Scale")) {
+    maxY = 10
   } else {
     let tempY = []
-    
     for (let i = 0; i < chartData.length; i++) {
       tempY.push(Math.max(...chartData[i].data.map(o => o.y), 0));
     }
@@ -32,6 +21,47 @@ const LineChart = (props) => {
   return (
     <ResponsiveLine
       data={chartData}
+      tooltip={({ point }) => {
+        return (
+          <Box
+            style={{
+              background: 'white',
+              padding: '5px 5px',
+              border: '1px solid #ccc',
+              color: "#000"
+            }}>
+            <Typography
+              fontWeight="bold"
+              sx={{ mr: "5px" }}>
+              {point.serieId}
+            </Typography>
+            <Box display="flex">
+              <Typography
+                fontWeight="bold"
+                sx={{ mr: "5px" }}>
+                Date:
+              </Typography>
+              {point.data.x}
+            </Box>
+            <Box display="flex">
+              <Typography
+                fontWeight="bold"
+                sx={{ mr: "5px" }}>
+                Value:
+              </Typography>
+              {point.data.y}
+            </Box>
+            <Box display="flex">
+              <Typography
+                fontWeight="bold"
+                sx={{ mr: "5px" }}>
+                Note:
+              </Typography>
+              {point.data.note}
+            </Box>
+          </Box>
+        )
+      }}
       theme={{
         axis: {
           domain: {
@@ -66,8 +96,7 @@ const LineChart = (props) => {
         },
       }}
       colors={{ datum: "color" }} // added
-      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-
+      margin={{ top: 10, right: 150, bottom: 80, left: 60 }}
       xScale={{ type: "point" }}
       yScale={{
         type: "symlog",
@@ -83,14 +112,14 @@ const LineChart = (props) => {
         orient: "bottom",
         tickSize: 0,
         tickPadding: 5,
-        tickRotation: 0,
+        tickRotation: 90,
         legend: "Date", // added
-        legendOffset: 36,
+        legendOffset: 76,
         legendPosition: "middle",
       }}
       axisLeft={{
         orient: "left",
-        tickValues: maxY > 10 ? 5 : maxY , // added
+        tickValues: maxY > 10 ? 5 : maxY, // added
         tickSize: 1,
         tickPadding: 5,
         tickRotation: 0,
@@ -98,20 +127,20 @@ const LineChart = (props) => {
         legendOffset: -40,
         legendPosition: "middle",
       }}
-      pointSize={8}
+      pointSize={6}
       pointColor={{ theme: "background" }}
       pointBorderWidth={2}
       pointBorderColor={{ from: "serieColor" }}
       pointLabelYOffset={-12}
       useMesh={true}
       legends={[
-
         {
           anchor: "bottom-right",
           direction: "column",
           justify: false,
           translateX: 100,
           translateY: 0,
+          toggleSerie: true,
           itemsSpacing: 0,
           itemDirection: "left-to-right",
           itemWidth: 80,
