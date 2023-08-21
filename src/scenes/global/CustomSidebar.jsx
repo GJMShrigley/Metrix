@@ -9,6 +9,7 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ClassIcon from '@mui/icons-material/Class';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
     const theme = useTheme();
@@ -41,14 +42,14 @@ const CustomSidebar = () => {
 
     const categoryItems = userCategories.map((category, i) => {
         return (
-        <Item
-            key={`${i}`}
-            title={`${category.categoryId}`}
-            to={`/category/${i}`}
-            icon={<ClassIcon />}
-            selected={selected}
-            setSelected={setSelected}
-        />
+            <Item
+                key={`${i}`}
+                title={`${category.categoryId}`}
+                to={`/category/${i}`}
+                icon={<ClassIcon />}
+                selected={selected}
+                setSelected={setSelected}
+            />
         )
     })
 
@@ -151,6 +152,21 @@ const CustomSidebar = () => {
                             title="Dashboard"
                             to="/"
                             icon={<HomeOutlinedIcon />}
+                            selected={selected}
+                            setSelected={setSelected}
+                        />
+                        <Typography
+                            variant="h6"
+                            color={colors.grey[300]}
+
+                            sx={{ m: "15px 0 5px 20px" }}
+                        >
+                            Journal
+                        </Typography>
+                        <Item
+                            title="Journal"
+                            to="/journal"
+                            icon={<MenuBookIcon />}
                             selected={selected}
                             setSelected={setSelected}
                         />

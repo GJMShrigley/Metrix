@@ -7,10 +7,11 @@ import CustomSidebar from "./scenes/global/CustomSidebar";
 import Dashboard from "./scenes/dashboard";
 import ChartPage from "./scenes/chartPage";
 import CategoryPage from "./scenes/categoryPage";
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider, Box } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import LayoutPage from "./scenes/layout";
 import ActivityPage from "./scenes/activityPage";
+import JournalPage from "./scenes/journalPage";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -21,9 +22,9 @@ function App() {
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <div className="app">
+          <Box className="app">
             <CustomSidebar isSidebar={isSidebar} />
-            <main className="content" >
+            <Box sx={{width: "100vw", height: "100vh", overflow: "auto"}} >
               <Topbar setIsSidebar={setIsSidebar} />
               <Routes>
                 <Route path="/" element={<LayoutPage />} >
@@ -31,10 +32,11 @@ function App() {
                   <Route path="/chart/:id" element={<ChartPage />}  loader={({ params }) => { console.log(params.id); }} action={({ params }) => { }} />
                   <Route path="/category/:id" element={<CategoryPage />}  loader={({ params }) => { console.log(params.id); }} action={({ params }) => { }} />
                   <Route path="/activity/:id" element={<ActivityPage />}  loader={({ params }) => { console.log(params.id); }} action={({ params }) => { }} />
+                  <Route path="/journal" element={<JournalPage />}  />
                 </Route>
               </Routes>
-            </main>
-          </div>
+            </Box>
+          </Box>
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>

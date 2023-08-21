@@ -1,26 +1,51 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import ProgressCircle from "./ProgressCircle";
+import { isInteger } from "formik";
 
-const StatBox = ({ title, stats }) => {
+const StatBox = ({ title, stats, type }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const statsList = stats.map((day, i) => {
+    let previous = i > 0 ? stats[i - 1].y : 0;
+    const difference = (day.y - previous).toFixed(2);
+    const percent = parseInt(day.y) === parseInt(difference) ? 0 : Math.round((difference / previous) * 100);
+
     return (
-      <Box display="flex" gap="30px" key={i}>
+      <Box display="flex"  gap="30px" key={i} justifyContent="space-around" alignItems="center">
         <Typography
           variant="h4"
-          sx={{ color: colors.greenAccent[500] }}
+          sx={{ color: colors.greenAccent[100] }}
         >
           {day.x}
         </Typography>
         <Typography
           variant="h4"
+          display="flex"
+          justifyContent="center"
           fontWeight="bold"
-          sx={{ color: colors.greenAccent[500] }}
+          sx={{ color: colors.greenAccent[600] }}
         >
           {day.y}
+        </Typography>
+        <Typography
+          variant="h5"
+          display="flex"
+          justifyContent="center"
+          sx={difference >= 0 ? { color: colors.blueAccent[300] } : { color: colors.redAccent[300] }}
+        >
+          {difference}
+        </Typography>
+        <Typography
+          variant="h5"
+          width="33%"
+          display="flex"
+          justifyContent="center"
+          fontStyle="italic"
+          sx={percent >= 0 ? { color: colors.blueAccent[500] } : { color: colors.redAccent[500] }}
+        >
+          {percent}&#37;
         </Typography>
       </Box>
 
@@ -28,10 +53,10 @@ const StatBox = ({ title, stats }) => {
   })
 
 
+
   return (
-    <Box width="auto" height="auto" m="0 30px" p="10px" backgroundColor={colors.primary[400]}>
-      <Box display="flex" justifyContent="space-around" alignItems="center">
-        <Box display="flex">
+    <Box  width="70%" m="0px" p="10px 20px" backgroundColor={colors.primary[400]}>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography
             variant="h4"
             fontWeight="bold"
@@ -39,19 +64,9 @@ const StatBox = ({ title, stats }) => {
           >
             {title}
           </Typography>
-        </Box>
         <Box display="flex" flexDirection="column" gap="20px">
           {statsList}
         </Box>
-      </Box>
-      <Box display="flex" justifyContent="space-between" mt="2px">
-        {/* <Typography
-          variant="h5"
-          fontStyle="italic"
-          sx={{ color: colors.greenAccent[600] }}
-        >
-          {increase}
-        </Typography> */}
       </Box>
     </Box>
   );

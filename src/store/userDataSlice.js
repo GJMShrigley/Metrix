@@ -8,12 +8,17 @@ currentDate = moment(currentDate).format("MM/DD/YYYY");
 
 const initialState = {
     categories: [{
-        categoryId: "default category",
-        contents: ["default data"]
+        categoryId: "Dashboard",
+        contents: ["Default Data"]
     }],
+    journal: [{
+        x: `${currentDate}`,
+        note: ""
+    },
+    ],
     metrics: [{
-        id: "default data",
-        color: tokens("dark").redAccent[100],
+        id: "Default Data",
+        color: tokens("dark").redAccent[500],
         data: [{
             x: `${currentDate}`,
             y: 0
@@ -30,14 +35,12 @@ const userDataSlice = createSlice({
     name: "userData",
     initialState,
     reducers: {
-        addDate: (state, action) => {
+        updateValue: (state, action) => {
             for (let i = 0; i < state.metrics.length; i++) {
                 if (state.metrics[i].id === action.payload.selectedMetric) {
                     state.metrics[i].type = action.payload.type
                     let dataCopy = [...current(state.metrics[i].data)];
-                    const lastDate = dataCopy.at(-1).x;
                     const firstDate = dataCopy.at(0).x;
-                    const yesterdayDate = moment(currentDate).subtract(1, "days").format("MM/DD/YYYY");
                     const futureDate = moment(action.payload.values.x).isAfter(currentDate);
                     const pastDate = moment(action.payload.values.x).isBefore(firstDate);
 
@@ -45,37 +48,24 @@ const userDataSlice = createSlice({
                         return
                     }
 
-                    function plusDate(lastDate) {
-                        let plusDay = moment(lastDate).add(1, "days").format("MM/DD/YYYY");
-                        dataCopy.push({ x: plusDay, y: 0 });
-                        lastDate = dataCopy.at(-1).x;
-                        if (yesterdayDate.toString() !== lastDate.toString()) {
-                            plusDate(lastDate)
-                        } else {
-                            state.metrics[i].data = dataCopy;
-                        }
-                    }
-
                     function addCurrentDate() {
                         const dateMatch = dataCopy.find(data => data.x === action.payload.values.x);
-
-                        if (!dateMatch) {
-                            dataCopy.push(action.payload.values)
-                            state.metrics[i].data = dataCopy;
-                        } else {
-                            const index = dataCopy.indexOf(dateMatch);
-                            state.metrics[i].data.splice(index, 1, action.payload.values);
-                        }
+                        const index = dataCopy.indexOf(dateMatch);
+                        state.metrics[i].data.splice(index, 1, action.payload.values);
                     }
-
-                    if ((yesterdayDate.toString() !== lastDate.toString()) && (currentDate.toString() !== lastDate.toString())) {
-                        plusDate(lastDate);
-                        addCurrentDate();
-                    } else {
-                        addCurrentDate();
-                    }
+                    addCurrentDate();
                     state.metrics[i].color = action.payload.color;
                 }
+            }
+        },
+        addDate: (state, action) => {
+            for (let i = 0; i < state.metrics.length; i++) {
+                let lastDate = state.metrics[i].data.at(-1).x;
+                if (lastDate != currentDate) {
+                    let plusDay = moment(lastDate).add(1, "days").format("MM/DD/YYYY");
+                    state.metrics[i].data.push({ x: plusDay, y: 0 });
+                    lastDate = state.metrics[i].data.at(-1).x;
+                };
             }
         },
         changeTitle: (state, action) => {
@@ -110,6 +100,7 @@ const userDataSlice = createSlice({
             if (userData) {
                 state.metrics = userData.metrics;
                 state.categories = userData.categories;
+                state.journal = userData.journal;
             } else {
                 console.log("no user data found")
             }
@@ -123,6 +114,7 @@ const userDataSlice = createSlice({
             const newState = action.payload
             state.metrics = newState.metrics;
             state.categories = newState.categories;
+            state.journal = newState.journal;
             const fileContents = JSON.stringify(current(state));
             localStorage.setItem("userData", fileContents);
         },
@@ -184,6 +176,13 @@ const userDataSlice = createSlice({
                 }
             }
         },
+        deleteCategory: (state, action) => {
+            for (let i = 0; i < state.categories.length; i++) {
+                if ((state.categories[i].categoryId === action.payload) && (action.payload != "Dashboard")) {
+                    state.categories.splice(i, 1)
+                }
+            }
+        },
         deleteAll: (state, action) => {
             state = initialState
         },
@@ -230,10 +229,28 @@ const userDataSlice = createSlice({
                     }
                 }
             }
+        },
+        addJournal: (state, action) => {
+            let dataCopy = [...current(state.journal)];
+            const lastDate = dataCopy.at(-1);
+
+            if ((moment(action.payload.x).isAfter(lastDate.x))) {
+                dataCopy.push(action.payload)
+            } else {
+                for (let i = 0; i < dataCopy.length; i++) {
+                    const next = dataCopy[i + 1]
+                    if (dataCopy.at(i).x === action.payload.x) {
+                        dataCopy[i] = action.payload
+                    } else if ((moment(action.payload.x).isAfter(dataCopy.at(i).x)) && (moment(action.payload.x).isBefore(next.x))) {
+                        dataCopy.splice([i + 1], 0, action.payload)
+                    }
+                }
+            }
+            state.journal = dataCopy;
         }
     }
 });
 
-export const { addDate, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteAll, addCategory, addMetricToCategory, addGoal, addNote } = userDataSlice.actions;
+export const { addDate, updateValue, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteCategory, deleteAll, addCategory, addMetricToCategory, addGoal, addNote, addJournal } = userDataSlice.actions;
 
 export default userDataSlice

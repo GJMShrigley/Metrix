@@ -4,7 +4,7 @@ import { Formik } from "formik";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { addDate, saveFile } from "../store/userDataSlice";
+import { updateValue, saveFile } from "../store/userDataSlice";
 
 
 const EntryBox = ({ title, lineColor, type, defaultValue }) => {
@@ -30,7 +30,7 @@ const EntryBox = ({ title, lineColor, type, defaultValue }) => {
 
 
     const handleFormSubmit = (values) => {
-        dispatch(addDate({ values: values, selectedMetric: title, color: lineColor, type: type }));
+        dispatch(updateValue({ values: values, selectedMetric: title, color: lineColor, type: type }));
         dispatch(saveFile());
     };
 

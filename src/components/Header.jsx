@@ -8,7 +8,7 @@ import { Formik } from "formik";
 import { saveFile, changeTitle } from "../store/userDataSlice";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
-const Header = ({ title, subtitle, isCategory, isDate }) => {
+const Header = ({ title, subtitle, isCategory, isDate, permanent}) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -90,21 +90,9 @@ const Header = ({ title, subtitle, isCategory, isDate }) => {
                         </Typography>
                     </Box>}
             </Typography>
-            {isDate ? <Box></Box> : <EditOutlinedIcon onClick={openEdit} />}
+            {isDate || permanent ? <Box></Box> : <EditOutlinedIcon onClick={openEdit} />}
         </Box>
     )
 }
 
 export default Header;
-
-{/* <Typography
-variant="h2"
-color={colors.grey[100]}
-fontWeight="bold"
-sx={{ mb: "5px"}}
->
-    {title}
-</Typography>
-<Typography variant="h5" color={colors.greenAccent[400]}>
-    {subtitle}
-</Typography> */}

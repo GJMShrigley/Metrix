@@ -7,14 +7,14 @@ import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import { addDate, saveFile, addGoal, addNote } from "../../store/userDataSlice";
+import { updateValue, saveFile, addGoal, addNote } from "../../store/userDataSlice";
 import { HexColorPicker } from "react-colorful";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ProgressBox from "../../components/ProgressBox";
-
+import StatBox from "../../components/StatBox"
 
 const currentDate = (new Date()).toLocaleDateString('en-US', {
     day: '2-digit',
@@ -63,13 +63,19 @@ const ChartPage = () => {
         setLatest(parseInt(chartData[0].data[(chartData[0].data.length - 1)].y))
     }, [chartData]);
 
+    const statBoxes = chartData.map((data, i) => {
+        return (
+            <StatBox stats={data.data} key={i} type={data.type} />
+        )
+    })
+
     const handleTypeChange = (value) => {
         const newValue = value.target.value
         setTypeSelection(newValue);
     }
 
     const handleFormSubmit = (values) => {
-        dispatch(addDate({ values: values, selectedMetric: chartData[0].id, color: color, type: typeSelection }));
+        dispatch(updateValue({ values: values, selectedMetric: chartData[0].id, color: color, type: typeSelection }));
         dispatch(saveFile());
     };
 
@@ -79,7 +85,7 @@ const ChartPage = () => {
     };
 
     const handleNoteSubmit = (value) => {
-        dispatch(addNote({ x: value.x ,note: value.note, chartId: chartData[0].id }))
+        dispatch(addNote({ x: value.x, note: value.note, chartId: chartData[0].id }))
         dispatch(saveFile());
     }
 
@@ -295,7 +301,7 @@ const ChartPage = () => {
                                 </Formik>
                             </AccordionDetails>
                         </Accordion>
-                        <Accordion>
+                        <Accordion sx={{ gridColumn: "span 5" }}>
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="h5">
                                     ADD NOTE
@@ -321,7 +327,7 @@ const ChartPage = () => {
                                                 name="note"
                                                 error={!!touched.note && !!errors.note}
                                                 helperText={touched.note && errors.note}
-                                                sx={{ gridColumn: "span 2" }}
+                                                sx={{ gridColumn: "span 5" }}
                                             />
                                             <Button fullWidth type="submit" color="secondary" variant="contained" sx={{ gridColumn: "span 1" }}>
                                                 Add Note
@@ -329,6 +335,16 @@ const ChartPage = () => {
                                         </form>
                                     )}
                                 </Formik>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="h5">
+                                    HISTORY
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                {statBoxes}
                             </AccordionDetails>
                         </Accordion>
                     </Box>
