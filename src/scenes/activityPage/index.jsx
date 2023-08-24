@@ -23,6 +23,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const userSchema = yup.object().shape({
+    x: yup.date().required("required"),
     note: yup.string()
 });
 

@@ -13,7 +13,7 @@ const StatBox = ({ title, stats, type }) => {
     const percent = parseInt(day.y) === parseInt(difference) ? 0 : Math.round((difference / previous) * 100);
 
     return (
-      <Box display="flex"  gap="30px" key={i} justifyContent="space-around" alignItems="center">
+      <Box display="flex" gap="30px" key={i} justifyContent="space-around" alignItems="center">
         <Typography
           variant="h4"
           sx={{ color: colors.greenAccent[100] }}
@@ -51,19 +51,49 @@ const StatBox = ({ title, stats, type }) => {
 
     )
   })
-
-
-
+  const sum = stats.reduce(function (acc, obj) { return acc + parseInt(obj.y); }, 0);
+  const movement = (parseInt(stats[stats.length - 1].y) - parseInt(stats[0].y));
+  const mean = (sum / stats.length).toFixed(2);
   return (
-    <Box  width="70%" m="0px" p="10px 20px" backgroundColor={colors.primary[400]}>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            sx={{ color: colors.grey[100] }}
-          >
-            {title}
-          </Typography>
+    <Box width="70%" m="0px" p="10px 50px" backgroundColor={colors.primary[400]}>
+      <Box display="flex" flexDirection="column" justifyContent="space-between" alignItems="center">
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: colors.grey[100] }}
+        >
+          {title}
+        </Typography>
+        <Box display="flex" flexDirection="row" gap="20px">
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: colors.grey[100] }}
+        >
+          AVERAGE &#40;MEAN&#41;&#58;
+        </Typography>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: colors.greenAccent[500] }}
+        >
+          {mean}
+        </Typography>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: colors.grey[100] }}
+        >
+          MOVEMENT&#58;
+        </Typography>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: colors.greenAccent[500] }}
+        >
+          {movement > 0 ? "+" : ""}{movement}
+        </Typography>
+        </Box>
         <Box display="flex" flexDirection="column" gap="20px">
           {statsList}
         </Box>

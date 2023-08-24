@@ -111,7 +111,7 @@ const LineChart = (props) => {
         yScale={{
           type: "linear",
           min: 0,
-          max: maxY,
+          max: maxY < 10 ? 10 : maxY,
           stacked: false,
           reverse: false,
         }}

@@ -80,22 +80,6 @@ const Dashboard = () => {
     category: yup.string().required("required")
   })
 
-  const fileLoad = (e) => {
-    const file = e;
-    const reader = new FileReader();
-
-    if (file.length > 1) {
-      alert("Please select a single file to load");
-      return;
-    }
-
-    reader.addEventListener("load", () => {
-      const loadedFile = JSON.parse(reader.result);
-      dispatch(importFile(loadedFile));
-    }, false);
-    reader.readAsText(file);
-  }
-
   const inputItems = userData.map((data, i) =>
     <Box
       backgroundColor={colors.primary[400]}
@@ -215,7 +199,6 @@ const Dashboard = () => {
 
   dispatch(addDate())
 
-  console.log(useSelector((state) => state.userData.journal))
   return (
     <Box m="15px">
       <Box
@@ -399,26 +382,6 @@ const Dashboard = () => {
                         </form>
                       )}
                     </Formik>
-                    <MuiFileInput fullWidth placeholder="Insert a file" onChange={fileLoad} sx={{
-                      margin: "10px 0 5px 0",
-                    }} />
-                    <Button
-                      fullWidth
-                      sx={{
-                        backgroundColor: colors.blueAccent[700],
-                        color: colors.grey[100],
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        margin: "5px 0",
-                        padding: "10px 78px",
-                      }}
-                      onClick={() => {
-                        dispatch(exportFile());
-                      }}
-                    >
-                      <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-                      Export User Data
-                    </Button>
                   </Box>
                 </Box>
               </Box>

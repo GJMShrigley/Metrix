@@ -7,8 +7,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import * as moment from "moment";
 import { Link } from 'react-router-dom';
 
-
-const DateSearch = () => {
+const DateSlice = (props) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -33,6 +32,7 @@ const DateSearch = () => {
 
 
     const handleFormSubmit = (values) => {
+       props.sliceDate(moment(values.startDate).subtract(1, "days").format("MM/DD/YYYY"), moment(values.endDate).add(1, "days").format("MM/DD/YYYY"))
     };
 
     return (
@@ -84,7 +84,7 @@ const DateSearch = () => {
                                     sx={{ gridRow: "span 1", gridColumn: "span 1" }}
                                 />
                             </Box>
-                            <Button component={Link} to={`/activity/0`} state={{ startDate: values.startDate, endDate: values.endDate }} type="submit" color="secondary" variant="contained" >
+                            <Button type="submit" color="secondary" variant="contained" >
                                 Go To Date
                             </Button>
                         </Box>
@@ -95,4 +95,4 @@ const DateSearch = () => {
     );
 }
 
-export default DateSearch
+export default DateSlice;

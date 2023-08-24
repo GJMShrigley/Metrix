@@ -90,7 +90,7 @@ const Header = ({ title, subtitle, isCategory, isDate, permanent}) => {
                         </Typography>
                     </Box>}
             </Typography>
-            {isDate || permanent ? <Box></Box> : <EditOutlinedIcon onClick={openEdit} />}
+            {isDate || title === "Dashboard" || permanent ? <Box></Box> : <EditOutlinedIcon onClick={openEdit} />}
         </Box>
     )
 }

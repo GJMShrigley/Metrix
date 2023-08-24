@@ -5,13 +5,34 @@ import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { updateValue, saveFile } from "../store/userDataSlice";
+import Marquee from "react-fast-marquee";
+import { useRef, useState, useLayoutEffect } from "react";
 
-
-const EntryBox = ({ title, lineColor, type, defaultValue }) => {
+const EntryBox = ({ title, lineColor, type }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const dispatch = useDispatch();
+    const textRef = useRef(undefined);
+    const [isOverflowing, setIsOverflowing] = useState(false);
+
+    useLayoutEffect(() => {
+        setIsOverflowing(checkOverflow(textRef.current));
+    }, [title])
+
+    function checkOverflow(textRef) {
+        if (textRef === undefined || textRef === null) return false;
+
+        var curOverflow = textRef.style.overflow;
+
+        if (!curOverflow || curOverflow === "visible") textRef.style.overflow = "hidden";
+        var isOverflowing =
+            textRef.clientWidth < textRef.scrollWidth || textRef.clientHeight < textRef.scrollHeight;
+
+        textRef.style.overflow = curOverflow;
+
+        return isOverflowing;
+    }
 
     const currentDate = (new Date()).toLocaleDateString('en-US', {
         day: '2-digit',
@@ -25,9 +46,9 @@ const EntryBox = ({ title, lineColor, type, defaultValue }) => {
     };
 
     const userSchema = yup.object().shape({
+        x: yup.date().required("required"),
         y: yup.string().required("required"),
     });
-
 
     const handleFormSubmit = (values) => {
         dispatch(updateValue({ values: values, selectedMetric: title, color: lineColor, type: type }));
@@ -35,18 +56,19 @@ const EntryBox = ({ title, lineColor, type, defaultValue }) => {
     };
 
     return (
-        <Box width="auto" minWidth="100px" height="100%" m="0 10px">
-            <Box display="flex" flexDirection="column" gap="0" justifyContent="center" overflow="hidden">
+        <Box width="auto" minWidth="100px" maxWidth="100px" height="100%" m="0 10px">
+            <Box ref={textRef} display="flex" flexDirection="column" gap="0" justifyContent="center" overflow="hidden">
                 <Typography
+                    component={isOverflowing ? Marquee : Box}
+                    speed={30}
                     variant="h5"
                     width="auto"
-                    height="20px"
+                    height="22px"
                     fontWeight="bold"
                     textAlign="center"
-                    overflow="hidden"
                     sx={{ color: colors.grey[100] }}
                 >
-                    {title}
+                    {isOverflowing && <Box width="10px"></Box>}{title}
                 </Typography>
             </Box>
             <Formik

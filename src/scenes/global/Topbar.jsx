@@ -11,6 +11,7 @@ import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch } from "react-redux";
 import { deleteAll, saveFile } from "../../store/userDataSlice";
+import { Link } from "react-router-dom";
 
 const Topbar = () => {
     const theme = useTheme();
@@ -24,18 +25,7 @@ const Topbar = () => {
     }
 
     return (
-        <Box display="flex" justifyContent="space-between" p={2}>
-            {/*SEARCH BAR */}
-            <Box
-                display="flex"
-                backgroundColor={colors.primary[400]}
-                borderRadius="3px"
-            >
-                <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-                <IconButton type="button" sx={{ p: 1 }}>
-                    <SearchIcon />
-                </IconButton>
-            </Box>
+        <Box display="flex" justifyContent="flex-end" p={2}>
             {/*Icons */}
             <Box display="flex">
                 {/* <IconButton >
@@ -48,14 +38,10 @@ const Topbar = () => {
                         <LightModeOutlinedIcon />
                     )}
                 </IconButton>
-                <IconButton >
-                    <NotificationsOutlinedIcon />
-                </IconButton>
-                <IconButton >
+                <IconButton 
+                component={Link}
+                to={"/settings"}>
                     <SettingsOutlinedIcon />
-                </IconButton>
-                <IconButton >
-                    <PersonOutlinedIcon />
                 </IconButton>
             </Box>
         </Box>

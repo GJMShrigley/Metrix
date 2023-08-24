@@ -1,4 +1,4 @@
-import { Box, FormControl, useTheme, InputLabel, Select, MenuItem, Button } from "@mui/material";
+import { Box, FormControl, Typography, useTheme, InputLabel, Select, MenuItem, Button } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -8,6 +8,12 @@ import BiaxialChart from "../../components/BiaxialChart";
 import { useState, useEffect } from "react";
 import { addMetricToCategory, saveFile, loadFile, changeTitle } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DateSlice from "../../components/DateSlice";
+import moment from "moment";
 
 const Category = () => {
     const theme = useTheme();
@@ -87,13 +93,48 @@ const Category = () => {
         dispatch(saveFile())
     }
 
+    const sliceDate = (startDate, endDate) => {
+        let contentsArray = [];
+        for (let i = 0; i < chartData.contents.length; i++) {
+            let dateArray = [];
+            for (let e = 0; e < chartData.contents[i].data.length; e++) {
+                if ((moment(chartData.contents[i].data[e].x).isAfter(startDate)) && (moment(chartData.contents[i].data[e].x).isBefore(endDate))) {
+                    dateArray.push(chartData.contents[i].data[e])
+                }
+            }
+            contentsArray.push({ ...chartData.contents[i], data: dateArray })
+        }
+        setChartData({ ...chartData[0], contents: contentsArray })
+    }
+
     return (
         <Box
             ml="20px"
             display="grid"
             gridTemplateColumns="repeat(12, 1fr)"
             gap="10px">
-            <Header title={chartData.categoryId} subtitle="" isCategory={true} />
+            <Box
+                gridColumn="span 12"
+                backgroundColor={colors.primary[400]}
+            >
+                <Header
+                    title={chartData.categoryId}
+                    subtitle=""
+                    isCategory={true}
+                    display="flex"
+                    gridColumn="span 12"
+                />
+                <Accordion gridColumn="span 6" >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="h5">
+                            SELECT DATES
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <DateSlice sliceDate={sliceDate} />
+                    </AccordionDetails>
+                </Accordion>
+            </Box>
             <Box
                 gridColumn="span 12"
                 backgroundColor={colors.primary[400]}

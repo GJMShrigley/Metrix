@@ -13,7 +13,8 @@ const initialState = {
     }],
     journal: [{
         x: `${currentDate}`,
-        note: ""
+        note: "",
+        display: true
     },
     ],
     metrics: [{
@@ -92,7 +93,7 @@ const userDataSlice = createSlice({
         },
         saveFile: (state, action) => {
             const fileContents = JSON.stringify(current(state));
-            localStorage.setItem("userData", fileContents)
+            localStorage.setItem("userData", fileContents);
         },
         loadFile: (state, action) => {
             const userData = JSON.parse(localStorage.getItem("userData"))
@@ -170,9 +171,18 @@ const userDataSlice = createSlice({
             state.dates.reverse();
         },
         deleteMetric: (state, action) => {
-            for (let i = 0; i < state.metrics.length; i++) {
-                if (state.metrics[i].id === action.payload) {
-                    state.metrics.splice(i, 1)
+            if (state.metrics.length > 1) {
+                for (let i = 0; i < state.metrics.length; i++) {
+                    if (state.metrics[i].id === action.payload) {
+                        state.metrics.splice(i, 1)
+                    }
+                }
+                for (let i = 0; i < state.categories.length; i++) {  
+                    const match = current(state.categories[i].contents).find(data => data === action.payload);
+                    const index = state.categories[i].contents.indexOf(match)
+                    if (index != -1) {
+                        state.categories[i].contents.splice(index, 1)
+                    }
                 }
             }
         },
@@ -183,8 +193,18 @@ const userDataSlice = createSlice({
                 }
             }
         },
+        deleteJournal: (state, action) => {
+            for (let i = 0; i < state.journal.length; i++) {
+                if (state.journal[i].x === action.payload) {
+                    state.journal.splice(i, 1)
+                }
+            }
+
+        },
         deleteAll: (state, action) => {
-            state = initialState
+            state.metrics = initialState.metrics;
+            state.categories = initialState.categories;
+            state.journal = initialState.journal;
         },
         addCategory: (state, action) => {
             const newCategory = {
@@ -217,7 +237,6 @@ const userDataSlice = createSlice({
                     state.metrics[i].goal = action.payload.goal;
                 }
             }
-
         },
         addNote: (state, action) => {
             for (let i = 0; i < state.metrics.length; i++) {
@@ -251,6 +270,6 @@ const userDataSlice = createSlice({
     }
 });
 
-export const { addDate, updateValue, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteCategory, deleteAll, addCategory, addMetricToCategory, addGoal, addNote, addJournal } = userDataSlice.actions;
+export const { addDate, updateValue, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteCategory, deleteJournal, deleteAll, addCategory, addMetricToCategory, addGoal, addNote, addJournal } = userDataSlice.actions;
 
 export default userDataSlice

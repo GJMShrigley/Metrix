@@ -14,7 +14,10 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ProgressBox from "../../components/ProgressBox";
-import StatBox from "../../components/StatBox"
+import StatBox from "../../components/StatBox";
+import calculateCorrelation from "calculate-correlation";
+import DateSlice from "../../components/DateSlice";
+import moment from "moment";
 
 const currentDate = (new Date()).toLocaleDateString('en-US', {
     day: '2-digit',
@@ -47,6 +50,8 @@ const ChartPage = () => {
     const [chartData, setChartData] = useState(userData);
     const [goal, setGoal] = useState();
     const [latest, setLatest] = useState(0);
+    const [correlationSelection, setCorrelationSelection] = useState([]);
+    const [correlationResult, setCorrelationResult] = useState();
 
     useEffect(() => {
         for (let i = 0; i < userData.length; i++) {
@@ -67,11 +72,51 @@ const ChartPage = () => {
         return (
             <StatBox stats={data.data} key={i} type={data.type} />
         )
-    })
+    });
 
-    const handleTypeChange = (value) => {
-        const newValue = value.target.value
-        setTypeSelection(newValue);
+    const selectionItems = userData.map((metric, i) => {
+        return (
+            <MenuItem key={metric.id} value={i}>{metric.id}</MenuItem>
+        )
+    });
+
+    const handleCorrelationChange = (value) => {
+        setCorrelationSelection(value.target.value)
+    }
+
+    const handleCorrelationSubmit = () => {
+        let metric1 = []
+        let metric2 = []
+        for (let i = 0; i < chartData[0].data.length; i++) {
+            metric1.push(parseInt(chartData[0].data[i].y))
+        }
+
+        for (let i = 0; i < userData[correlationSelection].data.length; i++) {
+            metric2.push(parseInt(userData[correlationSelection].data[i].y))
+        }
+
+        const correlation = calculateCorrelation(metric1, metric2)
+
+        const relation = function (correlation) {
+            if (correlation < -0.5) {
+                return "Very low"
+            } else if ((correlation < 0) && (correlation > -0.5)) {
+                return "Low"
+            } else if (correlation === 0) {
+                return "Medium"
+            } else if ((correlation > 0) && (correlation < 0.5)) {
+                return "High"
+            } else if (correlation > 0.5) {
+                return "Very High"
+            }
+        }
+
+        const result = { correlation: correlation, relation: relation }
+        setCorrelationResult(result)
+    }
+
+    const handleTypeChange = (value) => { 
+        setTypeSelection(value.target.value);
     }
 
     const handleFormSubmit = (values) => {
@@ -89,12 +134,32 @@ const ChartPage = () => {
         dispatch(saveFile());
     }
 
+    const sliceDate = (startDate, endDate) => {
+        let dateArray = [];
+        for (let i = 0; i < userData[chartId].data.length; i++) {
+            if ((moment(userData[chartId].data[i].x).isAfter(startDate)) && (moment(userData[chartId].data[i].x).isBefore(endDate))) {
+                dateArray.push(userData[chartId].data[i])
+            }
+        }
+        setChartData([{ ...userData[chartId], data: dateArray }])
+    }
+
     return (
         <Box ml="20px">
             <Box display="flex" justifyContent="center" alignItems="center" >
                 <Header title={chartData[0].id} subtitle="" />
                 {goal ? <ProgressBox title={chartData[0].id} goal={goal} latest={latest} /> : <></>}
             </Box>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h5">
+                        SELECT DATES
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <DateSlice sliceDate={sliceDate} />
+                </AccordionDetails>
+            </Accordion>
             <Box height="67vh">
                 <LineChart dataType="metric" chartData={chartData} />
                 <Box >
@@ -348,6 +413,64 @@ const ChartPage = () => {
                             </AccordionDetails>
                         </Accordion>
                     </Box>
+                    <Accordion>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                            <Typography variant="h5">
+                                CORRELATION
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box
+                                width="100vw"
+                                display="flex">
+                                <FormControl >
+                                    <InputLabel>Add/Remove Metric</InputLabel>
+                                    <Select
+                                        label="Metrics"
+                                        onChange={handleCorrelationChange}
+                                        value={correlationSelection}
+                                        sx={{
+                                            width: "25vw"
+                                        }}
+                                    >
+                                        {selectionItems}
+                                    </Select>
+                                </FormControl>
+                                <Button type="submit" color="secondary" variant="contained" onClick={handleCorrelationSubmit} sx={{ gridColumn: "span 1" }}>
+                                    Add/Remove
+                                </Button>
+                            </Box>
+                            {correlationResult
+                                ?
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    alignItems="center"
+                                >
+                                    <Typography variant="h5">
+                                        {` The correlation between ${userData[correlationSelection].id} 
+                                       and 
+                                        ${chartData[0].id} 
+                                       is 
+                                        ${correlationResult.correlation.toFixed(3)} `}
+                                        &#40;{correlationResult.relation}&#41;
+                                    </Typography>
+
+                                    <Box display="flex">
+                                        <StatBox
+                                            title={chartData[0].id}
+                                            stats={chartData[0].data}
+                                            type={chartData[0].type} />
+                                        <StatBox
+                                            title={userData[correlationSelection].id}
+                                            stats={userData[correlationSelection].data}
+                                            type={userData[correlationSelection].type} />
+                                    </Box>
+                                </Box>
+                                :
+                                <></>}
+                        </AccordionDetails>
+                    </Accordion>
                 </Box>
             </Box>
         </Box>
