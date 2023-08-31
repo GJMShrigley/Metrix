@@ -1,24 +1,19 @@
-import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, FormLabel, RadioGroup, FormControlLabel, Radio, Typography, useTheme } from "@mui/material";
+import { Box, Button, TextField, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import { Formik } from "formik";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import * as moment from "moment";
-import { Link } from 'react-router-dom';
 
 const DateSlice = (props) => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const isNonMobile = useMediaQuery("(min-width:600px)");
-    const dispatch = useDispatch();
     const currentDate = (new Date()).toLocaleDateString('en-US', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
     });
 
-    const lastWeek = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
+    const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
 
     const initialValues = {
         startDate: `${lastWeek}`,
@@ -30,9 +25,8 @@ const DateSlice = (props) => {
         endDate: yup.date(),
     });
 
-
     const handleFormSubmit = (values) => {
-       props.sliceDate(moment(values.startDate).subtract(1, "days").format("MM/DD/YYYY"), moment(values.endDate).add(1, "days").format("MM/DD/YYYY"))
+       props.sliceDate(values.startDate,values.endDate);
     };
 
     return (

@@ -1,51 +1,33 @@
-import { Box, IconButton, useTheme } from "@mui/material";
-import { useContext } from "react";
-import { ColorModeContext, tokens } from "../../theme";
-import InputBase from "@mui/material/InputBase";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
+import { useEffect, useState } from "react";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
-import SearchIcon from "@mui/icons-material/Search";
-import { useDispatch } from "react-redux";
-import { deleteAll, saveFile } from "../../store/userDataSlice";
+import { Box, IconButton } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import { toggleSidebar } from "../../store/displaySlice";
+
 const Topbar = () => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const colorMode = useContext(ColorModeContext);
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const handleClearAll = () => {
-        dispatch(deleteAll())
-        dispatch(saveFile());
-    }
+  const handleSidebar = () => {
+    dispatch(toggleSidebar());
+  };
 
-    return (
-        <Box display="flex" justifyContent="flex-end" p={2}>
-            {/*Icons */}
-            <Box display="flex">
-                {/* <IconButton >
-                    <DeleteForeverOutlinedIcon onClick={handleClearAll}/>
-                </IconButton> */}
-                <IconButton onClick={colorMode.toggleColorMode}>
-                    {theme.palette.mode === "dark" ? (
-                        <DarkModeOutlinedIcon />
-                    ) : (
-                        <LightModeOutlinedIcon />
-                    )}
-                </IconButton>
-                <IconButton 
-                component={Link}
-                to={"/settings"}>
-                    <SettingsOutlinedIcon />
-                </IconButton>
-            </Box>
+  return (
+    <Box display="flex" p={2}>
+      <Box display="flex" width="100%" justifyContent="space-between">
+        <IconButton onClick={handleSidebar}>
+          <MenuOutlinedIcon />
+        </IconButton>
+        <Box>
+          <IconButton component={Link} to={"/settings"}>
+            <SettingsOutlinedIcon />
+          </IconButton>
         </Box>
-    );
-}
+      </Box>
+    </Box>
+  );
+};
 
 export default Topbar;

@@ -2,75 +2,110 @@ import { ResponsiveLine } from "@nivo/line";
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import { useEffect, useState } from "react";
+import DateSlice from "../components/DateSlice";
+import moment from "moment";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  let chartData = props.chartData;
+  const originalData = props.chartData;
+  const [chartData, setChartData] = useState(props.chartData);
   const [maxY, setMaxY] = useState("auto");
-  const height = props.dataType === "Dashboard" ? 35 : 65;
+  const height = props.dataType === "Dashboard" ? 50 : 50;
 
   useEffect(() => {
     if (chartData.every((val, i, chartData) => val.type === "Scale")) {
-      setMaxY(10)
+      setMaxY(10);
     } else {
-      let tempY = []
+      let tempY = [];
       for (let i = 0; i < chartData.length; i++) {
-        tempY.push(Math.max(...chartData[i].data.map(o => o.y), 0));
+        tempY.push(Math.max(...chartData[i].data.map((o) => o.y), 0));
       }
-      setMaxY(Math.max(...tempY.map(o => o), 0));
+      setMaxY(Math.max(...tempY.map((o) => o), 0));
     }
-  }, [chartData])
+  }, [chartData]);
+
+  const sliceDate = (startDate, endDate) => {
+    startDate = moment(startDate)
+      .subtract(1, "days")
+      .format("MM/DD/YYYY");
+    endDate = moment(endDate)
+      .add(1, "days")
+      .format("MM/DD/YYYY");
+    let dateArray = [];
+    for (let i = 0; i < originalData[0].data.length; i++) {
+      if (
+        moment(originalData[0].data[i].x).isAfter(startDate) &&
+        moment(originalData[0].data[i].x).isBefore(endDate)
+      ) {
+        dateArray.push(originalData[0].data[i]);
+      }
+    }
+    setChartData([{ ...originalData[0], data: dateArray }]);
+  };
+
+  useEffect(() => {
+    setChartData(props.chartData);
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    const lastWeek = moment(currentDate)
+      .subtract(6, "days")
+      .format("MM/DD/YYYY");
+
+    sliceDate(lastWeek, currentDate);
+  }, [props]);
 
   return (
-    <Box sx={{
-      height: `${height}vh`,
-      width: "auto",
-      minWidth: "80vw",
-      maxWidth: "90vw"
-    }}>
+    <Box
+      sx={{
+        height: `${height}vh`,
+        width: "100vw",
+      }}
+    >
+      <DateSlice sliceDate={sliceDate} />
       <ResponsiveLine
         data={chartData}
         tooltip={({ point }) => {
           return (
             <Box
               style={{
-                background: 'white',
-                padding: '5px 5px',
-                border: '1px solid #ccc',
-                color: "#000"
-              }}>
-              <Typography
-                fontWeight="bold"
-                sx={{ mr: "5px" }}>
+                background: "white",
+                padding: "5px 5px",
+                border: "1px solid #ccc",
+                color: "#000",
+              }}
+            >
+              <Typography fontWeight="bold" sx={{ mr: "5px" }}>
                 {point.serieId}
               </Typography>
               <Box display="flex">
-                <Typography
-                  fontWeight="bold"
-                  sx={{ mr: "5px" }}>
+                <Typography fontWeight="bold" sx={{ mr: "5px" }}>
                   Date:
                 </Typography>
                 {point.data.x}
               </Box>
               <Box display="flex">
-                <Typography
-                  fontWeight="bold"
-                  sx={{ mr: "5px" }}>
+                <Typography fontWeight="bold" sx={{ mr: "5px" }}>
                   Value:
                 </Typography>
                 {point.data.y}
               </Box>
               <Box display="flex">
-                <Typography
-                  fontWeight="bold"
-                  sx={{ mr: "5px" }}>
+                <Typography fontWeight="bold" sx={{ mr: "5px" }}>
                   Note:
                 </Typography>
                 {point.data.note}
               </Box>
             </Box>
-          )
+          );
         }}
         theme={{
           axis: {
@@ -106,7 +141,7 @@ const LineChart = (props) => {
           },
         }}
         colors={{ datum: "color" }} // added
-        margin={{ top: 10, right: 150, bottom: 80, left: 60 }}
+        margin={{ top: 10, right: 80, bottom: 90, left: 40 }}
         xScale={{ type: "point" }}
         yScale={{
           type: "linear",
@@ -143,33 +178,6 @@ const LineChart = (props) => {
         pointBorderColor={{ from: "serieColor" }}
         pointLabelYOffset={-12}
         useMesh={true}
-        legends={[
-          {
-            anchor: "bottom-right",
-            direction: "column",
-            justify: false,
-            translateX: 100,
-            translateY: 0,
-            toggleSerie: true,
-            itemsSpacing: 0,
-            itemDirection: "left-to-right",
-            itemWidth: 80,
-            itemHeight: 15,
-            itemOpacity: 0.75,
-            symbolSize: 12,
-            symbolShape: "circle",
-            symbolBorderColor: "rgba(0, 0, 0, .5)",
-            effects: [
-              {
-                on: "hover",
-                style: {
-                  itemBackground: "rgba(0, 0, 0, .03)",
-                  itemOpacity: 1,
-                }
-              },
-            ],
-          },
-        ]}
       />
     </Box>
   );

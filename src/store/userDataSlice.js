@@ -27,7 +27,6 @@ const initialState = {
         type: "Scale",
         goal: ""
     }],
-    dates: [],
     status: "idle",
     error: null,
 };
@@ -138,38 +137,6 @@ const userDataSlice = createSlice({
             }
             state.metrics.push(newMetric)
         },
-        recentActivity: (state, action) => {
-            const dataCopy = [...current(state.metrics)];
-            const startDate = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
-            const endDate = currentDate;
-            let activityDate = startDate;
-            let activityData = [];
-            let activityObj = {};
-
-            function combineDates() {
-                for (let i = 0; i < dataCopy.length; i++) {
-                    const metricCopy = [dataCopy[i].data];
-                    metricCopy[0].filter(obj => {
-                        if (obj.x === activityDate) {
-                            const newObj = {
-                                y: obj.y,
-                                id: dataCopy[i].id
-                            }
-                            activityData.push(newObj)
-                        }
-                    });
-                };
-                activityObj = { x: activityDate, ...activityData };
-                state.dates.push(activityObj)
-                activityData = []
-            }
-
-            while (state.dates.length < 7) {
-                combineDates();
-                activityDate = moment(activityDate).add(1, "days").format("MM/DD/YYYY");
-            }
-            state.dates.reverse();
-        },
         deleteMetric: (state, action) => {
             if (state.metrics.length > 1) {
                 for (let i = 0; i < state.metrics.length; i++) {
@@ -270,6 +237,6 @@ const userDataSlice = createSlice({
     }
 });
 
-export const { addDate, updateValue, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, recentActivity, deleteMetric, deleteCategory, deleteJournal, deleteAll, addCategory, addMetricToCategory, addGoal, addNote, addJournal } = userDataSlice.actions;
+export const { addDate, updateValue, changeTitle, saveFile, loadFile, exportFile, importFile, addMetric, deleteMetric, deleteCategory, deleteJournal, deleteAll, addCategory, addMetricToCategory, addGoal, addNote, addJournal } = userDataSlice.actions;
 
-export default userDataSlice
+export default userDataSlice;

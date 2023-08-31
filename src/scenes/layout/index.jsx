@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+
+import { Box } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { recentActivity, loadFile } from "../../store/userDataSlice";
-import { Box } from "@mui/material"
+import { Outlet } from "react-router-dom";
+
+import { addDate, loadFile } from "../../store/userDataSlice";
 
 function LayoutPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(loadFile())
-    dispatch(recentActivity())
-  }, [])
+    dispatch(loadFile());
+    dispatch(addDate());
+  }, []);
 
   return (
     <Box component={Outlet} />
