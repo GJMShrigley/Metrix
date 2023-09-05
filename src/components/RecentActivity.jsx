@@ -68,55 +68,54 @@ const RecentActivity = (props) => {
     const entries = Object.entries(date);
 
     return (
-      <Link
+      <Box
+        component={Link}
         to={`/activity/${i}`}
-        style={{ textDecoration: "none" }}
         state={{ startDate: date.x }}
         key={i}
+        sx={{ textDecoration: "none" }}
+        // key={date.x}
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+        alignItems="center"
+        borderBottom={`4px solid ${colors.primary[500]}`}
+        p="15px"
+        
       >
-        <Box
-          key={date.x}
-          display="flex"
-          flexDirection="column"
-          justifyContent="space-between"
-          alignItems="center"
-          borderBottom={`4px solid ${colors.primary[500]}`}
-          p="15px"
+        <Typography
+          color={colors.greenAccent[500]}
+          variant="h3"
+          fontWeight="900"
+          m="0 0 20px 0"
         >
-          <Typography
-            color={colors.greenAccent[500]}
-            variant="h3"
-            fontWeight="900"
-            m="0 0 20px 0"
-          >
-            {date.x}
-          </Typography>
-          <Box width="100%" p="20px">
-            {entries.map((metric, i) => {
-              if (metric[1].y > 0) {
-                return (
-                  <Box display="flex" justifyContent="space-between" key={i}>
-                    <Typography
-                      color={colors.grey[100]}
-                      variant="h4"
-                      fontWeight="700"
-                    >
-                      {metric[1].id}
-                    </Typography>
-                    <Typography
-                      color={colors.greenAccent[500]}
-                      variant="h4"
-                      fontWeight="700"
-                    >
-                      {metric[1].y}
-                    </Typography>
-                  </Box>
-                );
-              }
-            })}
-          </Box>
+          {date.x}
+        </Typography>
+        <Box width="100%" p="20px">
+          {entries.map((metric, i) => {
+            if (metric[1].y > 0) {
+              return (
+                <Box display="flex" justifyContent="space-between" key={i}>
+                  <Typography
+                    color={colors.grey[100]}
+                    variant="h4"
+                    fontWeight="700"
+                  >
+                    {metric[1].id}
+                  </Typography>
+                  <Typography
+                    color={colors.greenAccent[500]}
+                    variant="h4"
+                    fontWeight="700"
+                  >
+                    {metric[1].y}
+                  </Typography>
+                </Box>
+              );
+            }
+          })}
         </Box>
-      </Link>
+      </Box>
     );
   });
 
@@ -127,16 +126,14 @@ const RecentActivity = (props) => {
       alignItems="flex-start"
       overflow="auto"
       backgroundColor={colors.primary[400]}
+      width="100vw"
     >
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">RECENT ACTIVITY</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Box
-            height="auto"
-            backgroundColor={colors.primary[400]}
-          >
+          <Box height="auto" backgroundColor={colors.primary[400]}>
             <Box
               display="flex"
               justifyContent="center"

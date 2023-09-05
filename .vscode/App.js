@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import { Box, CssBaseline, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider, Box } from "@mui/material";
 import { Provider } from "react-redux";
-import { Route, Routes } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import store from "./store/store";
 import { ColorModeContext, useMode } from "./theme";
@@ -30,42 +30,39 @@ function App() {
             <CustomSidebar isSidebar={isSidebar} />
             <Box
               sx={{
+                width: "100vw",
                 height: "100vh",
                 overflowX: "hidden",
-                overflowY: "auto",
-                width: "100vw",
-              }}
-            >
+                overflowY: "auto"
+              }} >
               <Topbar setIsSidebar={setIsSidebar} />
               <Routes>
-                <Route path="/" element={<LayoutPage />}>
-                  <Route index element={<Dashboard />} />
+                <Route path="/"
+                  element={<LayoutPage />} >
+                  <Route
+                    index
+                    element={<Dashboard />} />
                   <Route
                     path="/chart/:id"
                     element={<ChartPage />}
-                    loader={({ params }) => {
-                      console.log(params.id);
-                    }}
-                    action={({ params }) => {}}
-                  />
+                    loader={({ params }) => { console.log(params.id); }}
+                    action={({ params }) => { }} />
                   <Route
                     path="/category/:id"
                     element={<CategoryPage />}
-                    loader={({ params }) => {
-                      console.log(params.id);
-                    }}
-                    action={({ params }) => {}}
-                  />
+                    loader={({ params }) => { console.log(params.id); }}
+                    action={({ params }) => { }} />
                   <Route
                     path="/activity/:id"
                     element={<ActivityPage />}
-                    loader={({ params }) => {
-                      console.log(params.id);
-                    }}
-                    action={({ params }) => {}}
-                  />
-                  <Route path="/journal" element={<JournalPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
+                    loader={({ params }) => { console.log(params.id); }}
+                    action={({ params }) => { }} />
+                  <Route
+                    path="/journal"
+                    element={<JournalPage />} />
+                  <Route
+                    path="/settings"
+                    element={<SettingsPage />} />
                 </Route>
               </Routes>
             </Box>

@@ -11,11 +11,7 @@ import { HexColorPicker } from "react-colorful";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 
-import {
-  addMetric,
-  saveFile,
-  addCategory,
-} from "../store/userDataSlice";
+import { addMetric, saveFile, addCategory } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
 const AddData = () => {
@@ -58,11 +54,7 @@ const AddData = () => {
   });
 
   return (
-    <Box
-      display="grid"
-      alignItems="flex-start"
-      backgroundColor={colors.primary[400]}
-    >
+    <Box display="grid" alignItems="flex-start" width="100vw">
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5" textAlign="center">
@@ -70,145 +62,151 @@ const AddData = () => {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
+          <Box
+            display="flex"
+            flexDirection="column"
+            width="100%"
+            overflow="hidden"
+            p="10px"
+          >
             <Box
-              display="flex"
-              flexDirection="column"
-              width="100%"
-              overflow="hidden"
-              backgroundColor={colors.primary[400]}
-              p="10px"
+            backgroundColor={colors.primary[400]}
+              p="20px"
+              sx={{
+                "& > .react-colorful": { width: "99%", margin: "20px 0" },
+                ".react-colorful__saturation": { height: "100%" },
+                ".react-colorful__hue": { height: "50%" },
+                ".react-colorful__hue-pointer, .react-colorful__saturation-pointer":
+                  { width: "25px", height: "25px" },
+              }}
             >
-              <Box
-                p="2px"
-                sx={{
-                  "& > .react-colorful": { width: "99%", margin: "20px 0" },
-                  ".react-colorful__saturation": { height: "100%" },
-                  ".react-colorful__hue": { height: "50%" },
-                  ".react-colorful__hue-pointer, .react-colorful__saturation-pointer":
-                    { width: "25px", height: "25px" },
-                }}
+              <Typography variant="h4" fontWeight="bold" textAlign="center">
+                ADD NEW METRIC
+              </Typography>
+              <Formik
+                onSubmit={newMetric}
+                initialValues={initialValues}
+                validationSchema={userSchema}
               >
-                <Typography variant="h4" fontWeight="bold" textAlign="center">
-                  ADD NEW METRIC
-                </Typography>
-                <Formik
-                  onSubmit={newMetric}
-                  initialValues={initialValues}
-                  validationSchema={userSchema}
-                >
-                  {({
-                    values,
-                    errors,
-                    touched,
-                    handleBlur,
-                    handleChange,
-                    handleSubmit,
-                  }) => (
-                    <form onSubmit={handleSubmit}>
-                      <Box display="grid">
-                        <TextField
-                          fullWidth
-                          variant="filled"
-                          type="text"
-                          label="Metric Name"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.metric}
-                          name="metric"
-                          error={!!touched.metric && !!errors.metric}
-                          helperText={touched.metric && errors.metric}
-                          sx={{ gridColumn: "span 1" }}
-                        />
-                        <TextField
-                          fullWidth
-                          variant="filled"
-                          type="text"
-                          label="Time Logged"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.x}
-                          name="x"
-                          error={!!touched.x && !!errors.x}
-                          helperText={touched.x && errors.x}
-                          sx={{ gridColumn: "span 1" }}
-                        />
-                        <TextField
-                          fullWidth
-                          variant="filled"
-                          type="text"
-                          label="Value"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.y}
-                          name="y"
-                          error={!!touched.y && !!errors.y}
-                          helperText={touched.y && errors.y}
-                          sx={{ gridColumn: "span 1" }}
-                        />
-                        <Button
-                          type="submit"
-                          color="secondary"
-                          variant="contained"
-                        >
-                          Track New Metric
-                        </Button>
-                      </Box>
-                    </form>
-                  )}
-                </Formik>
-                <HexColorPicker color={color} onChange={setColor} />
-              </Box>
-              <Box height="auto" gap="10px">
-                <Typography
-                  variant="h4"
-                  fontWeight="bold"
-                  textAlign="center"
-                  m="2px"
-                  sx={{ color: colors.grey[100] }}
-                >
-                  ADD NEW CATEGORY
-                </Typography>
-                <Formik
-                  onSubmit={newCategory}
-                  initialValues={initialValues}
-                  validationSchema={categorySchema}
-                >
-                  {({
-                    values,
-                    errors,
-                    touched,
-                    handleBlur,
-                    handleChange,
-                    handleSubmit,
-                  }) => (
-                    <form onSubmit={handleSubmit}>
-                      <Box display="grid">
-                        <TextField
-                          fullWidth
-                          variant="filled"
-                          type="text"
-                          label="Category Name"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.category}
-                          name="category"
-                          error={!!touched.category && !!errors.category}
-                          helperText={touched.category && errors.category}
-                          sx={{ gridColumn: "span 1" }}
-                        />
-                        <Button
-                          type="submit"
-                          color="secondary"
-                          variant="contained"
-                        >
-                          Track New Category
-                        </Button>
-                      </Box>
-                    </form>
-                  )}
-                </Formik>
-              </Box>
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleBlur,
+                  handleChange,
+                  handleSubmit,
+                }) => (
+                  <form onSubmit={handleSubmit}>
+                    <Box display="grid">
+                      <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Metric Name"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        value={values.metric}
+                        name="metric"
+                        error={!!touched.metric && !!errors.metric}
+                        helperText={touched.metric && errors.metric}
+                        sx={{ gridColumn: "span 1" }}
+                      />
+                      <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Time Logged"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        value={values.x}
+                        name="x"
+                        error={!!touched.x && !!errors.x}
+                        helperText={touched.x && errors.x}
+                        sx={{ gridColumn: "span 1" }}
+                      />
+                      <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Value"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        value={values.y}
+                        name="y"
+                        error={!!touched.y && !!errors.y}
+                        helperText={touched.y && errors.y}
+                        sx={{ gridColumn: "span 1" }}
+                      />
+                      <Button
+                        type="submit"
+                        color="secondary"
+                        variant="contained"
+                      >
+                        Track New Metric
+                      </Button>
+                    </Box>
+                  </form>
+                )}
+              </Formik>
+              <HexColorPicker color={color} onChange={setColor} />
             </Box>
+            <Box
+              height="auto"
+              m="20px 0 0 0"
+              gap="10px"
+              p="20px"
+              backgroundColor={colors.primary[400]}
+            >
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                textAlign="center"
+                m="2px"
+                sx={{ color: colors.grey[100] }}
+              >
+                ADD NEW CATEGORY
+              </Typography>
+              <Formik
+                onSubmit={newCategory}
+                initialValues={initialValues}
+                validationSchema={categorySchema}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleBlur,
+                  handleChange,
+                  handleSubmit,
+                }) => (
+                  <form onSubmit={handleSubmit}>
+                    <Box display="grid">
+                      <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Category Name"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        value={values.category}
+                        name="category"
+                        error={!!touched.category && !!errors.category}
+                        helperText={touched.category && errors.category}
+                        sx={{ gridColumn: "span 1" }}
+                      />
+                      <Button
+                        type="submit"
+                        color="secondary"
+                        variant="contained"
+                      >
+                        Track New Category
+                      </Button>
+                    </Box>
+                  </form>
+                )}
+              </Formik>
+            </Box>
+          </Box>
         </AccordionDetails>
       </Accordion>
     </Box>

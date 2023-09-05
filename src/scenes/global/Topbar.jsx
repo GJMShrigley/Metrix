@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { Box, IconButton } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import { Box, IconButton } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 
 import { toggleSidebar } from "../../store/displaySlice";
 
@@ -15,7 +15,7 @@ const Topbar = () => {
   };
 
   return (
-    <Box display="flex" p={2}>
+    <Box display="flex" sx={{ padding: "1rem" }}>
       <Box display="flex" width="100%" justifyContent="space-between">
         <IconButton onClick={handleSidebar}>
           <MenuOutlinedIcon />

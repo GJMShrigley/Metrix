@@ -29,7 +29,7 @@ const QuickUpdate = (props) => {
   ));
 
   return (
-    <Box>
+    <Box width="100vw">
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5" textAlign="center">

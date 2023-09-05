@@ -1,40 +1,36 @@
 import { useEffect, useState } from "react";
-import { useTheme } from "@mui/material";
-import { Box, Button, TextField, Typography } from "@mui/material";
+
 import { Formik } from "formik";
-import { useSelector, useDispatch } from "react-redux";
-import { useParams, Link } from "react-router-dom";
-import * as yup from "yup";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from "../../components/Header";
-import LineChart from "../../components/LineChart";
-import { tokens } from "../../theme";
-import { updateValue, saveFile, addJournal } from "../../store/userDataSlice";
-import { HexColorPicker } from "react-colorful";
-import { useLocation } from "react-router-dom";
-import ProgressBox from "../../components/ProgressBox";
-import * as moment from "moment";
-import DateSearch from "../../components/DateSearch";
-import StatBox from "../../components/StatBox";
-import BiaxialChart from "../../components/BiaxialChart";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import * as moment from "moment";
+import { Link, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import * as yup from "yup";
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
+import BiaxialChart from "../../components/BiaxialChart";
+import Header from "../../components/Header";
+import LineChart from "../../components/LineChart";
+import StatBox from "../../components/StatBox";
+
+import { addJournal, saveFile } from "../../store/userDataSlice";
+
 const userSchema = yup.object().shape({
-  x: yup.date().required("required"),
-  note: yup.string(),
+  journal: yup.string(),
 });
 
 const ActivityPage = () => {
+  const dispatch = useDispatch();
   const location = useLocation().state;
   const startDate = location.startDate;
   const endDate = location.endDate;
-  const dispatch = useDispatch();
-  const metricsArray = useSelector((state) => state.userData.metrics);
   const categoryArray = useSelector((state) => state.userData.categories);
   const journalArray = useSelector((state) => state.userData.journal);
+  const metricsArray = useSelector((state) => state.userData.metrics);
   const [chartData, setChartData] = useState([
     {
       id: "",
@@ -50,12 +46,14 @@ const ActivityPage = () => {
       goal: "",
     },
   ]);
-  const [pageTitle, setPageTitle] = useState(startDate);
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
+  const [pageTitle, setPageTitle] = useState(startDate);
   const [textData, setTextData] = useState("");
 
+  //Set the page title and chart data.
   useEffect(() => {
+    //If no end date given, set chart data to one day prior and one day after start date. Set title to the start date.
     if (!endDate) {
       let dateArray = [];
       metricsArray.map((metric, i) => {
@@ -74,11 +72,7 @@ const ActivityPage = () => {
       setChartData(dateArray);
       setPageTitle(startDate);
 
-      for (let i = 0; i < journalArray.length; i++) {
-        if (journalArray[i].x === startDate) {
-          setTextData(journalArray[i].note);
-        }
-      }
+      //If an end date is given, set the chart data and title to the period between the start and end dates.
     } else {
       let newChartData = [];
       metricsArray.map((metric, i) => {
@@ -98,6 +92,7 @@ const ActivityPage = () => {
     }
   }, [metricsArray, endDate, startDate]);
 
+  //Split the chart data into 'number' or 'scale' data types. If both types exist, push them to separate state arrays.
   useEffect(() => {
     let tempData1 = [];
     let tempData2 = [];
@@ -117,63 +112,65 @@ const ActivityPage = () => {
     }
   }, [chartData, categoryArray, location]);
 
-  const handleNoteSubmit = (value) => {
-    dispatch(addJournal({ x: startDate, note: value.note }));
+  //When a journal is submitted, record it in global state with the 'x' value as the given start date.
+  const handleJournalSubmit = (value) => {
+    dispatch(addJournal({ x: startDate, journal: value.journal }));
     dispatch(saveFile());
   };
 
   const statBoxes = chartData.map((data, i) => {
     return (
-      <StatBox title={data.id} stats={data.data} key={i} type={data.type} />
+      <StatBox key={i} stats={data.data} title={data.id} type={data.type} />
     );
   });
 
+  const initialValues = {
+    journal: `${textData}`,
+  };
+
+  useEffect(() => {
+    //If no end date given, set the journal text for the given start date.
+    for (let i = 0; i < journalArray.length; i++) {
+      if (journalArray[i].x === startDate) {
+        journalArray[i].journal != undefined ? setTextData(journalArray[i].journal) : setTextData("");
+      }
+    }
+  }, [journalArray, initialValues, endDate]);
+
   return (
-    <Box
-      ml="20px"
-      display="grid"
-      gridTemplateColumns="repeat(12, 1fr)"
-      gap="10px"
-    >
-      <Box
-        height="7vh"
-        gridColumn="span 12"
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-      >
-        <Box display="flex">
-          <Button
-            component={Link}
-            to={`/activity/0`}
-            state={{
-              startDate: moment(startDate)
-                .subtract(1, "days")
-                .format("MM/DD/YYYY"),
-            }}
-            type="submit"
-            color="secondary"
-            variant="contained"
-            sx={{ height: "5vh" }}
-          >
-            Previous
-          </Button>
-          <Header title={pageTitle} subtitle="" isDate={true} />
-          <Button
-            component={Link}
-            to={`/activity/0`}
-            state={{
-              startDate: moment(startDate).add(1, "days").format("MM/DD/YYYY"),
-            }}
-            type="submit"
-            color="secondary"
-            variant="contained"
-            sx={{ height: "5vh" }}
-          >
-            Next
-          </Button>
-        </Box>
+    <Box display="flex" flexDirection="column" gap="1rem">
+      <Box alignItems="center" display="flex" justifyContent="center">
+        <Button
+          component={Link}
+          to={`/activity/0`}
+          state={{
+            startDate: moment(startDate)
+              .subtract(1, "days")
+              .format("MM/DD/YYYY"),
+          }}
+          type="submit"
+          color="secondary"
+          variant="contained"
+          sx={{ height: "5vh" }}
+        >
+          Previous
+        </Button>
+        <Header title={pageTitle} isDate={true} />
+        <Button
+          component={Link}
+          to={`/activity/0`}
+          state={{
+            startDate: moment(startDate).add(1, "days").format("MM/DD/YYYY"),
+          }}
+          type="submit"
+          color="secondary"
+          variant="contained"
+          sx={{ height: "5vh" }}
+        >
+          Next
+        </Button>
       </Box>
+
       <Box gridColumn="span 12" height="65vh">
         {data2.length > 0 ? (
           <BiaxialChart
@@ -193,14 +190,14 @@ const ActivityPage = () => {
         )}
       </Box>
       {!endDate ? (
-        <Accordion sx={{ gridColumn: "span 12" }}>
+        <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h5">ADD JOURNAL ENTRY</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Formik
-              onSubmit={handleNoteSubmit}
-              initialValues={{ note: textData }}
+              onSubmit={handleJournalSubmit}
+              initialValues={initialValues}
               validationSchema={userSchema}
               enableReinitialize
             >
@@ -220,16 +217,15 @@ const ActivityPage = () => {
                     label=""
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.note}
-                    name="note"
-                    error={!!touched.note && !!errors.note}
-                    helperText={touched.note && errors.note}
+                    value={values.journal}
+                    name="journal"
+                    error={!!touched.journal && !!errors.journal}
+                    helperText={touched.journal && errors.journal}
                     multiline
                     sx={{
-                      gridColumn: "span 12",
                       "& .MuiInputBase-root": {
                         height: "65vh",
-                        fontSize: "20px",
+                        fontSize: "1rem",
                       },
                     }}
                   />
@@ -238,9 +234,8 @@ const ActivityPage = () => {
                     type="submit"
                     color="secondary"
                     variant="contained"
-                    sx={{ gridColumn: "span 1" }}
                   >
-                    Add Note
+                    Add Journal
                   </Button>
                 </form>
               )}
@@ -250,19 +245,12 @@ const ActivityPage = () => {
       ) : (
         <></>
       )}
-      <Accordion sx={{ gridColumn: "span 12" }}>
+      <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">VIEW STATS</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Box
-            gridColumn="span 12"
-            height="67vh"
-            display="grid"
-            gridTemplateColumns="repeat(2, 1fr)"
-            gap="10px"
-            justifyItems="center"
-          >
+          <Box display="grid" gap="1rem" justifyItems="center">
             {statBoxes}
           </Box>
         </AccordionDetails>

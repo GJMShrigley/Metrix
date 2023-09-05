@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { Box, useTheme } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
+
 import { useSelector } from "react-redux";
 
 import AddData from "../../components/AddData";
@@ -38,16 +39,14 @@ const Dashboard = () => {
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
 
-  //Find the 'Dashboard' category.
   useEffect(() => {
     for (let i = 0; i < userCategories.length; i++) {
       if (userCategories[i].categoryId === "Dashboard") {
         setSelectedCategory(userCategories[i]);
       }
     }
-  }, [userData]);
+  });
 
-  //Find the metrics contained in the 'Dashboard' category and create the chart data.
   useEffect(() => {
     let metricsData = [];
     for (let i = 0; i < selectedCategory.contents.length; i++) {
@@ -63,7 +62,6 @@ const Dashboard = () => {
     setChartData(categoryData);
   }, [selectedCategory]);
 
-  //Split the chart data into 'number' or 'scale' data types. If both types exist, push them to separate state arrays.
   useEffect(() => {
     let tempData1 = [];
     let tempData2 = [];
@@ -85,24 +83,27 @@ const Dashboard = () => {
 
   return (
     <Box
-      sx={{
-        display: "grid",
-        gap: ".5rem",
-        width: "95vw",
-      }}
+      display="grid"
+      gridTemplateColumns="repeat(12, 1fr)"
+      gap="10px"
+      width="95vw"
     >
       {/* ROW 1 */}
       {data2.length > 0 ? (
-        <BiaxialChart dataType="Dashboard" data1={data1} data2={data2} />
+        <BiaxialChart
+          dataType="Dashboard"
+          data1={data1}
+          data2={data2}
+        />
       ) : (
         <LineChart dataType="category" chartData={chartData.contents} />
       )}
       <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
-        }}
+        position="relative"
+        display="flex"
+        flexDirection="column"
+        alignContent="flex-end"
+        gridColumn="span 12"
       >
         {/* ROW 2 */}
         <QuickUpdate userData={userData} />

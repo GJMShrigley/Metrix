@@ -30,11 +30,6 @@ export default function BiaxialChart(props) {
   }, [data1, data2]);
 
   useEffect(() => {
-    setData(props.data1);
-    setData2(props.data2);
-  }, [originalData1, originalData2]);
-
-  useEffect(() => {
     const currentDate = new Date().toLocaleDateString("en-US", {
       day: "2-digit",
       month: "2-digit",
@@ -48,7 +43,12 @@ export default function BiaxialChart(props) {
     sliceDate(lastWeek, currentDate, data1, data2);
   }, []);
 
-  const sliceDate = (startDate, endDate, colorData1=data1, colorData2=data2) => {
+  const sliceDate = (
+    startDate,
+    endDate,
+    colorData1 = data1,
+    colorData2 = data2
+  ) => {
     startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
     endDate = moment(endDate).add(1, "days").format("MM/DD/YYYY");
     let newData = [];
@@ -345,7 +345,7 @@ export default function BiaxialChart(props) {
         <DateSlice sliceDate={sliceDate} />
         <Box
           sx={{
-            height: `${height + 5}vh`,
+            height: `${height + 10}vh`,
             width: "100vw",
             display: "flex",
             flexDirection: "column",
