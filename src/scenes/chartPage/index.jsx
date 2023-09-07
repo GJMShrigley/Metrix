@@ -158,7 +158,7 @@ const ChartPage = () => {
     );
     dispatch(saveFile());
   };
-
+  console.log("chartPage", chartData)
   return (
     <Box ml="20px">
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -169,7 +169,6 @@ const ChartPage = () => {
           <></>
         )}
       </Box>
-
       <Box height="60vh">
         <LineChart dataType="metric" chartData={chartData} />
       </Box>

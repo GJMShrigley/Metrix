@@ -34,13 +34,7 @@ const Header = ({ title, subtitle, isCategory, isDate, permanent}) => {
     }
 
     return (
-        <Box m="5px" width="auto" display="flex" gap="10px" justifyContent="center">
-            <Typography
-                variant="h5"
-                fontWeight="bold"
-                textAlign="center"
-                sx={{ color: colors.grey[100] }}
-            >
+        <Box m="5px" width="auto" display="flex" gap="10px" justifyItems="center">
                 {isEdit ? <Formik
                     onSubmit={editTitle}
                     initialValues={initialValues}
@@ -81,16 +75,11 @@ const Header = ({ title, subtitle, isCategory, isDate, permanent}) => {
                             variant="h2"
                             color={colors.grey[100]}
                             fontWeight="bold"
-                            sx={{ mb: "5px" }}
                         >
                             {title}
                         </Typography>
-                        <Typography variant="h5" color={colors.greenAccent[400]}>
-                            {subtitle}
-                        </Typography>
                     </Box>}
-            </Typography>
-            {isDate || title === "Dashboard" || permanent ? <Box></Box> : <EditOutlinedIcon onClick={openEdit} />}
+            {isDate || title === "Dashboard" || permanent ? null : <EditOutlinedIcon onClick={openEdit} />}
         </Box>
     )
 }

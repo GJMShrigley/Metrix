@@ -72,7 +72,7 @@ const userDataSlice = createSlice({
     addDate: (state, action) => {
       for (let i = 0; i < state.metrics.length; i++) {
         let lastDate = state.metrics[i].data.at(-1).x;
-        
+
         function incrementDate() {
           if (lastDate != currentDate) {
             let plusDay = moment(lastDate).add(1, "days").format("MM/DD/YYYY");
@@ -247,9 +247,10 @@ const userDataSlice = createSlice({
     addJournal: (state, action) => {
       let dataCopy = [...current(state.journal)];
       const lastDate = dataCopy.at(-1);
-
       if (moment(action.payload.x).isAfter(lastDate.x)) {
         dataCopy.push(action.payload);
+      } else if (moment(action.payload.x).isBefore(dataCopy[0].x)) {
+        dataCopy.unshift(action.payload);
       } else {
         for (let i = 0; i < dataCopy.length; i++) {
           const next = dataCopy[i + 1];
@@ -260,6 +261,7 @@ const userDataSlice = createSlice({
             moment(action.payload.x).isBefore(next.x)
           ) {
             dataCopy.splice([i + 1], 0, action.payload);
+            console.log(dataCopy.at(i).x, dataCopy.at(i + 1).x);
           }
         }
       }

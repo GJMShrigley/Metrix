@@ -19,18 +19,13 @@ import StatBox from "../../components/StatBox";
 
 import { addJournal, saveFile } from "../../store/userDataSlice";
 
-const userSchema = yup.object().shape({
-  journal: yup.string(),
-});
-
 const ActivityPage = () => {
   const dispatch = useDispatch();
   const location = useLocation().state;
-  const startDate = location.startDate;
-  const endDate = location.endDate;
   const categoryArray = useSelector((state) => state.userData.categories);
   const journalArray = useSelector((state) => state.userData.journal);
   const metricsArray = useSelector((state) => state.userData.metrics);
+
   const [chartData, setChartData] = useState([
     {
       id: "",
@@ -46,49 +41,36 @@ const ActivityPage = () => {
       goal: "",
     },
   ]);
+  const [startDate, setStartDate] = useState(location.startDate);
+  const [endDate, setEndDate] = useState(location.endDate);
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
   const [pageTitle, setPageTitle] = useState(startDate);
   const [textData, setTextData] = useState("");
 
+  const userSchema = yup.object().shape({
+    journal: yup.string(),
+  });
+
+  const initialValues = {
+    journal: `${textData}`,
+  };
+
+  //Set the start and end dates when provided by page selection.
+  useEffect(() => {
+    setStartDate(location.startDate);
+    setEndDate(location.endDate);
+  }, [location]);
+
   //Set the page title and chart data.
   useEffect(() => {
-    //If no end date given, set chart data to one day prior and one day after start date. Set title to the start date.
+    setChartData(metricsArray);
+    //If no end date given, set title to the start date.
     if (!endDate) {
-      let dateArray = [];
-      metricsArray.map((metric, i) => {
-        for (let i = 0; i < metric.data.length; i++) {
-          if (metric.data[i].x === startDate) {
-            let tempArray = [];
-            tempArray.push(metric.data.slice(i - 1, i + 2));
-            const temp = tempArray.reduce((temp, data) => ({
-              ...metricsArray,
-              data: temp,
-            }));
-            dateArray.push({ ...metric, data: [...temp] });
-          }
-        }
-      });
-      setChartData(dateArray);
       setPageTitle(startDate);
-
-      //If an end date is given, set the chart data and title to the period between the start and end dates.
+      //If an end date is given, set the title to the period between the start and end dates.
     } else {
-      let newChartData = [];
-      metricsArray.map((metric, i) => {
-        let newMetricData = [];
-        for (let i = 0; i < metric.data.length; i++) {
-          if (
-            moment(metric.data[i].x).isSameOrAfter(startDate, "day") &&
-            moment(metric.data[i].x).isSameOrBefore(endDate, "day")
-          ) {
-            newMetricData.push(metric.data[i]);
-          }
-        }
-        newChartData.push({ ...metric, data: newMetricData });
-      });
       setPageTitle(startDate + " - " + endDate);
-      setChartData(newChartData);
     }
   }, [metricsArray, endDate, startDate]);
 
@@ -96,6 +78,7 @@ const ActivityPage = () => {
   useEffect(() => {
     let tempData1 = [];
     let tempData2 = [];
+
     for (let i = 0; i < chartData.length; i++) {
       if (chartData[i].type === chartData[0].type) {
         tempData1.push(chartData[i]);
@@ -103,6 +86,7 @@ const ActivityPage = () => {
         tempData2.push(chartData[i]);
       }
     }
+
     if (tempData2.length) {
       setData1(tempData1);
       setData2(tempData1.concat(tempData2));
@@ -112,127 +96,164 @@ const ActivityPage = () => {
     }
   }, [chartData, categoryArray, location]);
 
+  useEffect(() => {
+    //If no end date given, set the journal text for the given start date.
+    for (let i = 0; i < journalArray.length; i++) {
+      if (journalArray[i].x === startDate) {
+        journalArray[i].journal != undefined
+          ? setTextData(journalArray[i].journal)
+          : setTextData("");
+      }
+    }
+  }, [journalArray, initialValues, endDate]);
+
+  const changeDate = (newStartDate, newEndDate) => {
+    if (newStartDate === newEndDate) {
+      setStartDate(newStartDate);
+      setEndDate(null);
+    } else {
+      setStartDate(newStartDate);
+      setEndDate(newEndDate);
+    }
+  };
+
   //When a journal is submitted, record it in global state with the 'x' value as the given start date.
   const handleJournalSubmit = (value) => {
-    dispatch(addJournal({ x: startDate, journal: value.journal }));
+    dispatch(addJournal({ journal: value.journal, x: startDate }));
     dispatch(saveFile());
   };
 
   const statBoxes = chartData.map((data, i) => {
     return (
-      <StatBox key={i} stats={data.data} title={data.id} type={data.type} />
+      <StatBox
+        endDate={endDate}
+        key={i}
+        startDate={startDate}
+        stats={data.data}
+        title={data.id}
+      />
     );
   });
 
-  const initialValues = {
-    journal: `${textData}`,
-  };
-
-  useEffect(() => {
-    //If no end date given, set the journal text for the given start date.
-    for (let i = 0; i < journalArray.length; i++) {
-      if (journalArray[i].x === startDate) {
-        journalArray[i].journal != undefined ? setTextData(journalArray[i].journal) : setTextData("");
-      }
-    }
-  }, [journalArray, initialValues, endDate]);
-
   return (
-    <Box display="flex" flexDirection="column" gap="1rem">
-      <Box alignItems="center" display="flex" justifyContent="center">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Box
+        sx={{
+          alignItems: "center",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
         <Button
+          color="secondary"
           component={Link}
-          to={`/activity/0`}
           state={{
             startDate: moment(startDate)
               .subtract(1, "days")
               .format("MM/DD/YYYY"),
           }}
+          sx={{
+            height: "2rem",
+            width: "5rem",
+          }}
+          to={`/activity/0`}
           type="submit"
-          color="secondary"
           variant="contained"
-          sx={{ height: "5vh" }}
         >
           Previous
         </Button>
-        <Header title={pageTitle} isDate={true} />
+        <Header isDate={true} title={pageTitle} />
         <Button
+          color="secondary"
           component={Link}
-          to={`/activity/0`}
           state={{
             startDate: moment(startDate).add(1, "days").format("MM/DD/YYYY"),
           }}
+          sx={{
+            height: "2rem",
+            width: "5rem",
+          }}
+          to={`/activity/0`}
           type="submit"
-          color="secondary"
           variant="contained"
-          sx={{ height: "5vh" }}
         >
           Next
         </Button>
       </Box>
-
-      <Box gridColumn="span 12" height="65vh">
+      <Box
+        sx={{
+          gridColumn: "span 12",
+          height: "65vh",
+        }}
+      >
         {data2.length > 0 ? (
           <BiaxialChart
+            changeDate={changeDate}
             dataType="date"
-            startDate={startDate}
-            endDate={endDate}
             data1={data1}
             data2={data2}
+            endDate={endDate}
+            startDate={startDate}
           />
         ) : (
           <LineChart
-            dataType="date"
-            startDate={startDate}
-            endDate={endDate}
+            changeDate={changeDate}
             chartData={chartData}
+            dataType="date"
+            endDate={endDate}
+            startDate={startDate}
           />
         )}
       </Box>
       {!endDate ? (
-        <Accordion>
+        <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h5">ADD JOURNAL ENTRY</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Formik
-              onSubmit={handleJournalSubmit}
-              initialValues={initialValues}
-              validationSchema={userSchema}
               enableReinitialize
+              initialValues={initialValues}
+              onSubmit={handleJournalSubmit}
+              validationSchema={userSchema}
             >
               {({
-                values,
                 errors,
-                touched,
                 handleBlur,
                 handleChange,
                 handleSubmit,
+                touched,
+                values,
               }) => (
                 <form onSubmit={handleSubmit}>
                   <TextField
+                    error={!!touched.journal && !!errors.journal}
                     fullWidth
-                    variant="filled"
-                    type="text"
+                    helperText={touched.journal && errors.journal}
                     label=""
+                    multiline
+                    name="journal"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.journal}
-                    name="journal"
-                    error={!!touched.journal && !!errors.journal}
-                    helperText={touched.journal && errors.journal}
-                    multiline
+                    variant="filled"
                     sx={{
                       "& .MuiInputBase-root": {
-                        height: "65vh",
                         fontSize: "1rem",
+                        height: "65vh",
                       },
                     }}
+                    type="text"
+                    value={values.journal}
                   />
                   <Button
+                    color="secondary"
                     fullWidth
                     type="submit"
-                    color="secondary"
                     variant="contained"
                   >
                     Add Journal
@@ -242,15 +263,19 @@ const ActivityPage = () => {
             </Formik>
           </AccordionDetails>
         </Accordion>
-      ) : (
-        <></>
-      )}
-      <Accordion>
+      ) : null}
+      <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">VIEW STATS</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Box display="grid" gap="1rem" justifyItems="center">
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              justifyItems: "center",
+            }}
+          >
             {statBoxes}
           </Box>
         </AccordionDetails>

@@ -1,100 +1,217 @@
+import { useEffect, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
-import { tokens } from "../theme";
-import ProgressCircle from "./ProgressCircle";
-import { isInteger } from "formik";
+import * as moment from "moment";
 
-const StatBox = ({ title, stats, type }) => {
+import { tokens } from "../theme";
+
+const findRange = function (statsSlice, title) {
+  let max = 0;
+  let min = 0;
+  for (let i = 0; i < statsSlice.length; i++) {
+    if (parseFloat(statsSlice[i].y) > max) {
+      max = statsSlice[i].y;
+    } else if (parseFloat(statsSlice[i].y) < min) {
+      min = parseFloat(statsSlice[i].y);
+    }
+  }
+  return max - min;
+};
+
+const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const statsList = stats.map((day, i) => {
-    let previous = i > 0 ? stats[i - 1].y : 0;
-    const difference = (day.y - previous).toFixed(2);
-    const percent = parseInt(day.y) === parseInt(difference) ? 0 : Math.round((difference / previous) * 100);
+  const [statsSlice, setStatsSlice] = useState(stats);
 
-    return (
-      <Box display="flex" gap="30px" key={i} justifyContent="space-around" alignItems="center">
-        <Typography
-          variant="h4"
-          sx={{ color: colors.greenAccent[100] }}
-        >
-          {day.x}
-        </Typography>
-        <Typography
-          variant="h4"
-          display="flex"
-          justifyContent="center"
-          fontWeight="bold"
-          sx={{ color: colors.greenAccent[600] }}
-        >
-          {day.y}
-        </Typography>
-        <Typography
-          variant="h5"
-          display="flex"
-          justifyContent="center"
-          sx={difference >= 0 ? { color: colors.blueAccent[300] } : { color: colors.redAccent[300] }}
-        >
-          {difference}
-        </Typography>
-        <Typography
-          variant="h5"
-          width="33%"
-          display="flex"
-          justifyContent="center"
-          fontStyle="italic"
-          sx={percent >= 0 ? { color: colors.blueAccent[500] } : { color: colors.redAccent[500] }}
-        >
-          {percent}&#37;
-        </Typography>
-      </Box>
+  const sum = statsSlice.reduce((acc, obj) => acc + parseInt(obj.y), 0);
+  const range = findRange(statsSlice, title);
+  const mean = (sum / statsSlice.length).toFixed(2);
 
-    )
-  })
-  const sum = stats.reduce(function (acc, obj) { return acc + parseInt(obj.y); }, 0);
-  const movement = (parseInt(stats[stats.length - 1].y) - parseInt(stats[0].y));
-  const mean = (sum / stats.length).toFixed(2);
+  useEffect(() => {
+    let statsArray = [];
+
+    if (!endDate) {
+      endDate = moment(startDate).add(1, "days").format("MM/DD/YYYY");
+      startDate = moment(startDate).subtract(2, "days").format("MM/DD/YYYY");
+    } else {
+      startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
+    }
+
+    for (let i = 0; i < stats.length; i++) {
+      if (moment(stats[i].x).isBetween(startDate, endDate, "day", "[]")) {
+        statsArray.push(stats[i]);
+      }
+    }
+    setStatsSlice(statsArray);
+
+    if (isCategory) {
+      setStatsSlice(stats);
+    }
+  }, [stats, endDate]);
+
+  const statsList = statsSlice.map((day, i) => {
+    if (i === 0) {
+      return null;
+    } else {
+      let previous = i > 0 ? statsSlice[i - 1].y : 0;
+      const difference = (day.y - previous).toFixed(2);
+      const percent =
+        parseInt(day.y) === parseInt(difference)
+          ? 0
+          : Math.round((difference / previous) * 100);
+      const color =
+        difference >= 0
+          ? { color: colors.blueAccent[300] }
+          : { color: colors.redAccent[300] };
+      return (
+        <Box
+          key={i}
+          sx={{
+            alignItems: "center",
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "space-around",
+          }}
+        >
+          <Typography
+            sx={{
+              color: colors.greenAccent[100],
+            }}
+            variant="h4"
+          >
+            {day.x}
+          </Typography>
+          <Typography
+            sx={{
+              color: colors.greenAccent[600],
+              display: "flex",
+              fontWeight: "bold",
+              justifyContent: "center",
+            }}
+            variant="h4"
+          >
+            {day.y}
+          </Typography>
+          <Typography
+            sx={{
+              color,
+              display: "flex",
+              justifyContent: "center",
+            }}
+            variant="h5"
+          >
+            {difference}
+          </Typography>
+          <Typography
+            sx={{
+              color,
+              display: "flex",
+              fontStyle: "italic",
+              justifyContent: "center",
+            }}
+            variant="h5"
+          >
+            {percent}&#37;
+          </Typography>
+        </Box>
+      );
+    }
+  });
+
   return (
-    <Box width="70%" m="0px" p="10px 50px" backgroundColor={colors.primary[400]}>
-      <Box display="flex" flexDirection="column" justifyContent="space-between" alignItems="center">
+    <Box
+      sx={{
+        backgroundColor: colors.primary[400],
+        m: "0",
+        p: "1rem",
+        width: "100%",
+      }}
+    >
+      <Box
+        sx={{
+          alignItems: "center",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
         <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{ color: colors.grey[100] }}
+          sx={{
+            color: colors.grey[100],
+            fontWeight: "bold",
+            marginBottom: "1rem",
+          }}
+          variant="h3"
         >
           {title}
         </Typography>
-        <Box display="flex" flexDirection="row" gap="20px">
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{ color: colors.grey[100] }}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: ".5rem",
+          }}
         >
-          AVERAGE &#40;MEAN&#41;&#58;
-        </Typography>
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{ color: colors.greenAccent[500] }}
-        >
-          {mean}
-        </Typography>
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{ color: colors.grey[100] }}
-        >
-          MOVEMENT&#58;
-        </Typography>
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{ color: colors.greenAccent[500] }}
-        >
-          {movement > 0 ? "+" : ""}{movement}
-        </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: ".5rem",
+            }}
+          >
+            <Typography
+              sx={{
+                color: colors.grey[100],
+                fontWeight: "bold",
+              }}
+              variant="h4"
+            >
+              Mean&#58;
+            </Typography>
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+                fontWeight: "bold",
+              }}
+              variant="h4"
+            >
+              {mean}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              gap: ".5rem",
+            }}
+          >
+            <Typography
+              sx={{
+                color: colors.grey[100],
+                fontWeight: "bold",
+              }}
+              variant="h4"
+            >
+              Range&#58;
+            </Typography>
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+                fontWeight: "bold",
+              }}
+              variant="h4"
+            >
+              {range > 0 ? "+" : ""}
+              {range}
+            </Typography>
+          </Box>
         </Box>
-        <Box display="flex" flexDirection="column" gap="20px">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            margin: "1rem 0",
+          }}
+        >
           {statsList}
         </Box>
       </Box>

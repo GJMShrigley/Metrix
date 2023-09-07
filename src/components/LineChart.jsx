@@ -30,22 +30,24 @@ const LineChart = (props) => {
   }, [chartData]);
 
   const sliceDate = (startDate, endDate) => {
-    startDate = moment(startDate)
-      .subtract(1, "days")
-      .format("MM/DD/YYYY");
-    endDate = moment(endDate)
-      .add(1, "days")
-      .format("MM/DD/YYYY");
-    let dateArray = [];
-    for (let i = 0; i < originalData[0].data.length; i++) {
-      if (
-        moment(originalData[0].data[i].x).isAfter(startDate) &&
-        moment(originalData[0].data[i].x).isBefore(endDate)
-      ) {
-        dateArray.push(originalData[0].data[i]);
+    startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
+    endDate = moment(endDate).add(1, "days").format("MM/DD/YYYY");
+    let dateData = [];
+    let metricData = [];
+    for (let i = 0; i < originalData.length; i++) {
+      for (let j = 0; j < originalData[i].data.length; j++) {
+        if (
+          moment(originalData[i].data[j].x).isAfter(startDate) &&
+          moment(originalData[i].data[j].x).isBefore(endDate)
+        ) {
+          metricData.push(originalData[i].data[j]);
+        }
       }
+      dateData.push({ ...originalData[i], data: metricData });
+      metricData = [];
     }
-    setChartData([{ ...originalData[0], data: dateArray }]);
+
+    setChartData(dateData);
   };
 
   useEffect(() => {

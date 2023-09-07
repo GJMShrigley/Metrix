@@ -1,32 +1,42 @@
+import { useState, useEffect } from "react";
+
 import {
   Box,
-  FormControl,
-  useTheme,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  useTheme,
 } from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import useMediaQuery from "@mui/material/useMediaQuery";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+import BiaxialChart from "../../components/BiaxialChart";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import BiaxialChart from "../../components/BiaxialChart";
-import { useState, useEffect } from "react";
+import StatBox from "../../components/StatBox";
+
 import { addMetricToCategory, saveFile } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
-
 
 const Category = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const dispatch = useDispatch();
   const params = useParams();
   const id = parseInt(params.id);
   const categoryArray = useSelector((state) => state.userData.categories);
   const metricsArray = useSelector((state) => state.userData.metrics);
-  const dispatch = useDispatch();
   const isMobile = useMediaQuery("(max-width: 800px)");
+
   const [selection, setSelection] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(categoryArray[0]);
   const [chartData, setChartData] = useState({
@@ -77,7 +87,7 @@ const Category = () => {
         tempData2.push(chartData.contents[i]);
       }
     }
-    if (tempData2.length) {
+    if (tempData2.length > 0) {
       setData1(tempData1);
       setData2(tempData1.concat(tempData2));
     } else {
@@ -106,69 +116,104 @@ const Category = () => {
     dispatch(saveFile());
   };
 
+  const statBoxes = chartData.contents.map((data, i) => {
+
+    return (
+      <Accordion disableGutters>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h5">{data.id}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+        <StatBox isCategory={true} key={i} stats={data.data} title={data.id} />
+        </AccordionDetails>
+      </Accordion>
+    );
+  });
+
   return (
     <Box
-      ml="20px"
-      display="grid"
-      gridTemplateColumns="repeat(12, 1fr)"
-      gap="10px"
+      sx={{
+        display: "grid",
+        width: "100vw",
+      }}
     >
-      <Box gridColumn="span 12" backgroundColor={colors.primary[400]}>
-        <Header
-          title={chartData.categoryId}
-          subtitle=""
-          isCategory={true}
-          display="flex"
-          gridColumn="span 12"
-        />
+      <Box
+        sx={{
+          display: "flex",
+          backgroundColor: colors.primary[400],
+          justifyContent: "center",
+          width: "100vw",
+        }}
+      >
+        <Header isCategory={true} title={chartData.categoryId} />
       </Box>
-      <Box gridColumn="span 12" backgroundColor={colors.primary[400]}>
-        <Box m="10px 10px">
+      <Box
+        sx={{
+          backgroundColor: colors.primary[400],
+        }}
+      >
+        <Box>
           {data2.length > 0 ? (
-            <BiaxialChart
-              dataType="category"
-              data1={data1}
-              data2={data2}
-            />
+            <BiaxialChart dataType="category" data1={data1} data2={data2} />
           ) : (
-            <LineChart
-              dataType="category"
-              chartData={chartData.contents}
-            />
+            <LineChart chartData={chartData.contents} dataType="category" />
           )}
-          <Box width="50%" display="flex"></Box>
           <Box
-            width="100vw"
-            display="flex"
-            alignContent="center"
-            justifyContent="center"
+            sx={{
+              display: "flex",
+              width: "50%",
+            }}
+          ></Box>
+          <Box
+            sx={{
+              alignContent: "center",
+              display: "flex",
+              justifyContent: "center",
+              width: "100vw",
+            }}
           >
             <FormControl>
               <InputLabel>Add/Remove Metric</InputLabel>
               <Select
                 label="Metrics"
-                onChange={handleChange}
-                value={selection}
                 multiple
+                onChange={handleChange}
                 sx={{
-                  width: "25vw",
+                  maxWidth: "70vw",
+                  width: "15rem",
                 }}
+                value={selection}
               >
                 {selectionItems}
               </Select>
             </FormControl>
             <Button
-              type="submit"
               color="secondary"
-              variant="contained"
               onClick={handleSubmit}
-              sx={{ gridColumn: "span 1" }}
+              type="submit"
+              variant="contained"
             >
               Add/Remove
             </Button>
           </Box>
         </Box>
       </Box>
+      <Accordion disableGutters>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h5">VIEW STATS</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "1rem",
+              justifyItems: "center",
+            }}
+          >
+            {statBoxes}
+          </Box>
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 };

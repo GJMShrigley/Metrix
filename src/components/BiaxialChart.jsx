@@ -12,7 +12,7 @@ export default function BiaxialChart(props) {
   const isMobile = useMediaQuery("(max-width: 800px)");
   const originalData1 = props.data1;
   const originalData2 = props.data2;
-  const [data1, setData] = useState(props.data1);
+  const [data1, setData1] = useState(props.data1);
   const [data2, setData2] = useState(props.data2);
   const [maxY, setMaxY] = useState("auto");
   const height = props.dataType === "Dashboard" ? 50 : 50;
@@ -30,35 +30,57 @@ export default function BiaxialChart(props) {
   }, [data1, data2]);
 
   useEffect(() => {
-    const currentDate = new Date().toLocaleDateString("en-US", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+    if (!props.startDate) {
+      const endDate = new Date().toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
 
-    const lastWeek = moment(currentDate)
-      .subtract(6, "days")
-      .format("MM/DD/YYYY");
+      const startDate = moment(endDate)
+        .subtract(6, "days")
+        .format("MM/DD/YYYY");
 
-    sliceDate(lastWeek, currentDate, data1, data2);
-  }, []);
+      sliceDate(startDate, endDate, originalData1, originalData2);
+    } else if (props.startDate && !props.endDate) {
+      const startDate = moment(props.startDate)
+        .subtract(1, "days")
+        .format("MM/DD/YYYY");
 
-  const sliceDate = (
+      const endDate = moment(props.startDate)
+        .add(1, "days")
+        .format("MM/DD/YYYY");
+
+      sliceDate(startDate, endDate, originalData1, originalData2);
+    } else if (props.startDate && props.endDate) {
+      sliceDate(props.startDate, props.endDate, originalData1, originalData2);
+    }
+  }, [props.startDate, props.endDate]);
+
+  function sliceDate(
     startDate,
     endDate,
     colorData1 = data1,
     colorData2 = data2
-  ) => {
-    startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
-    endDate = moment(endDate).add(1, "days").format("MM/DD/YYYY");
+  ) {
     let newData = [];
     let newData2 = [];
+
+    if (startDate === endDate) {
+      endDate = moment(startDate).add(1, "days").format("MM/DD/YYYY");
+      startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
+    }
+
     for (let i = 0; i < originalData1.length; i++) {
       let dateArray = [];
       for (let e = 0; e < originalData1[i].data.length; e++) {
         if (
-          moment(originalData1[i].data[e].x).isAfter(startDate) &&
-          moment(originalData1[i].data[e].x).isBefore(endDate)
+          moment(originalData1[i].data[e].x).isBetween(
+            startDate,
+            endDate,
+            "day",
+            "[]"
+          )
         ) {
           dateArray.push(originalData1[i].data[e]);
         }
@@ -74,8 +96,12 @@ export default function BiaxialChart(props) {
       let dateArray = [];
       for (let e = 0; e < originalData2[i].data.length; e++) {
         if (
-          moment(originalData2[i].data[e].x).isAfter(startDate) &&
-          moment(originalData2[i].data[e].x).isBefore(endDate)
+          moment(originalData2[i].data[e].x).isBetween(
+            startDate,
+            endDate,
+            "day",
+            "[]"
+          )
         ) {
           dateArray.push(originalData2[i].data[e]);
         }
@@ -86,9 +112,9 @@ export default function BiaxialChart(props) {
         data: dateArray,
       });
     }
-    setData(newData);
+    setData1(newData);
     setData2(newData2);
-  };
+  }
 
   const graphTheme = {
     axis: {
@@ -342,7 +368,7 @@ export default function BiaxialChart(props) {
   const Wrapper = () => {
     return (
       <Box backgroundColor={colors.primary[400]}>
-        <DateSlice sliceDate={sliceDate} />
+        <DateSlice sliceDate={sliceDate} changeDate={props.changeDate} />
         <Box
           sx={{
             height: `${height + 10}vh`,

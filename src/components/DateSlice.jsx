@@ -26,7 +26,10 @@ const DateSlice = (props) => {
     });
 
     const handleFormSubmit = (values) => {
-       props.sliceDate(values.startDate,values.endDate);
+       props.sliceDate(values.startDate, values.endDate);
+       if(props.changeDate) {
+         props.changeDate(values.startDate, values.endDate);
+       }
     };
 
     return (
