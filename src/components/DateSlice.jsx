@@ -33,7 +33,7 @@ const DateSlice = (props) => {
     };
 
     return (
-        <Box width="auto" minWidth="100px" m="0 10px">
+        <Box width="90vw">
             <Box display="flex" flexDirection="column" gap="0" justifyContent="center" overflow="hidden">
             </Box>
             <Formik
@@ -50,7 +50,7 @@ const DateSlice = (props) => {
                             <Box
                                 display="flex"
                                 flexDirection="row"
-                                columnGap={"5px"}
+                                columnGap="5px"
                             >
                                 <TextField
                                     fullWidth

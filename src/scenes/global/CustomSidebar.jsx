@@ -124,21 +124,21 @@ const CustomSidebar = () => {
           <Box>
             <Item icon={HomeOutlinedIcon} title="Dashboard" to="/" />
             <Typography
-              sx={{ color: colors.grey[300], margin: "1.5rem 0 5px 2rem" }}
+              sx={{ color: colors.grey[300], margin: "1.5rem 0 1rem 2rem" }}
               variant="h6"
             >
               Journal
             </Typography>
             <Item icon={MenuBookIcon} title="Journal" to="/journal" />
             <Typography
-              sx={{ color: colors.grey[300], margin: "1.5rem 0 5px 2rem" }}
+              sx={{ color: colors.grey[300], margin: "1.5rem 0 1rem 2rem" }}
               variant="h6"
             >
               Categories
             </Typography>
             {categoryItems}
             <Typography
-              sx={{ color: colors.grey[300], margin: "1.5rem 0 5px 2rem" }}
+              sx={{ color: colors.grey[300], margin: "1.5rem 0 1rem 2rem" }}
               variant="h6"
             >
               Metrics

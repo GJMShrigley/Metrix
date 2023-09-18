@@ -4,10 +4,6 @@ import { tokens } from "../theme";
 import { useEffect, useState } from "react";
 import DateSlice from "../components/DateSlice";
 import moment from "moment";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const LineChart = (props) => {
   const theme = useTheme();

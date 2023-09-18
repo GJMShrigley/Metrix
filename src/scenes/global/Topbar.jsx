@@ -15,8 +15,10 @@ const Topbar = () => {
   };
 
   return (
-    <Box display="flex" sx={{ padding: "1rem" }}>
-      <Box display="flex" width="100%" justifyContent="space-between">
+    <Box sx={{ display: "flex", padding: "1rem" }}>
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
+      >
         <IconButton onClick={handleSidebar}>
           <MenuOutlinedIcon />
         </IconButton>

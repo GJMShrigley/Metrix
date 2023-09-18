@@ -1,11 +1,14 @@
-import { Box, useTheme, Typography, IconButton } from "@mui/material";
-import Header from "../../components/Header";
-import { tokens } from "../../theme";
-import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import InputBase from "@mui/material/InputBase";
+
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import InputBase from "@mui/material/InputBase";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+
+import Header from "../../components/Header";
+
+import { tokens } from "../../theme";
 
 const Journal = () => {
   const theme = useTheme();
@@ -21,10 +24,12 @@ const Journal = () => {
   const [searchResult, setSearchResult] = useState(journalData);
   let pageContent;
 
+  //Set displayed entries with full journal data.
   useEffect(() => {
     setDisplayedEntries(journalData);
   }, [journalData]);
 
+  //Filter journal data for search results and set displayed entries with results.
   useEffect(() => {
     let journalCopy = [];
     for (let i = 0; i < searchResult.length; i++) {
@@ -35,11 +40,13 @@ const Journal = () => {
     setDisplayedEntries(journalCopy);
   }, [searchResult]);
 
+  //Display the displayed entries to entries corresponding to the selected page.
   useEffect(() => {
     const visibleEntries = displayedEntries.slice(page * 7 - 7, page * 7);
     setEntriesOnPage(visibleEntries);
   }, [displayedEntries, page]);
 
+  //Set the number of pages according to the number of displayed entries.
   useEffect(() => {
     let pagesArray = [];
     const pageLimit = Math.ceil(displayedEntries.length / 7);
@@ -55,37 +62,39 @@ const Journal = () => {
       <Box
         key={i}
         sx={{
-          minWidth: "70vw",
-          width: "auto",
-          minHeight: "100px",
+          alignContent: "center",
           display: "flex",
           flexDirection: "column",
-          alignContent: "center",
+          minHeight: "5rem",
+          minWidth: "90vw",
         }}
       >
         <Typography
-          variant="h4"
-          display="flex"
-          justifyContent="center"
-          fontWeight="bold"
           component={Link}
-          to={`/activity/0`}
           state={{ startDate: entry.x }}
-          style={{ textDecoration: "none", color: "#fff" }}
+          sx={{
+            color: "#fff",
+            display: "flex",
+            fontWeight: "bold",
+            justifyContent: "center",
+            textDecoration: "none",
+          }}
+          to={`/activity/0`}
+          variant="h4"
         >
           {entry.x}
         </Typography>
         <Box>
           <Typography
-            variant="h4"
-            display="flex"
             sx={{
-              borderRadius: "8px",
-              minWidth: "200px",
-              minHeight: "100px",
-              padding: "10px",
               backgroundColor: colors.blueAccent[800],
+              borderRadius: "8px",
+              display: "flex",
+              minHeight: "5rem",
+              minWidth: "90vw",
+              padding: ".5rem",
             }}
+            variant="h4"
           >
             {entry.journal}
           </Typography>
@@ -97,18 +106,18 @@ const Journal = () => {
   const pageNumbers = pages.map((page, i) => {
     return (
       <Typography
-        variant="h4"
-        display="flex"
+        key={i}
         sx={{
-          borderRadius: "8px",
-          padding: "10px",
           backgroundColor: colors.blueAccent[800],
+          borderRadius: "8px",
           cursor: "pointer",
+          display: "flex",
+          padding: ".5rem",
         }}
         onClick={(e) => {
           setPage(parseInt(e.target.textContent));
         }}
-        key={i}
+        variant="h4"
       >
         {page}
       </Typography>
@@ -139,53 +148,54 @@ const Journal = () => {
 
   return (
     <Box
-      m="20px"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      gap="20px"
+      sx={{
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        margin: "1rem",
+      }}
     >
-      <Header title="JOURNAL" permanent={true} />
+      <Header permanent={true} title="JOURNAL" />
       <Box
-        display="flex"
-        backgroundColor={colors.primary[400]}
-        borderRadius="3px"
+        sx={{
+          backgroundColor: colors.primary[400],
+          borderRadius: "8px",
+          display: "flex",
+        }}
       >
         <InputBase
-          sx={{ ml: 2, flex: 1 }}
-          placeholder="Search"
           onChange={setText}
           onKeyPress={(e) => {
             if (e.key === "Enter") {
               search();
             }
           }}
+          placeholder="Search"
+          sx={{ marginLeft: 2 }}
         />
         <IconButton
-          type="button"
-          sx={{ p: 1 }}
           onClick={() => {
             search();
           }}
+          type="button"
         >
           <SearchIcon />
         </IconButton>
       </Box>
       <Box
         sx={{
-          width: "auto",
-          height: "auto",
+          alignItems: "center",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          gap: "20px",
+          gap: "1rem",
+          height: "auto",
+          width: "90vw",
         }}
       >
         {pageContent}
       </Box>
-      <Box display="flex" gap="10px">
-        {pageNumbers}
-      </Box>
+      <Box sx={{ display: "flex", gap: ".5rem" }}>{pageNumbers}</Box>
     </Box>
   );
 };

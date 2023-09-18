@@ -1,39 +1,42 @@
 import { useEffect, useState } from "react";
+
+import calculateCorrelation from "calculate-correlation";
+import { Formik } from "formik";
 import {
   Box,
   Button,
-  Typography,
-  TextField,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormLabel,
-  RadioGroup,
   FormControlLabel,
+  FormLabel,
+  InputLabel,
+  MenuItem,
   Radio,
+  RadioGroup,
+  Select,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { Formik } from "formik";
-import { useSelector, useDispatch } from "react-redux";
-import { useParams, Link } from "react-router-dom";
-import * as yup from "yup";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from "../../components/Header";
-import LineChart from "../../components/LineChart";
-import {
-  updateValue,
-  saveFile,
-  addGoal,
-  addNote,
-} from "../../store/userDataSlice";
-import { HexColorPicker } from "react-colorful";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import { HexColorPicker } from "react-colorful";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import * as yup from "yup";
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+import Header from "../../components/Header";
+import LineChart from "../../components/LineChart";
 import ProgressBox from "../../components/ProgressBox";
 import StatBox from "../../components/StatBox";
-import calculateCorrelation from "calculate-correlation";
+
+import {
+  addGoal,
+  addNote,
+  saveFile,
+  updateValue,
+} from "../../store/userDataSlice";
 
 const currentDate = new Date().toLocaleDateString("en-US", {
   day: "2-digit",
@@ -56,11 +59,10 @@ const userSchema = yup.object().shape({
 });
 
 const ChartPage = () => {
+  const dispatch = useDispatch();
   const params = useParams();
   const chartId = parseInt(params.id);
   const userData = useSelector((state) => state.userData.metrics);
-  const dispatch = useDispatch();
-  const isNonMobile = useMediaQuery("(min-width:600px)");
   const [color, setColor] = useState("#0000");
   const [typeSelection, setTypeSelection] = useState("Scale");
   const [chartData, setChartData] = useState(userData);
@@ -69,6 +71,7 @@ const ChartPage = () => {
   const [correlationSelection, setCorrelationSelection] = useState([]);
   const [correlationResult, setCorrelationResult] = useState();
 
+  //Set the chart data
   useEffect(() => {
     for (let i = 0; i < userData.length; i++) {
       if (i === chartId) {
@@ -79,19 +82,46 @@ const ChartPage = () => {
     }
   }, [userData, chartId]);
 
+  //Set the goal and latest chart data value
   useEffect(() => {
     setGoal(parseInt(chartData[0].goal));
     setLatest(parseInt(chartData[0].data[chartData[0].data.length - 1].y));
   }, [chartData]);
 
   const statBoxes = chartData.map((data, i) => {
-    return <StatBox stats={data.data} key={i} type={data.type} />;
+    return <StatBox key={i} stats={data.data} type={data.type} />;
   });
 
   const selectionItems = userData.map((metric, i) => {
     return (
       <MenuItem key={metric.id} value={i}>
         {metric.id}
+      </MenuItem>
+    );
+  });
+
+  const radioButtons = Array.from({ length: 10 }, (_, i) => {
+    return (
+      <FormControlLabel
+        control={
+          <Radio
+            sx={{
+              "& .MuiSvgIcon-root": {
+                fontSize: 35,
+              },
+            }}
+          />
+        }
+        label={`${i + 1}`}
+        value={`${i + 1}`}
+      />
+    );
+  });
+
+  const menuItems = Array.from({ length: 10 }, (_, i) => {
+    return (
+      <MenuItem key={i + 1} value={`${i + 1}`}>
+        {`${i + 1}`}
       </MenuItem>
     );
   });
@@ -113,7 +143,7 @@ const ChartPage = () => {
 
     const correlation = calculateCorrelation(metric1, metric2);
 
-    const relation = function (correlation) {
+    function findCorrelationBracket(correlation) {
       if (correlation < -0.5) {
         return "Very low";
       } else if (correlation < 0 && correlation > -0.5) {
@@ -125,9 +155,11 @@ const ChartPage = () => {
       } else if (correlation > 0.5) {
         return "Very High";
       }
-    };
+    }
 
-    const result = { correlation: correlation, relation: relation };
+    const correlationBracket = findCorrelationBracket(correlation);
+
+    const result = { correlation: correlation, relation: correlationBracket };
     setCorrelationResult(result);
   };
 
@@ -138,262 +170,105 @@ const ChartPage = () => {
   const handleFormSubmit = (values) => {
     dispatch(
       updateValue({
-        values: values,
-        selectedMetric: chartData[0].id,
         color: color,
+        selectedMetric: chartData[0].id,
         type: typeSelection,
+        values: values,
       })
     );
     dispatch(saveFile());
   };
 
   const handleGoalSubmit = (value) => {
-    dispatch(addGoal({ goal: value.goal, chartId: chartData[0].id }));
+    dispatch(addGoal({ chartId: chartData[0].id, goal: value.goal }));
     dispatch(saveFile());
   };
 
   const handleNoteSubmit = (value) => {
     dispatch(
-      addNote({ x: value.x, note: value.note, chartId: chartData[0].id })
+      addNote({ chartId: chartData[0].id, note: value.note, x: value.x })
     );
     dispatch(saveFile());
   };
-  console.log("chartPage", chartData)
+
   return (
-    <Box ml="20px">
-      <Box display="flex" justifyContent="center" alignItems="center">
-        <Header title={chartData[0].id} subtitle="" />
+    <Box sx={{ margin: "0 1rem" }}>
+      <Box
+        sx={{ alignItems: "center", display: "flex", flexDirection:"column", gap:".5rem", justifyContent: "center" }}
+      >
+        <Header title={chartData[0].id} />
         {goal ? (
-          <ProgressBox title={chartData[0].id} goal={goal} latest={latest} />
-        ) : (
-          <></>
-        )}
+          <ProgressBox goal={goal} latest={latest} title={chartData[0].id} />
+        ) : null}
       </Box>
-      <Box height="60vh">
-        <LineChart dataType="metric" chartData={chartData} />
+      <Box sx={{ height: "60vh", marginBottom: ".5rem"}}>
+        <LineChart chartData={chartData} dataType="metric" />
       </Box>
       <Box>
-        <Box
-          display="grid"
-          gridTemplateColumns="10fr 1fr"
-          sx={{
-            "& > .react-colorful": {
-              marginTop: "10px",
-              width: "75%",
-              height: "50px",
-            },
-            ".react-colorful__saturation": {
-              height: "100%",
-              position: "relative",
-              top: "30%",
-            },
-            ".react-colorful__hue": { height: "100%" },
-            ".react-colorful__hue-pointer, .react-colorful__saturation-pointer":
-              { width: "25px", height: "25px" },
-          }}
-        >
+        <Box>
           <Formik
-            onSubmit={handleFormSubmit}
             initialValues={initialValues}
+            onSubmit={handleFormSubmit}
             validationSchema={userSchema}
           >
             {({
-              values,
               errors,
-              touched,
               handleBlur,
               handleChange,
               handleSubmit,
+              touched,
+              values,
             }) => (
               <form onSubmit={handleSubmit}>
                 <Box
-                  display="grid"
-                  gap="10px"
-                  width="95%"
-                  gridTemplateColumns="repeat(16, minmax(0, 1fr))"
-                  sx={{
-                    "& > div": {
-                      gridColumn: isNonMobile ? undefined : "span 4",
-                    },
-                  }}
+                  sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
                 >
                   <TextField
+                    error={!!touched.x && !!errors.x}
                     fullWidth
-                    variant="filled"
-                    type="text"
+                    helperText={touched.x && errors.x}
                     label="Time Logged"
+                    name="x"
                     onBlur={handleBlur}
                     onChange={handleChange}
+                    type="text"
                     value={values.x}
-                    name="x"
-                    error={!!touched.x && !!errors.x}
-                    helperText={touched.x && errors.x}
-                    sx={{ gridColumn: "span 2" }}
+                    variant="filled"
                   />
                   {typeSelection === "Scale" ? (
-                    <FormControl sx={{ gridColumn: "span 10" }}>
+                    <FormControl>
                       <FormLabel id="scale-buttons-group-label">
                         Value
                       </FormLabel>
                       <RadioGroup
                         aria-labelledby="scale-buttons-group-label"
-                        onChange={handleChange}
                         name="y"
+                        onChange={handleChange}
                         row
                       >
-                        <FormControlLabel
-                          value="1"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="1"
-                        />
-                        <FormControlLabel
-                          value="2"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="2"
-                        />
-                        <FormControlLabel
-                          value="3"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="3"
-                        />
-                        <FormControlLabel
-                          value="4"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="4"
-                        />
-                        <FormControlLabel
-                          value="5"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="5"
-                        />
-                        <FormControlLabel
-                          value="6"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="6"
-                        />
-                        <FormControlLabel
-                          value="7"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="7"
-                        />
-                        <FormControlLabel
-                          value="8"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="8"
-                        />
-                        <FormControlLabel
-                          value="9"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="9"
-                        />
-                        <FormControlLabel
-                          value="10"
-                          control={
-                            <Radio
-                              sx={{
-                                "& .MuiSvgIcon-root": {
-                                  fontSize: 20,
-                                },
-                              }}
-                            />
-                          }
-                          label="10"
-                        />
+                        {radioButtons}
                       </RadioGroup>
                     </FormControl>
                   ) : (
                     <TextField
+                      error={!!touched.y && !!errors.y}
                       fullWidth
-                      variant="filled"
-                      type="text"
+                      helperText={touched.y && errors.y}
                       label="Value"
+                      name="y"
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      type="text"
                       value={values.y}
-                      name="y"
-                      error={!!touched.y && !!errors.y}
-                      helperText={touched.y && errors.y}
-                      sx={{ gridColumn: "span 2" }}
+                      variant="filled"
                     />
                   )}
-                  <FormControl sx={{ gridColumn: "span 2" }}>
+                  <FormControl>
                     <InputLabel>Select Measurement Type</InputLabel>
                     <Select
                       id="type"
-                      name="type"
                       label="type"
+                      name="type"
                       onChange={handleTypeChange}
                       value={typeSelection}
                     >
@@ -402,10 +277,10 @@ const ChartPage = () => {
                     </Select>
                   </FormControl>
                   <Button
-                    type="submit"
                     color="secondary"
+                    sx={{ height: "3rem" }}
+                    type="submit"
                     variant="contained"
-                    sx={{ gridColumn: "span 2", height: "50px" }}
                   >
                     Add Measurement
                   </Button>
@@ -414,146 +289,115 @@ const ChartPage = () => {
             )}
           </Formik>
         </Box>
-        <Box display="flex">
-          <Accordion>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <Accordion disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h5">COLOUR</Typography>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <HexColorPicker color={color} onChange={setColor} />
             </AccordionDetails>
           </Accordion>
-          <Accordion>
+          <Accordion disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h5">SET GOAL</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Formik
-                onSubmit={handleGoalSubmit}
                 initialValues={initialValues}
+                onSubmit={handleGoalSubmit}
                 validationSchema={userSchema}
               >
                 {({
-                  values,
                   errors,
-                  touched,
                   handleBlur,
                   handleChange,
                   handleSubmit,
+                  touched,
+                  values,
                 }) => (
                   <form onSubmit={handleSubmit}>
                     {typeSelection === "Scale" ? (
                       <FormControl fullWidth>
-                        <InputLabel>Goal</InputLabel>
+                        <InputLabel>GOAL</InputLabel>
                         <Select
                           label="goal"
-                          onChange={handleChange}
                           name="goal"
+                          onChange={handleChange}
                           value={values.goal}
                         >
-                          <MenuItem key={0} value={"0"}>
-                            0
-                          </MenuItem>
-                          <MenuItem key={1} value={"1"}>
-                            1
-                          </MenuItem>
-                          <MenuItem key={2} value={"2"}>
-                            2
-                          </MenuItem>
-                          <MenuItem key={3} value={"3"}>
-                            3
-                          </MenuItem>
-                          <MenuItem key={4} value={"4"}>
-                            4
-                          </MenuItem>
-                          <MenuItem key={5} value={"5"}>
-                            5
-                          </MenuItem>
-                          <MenuItem key={6} value={"6"}>
-                            6
-                          </MenuItem>
-                          <MenuItem key={7} value={"7"}>
-                            7
-                          </MenuItem>
-                          <MenuItem key={8} value={"8"}>
-                            8
-                          </MenuItem>
-                          <MenuItem key={9} value={"9"}>
-                            9
-                          </MenuItem>
-                          <MenuItem key={10} value={"10"}>
-                            10
-                          </MenuItem>
+                          {menuItems}
                         </Select>
                       </FormControl>
                     ) : (
                       <TextField
+                        error={!!touched.goal && !!errors.goal}
                         fullWidth
-                        variant="filled"
-                        type="text"
+                        helperText={touched.goal && errors.goal}
                         label="goal"
+                        name="goal"
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        type="text"
                         value={values.goal}
-                        name="goal"
-                        error={!!touched.goal && !!errors.goal}
-                        helperText={touched.goal && errors.goal}
-                        sx={{ gridColumn: "span 2" }}
+                        variant="filled"
                       />
                     )}
 
                     <Button
+                      color="secondary"
                       fullWidth
                       type="submit"
-                      color="secondary"
                       variant="contained"
-                      sx={{ gridColumn: "span 1" }}
                     >
-                      Set Goal
+                      SET GOAL
                     </Button>
                   </form>
                 )}
               </Formik>
             </AccordionDetails>
           </Accordion>
-          <Accordion sx={{ gridColumn: "span 5" }}>
+          <Accordion disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h5">ADD NOTE</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Formik
-                onSubmit={handleNoteSubmit}
                 initialValues={initialValues}
+                onSubmit={handleNoteSubmit}
                 validationSchema={userSchema}
               >
                 {({
-                  values,
                   errors,
-                  touched,
                   handleBlur,
                   handleChange,
                   handleSubmit,
+                  touched,
+                  values,
                 }) => (
                   <form onSubmit={handleSubmit}>
                     <TextField
+                      error={!!touched.note && !!errors.note}
                       fullWidth
-                      variant="filled"
-                      type="text"
+                      helperText={touched.note && errors.note}
                       label=""
+                      name="note"
                       onBlur={handleBlur}
                       onChange={handleChange}
                       value={values.note}
-                      name="note"
-                      error={!!touched.note && !!errors.note}
-                      helperText={touched.note && errors.note}
-                      sx={{ gridColumn: "span 5" }}
+                      variant="filled"
+                      type="text"
                     />
                     <Button
+                      color="secondary"
                       fullWidth
                       type="submit"
-                      color="secondary"
                       variant="contained"
-                      sx={{ gridColumn: "span 1" }}
                     >
                       Add Note
                     </Button>
@@ -562,73 +406,83 @@ const ChartPage = () => {
               </Formik>
             </AccordionDetails>
           </Accordion>
-          <Accordion>
+          <Accordion disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h5">HISTORY</Typography>
             </AccordionSummary>
             <AccordionDetails>{statBoxes}</AccordionDetails>
           </Accordion>
         </Box>
-        <Accordion>
+        <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h5">CORRELATION</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box width="100vw" display="flex">
+            <Box
+              sx={{ display: "flex", flexDirection: "column", width: "100vw" }}
+            >
               <FormControl>
                 <InputLabel>Add/Remove Metric</InputLabel>
                 <Select
                   label="Metrics"
                   onChange={handleCorrelationChange}
-                  value={correlationSelection}
                   sx={{
-                    width: "25vw",
+                    width: "80vw",
                   }}
+                  value={correlationSelection}
                 >
                   {selectionItems}
                 </Select>
               </FormControl>
               <Button
-                type="submit"
                 color="secondary"
-                variant="contained"
                 onClick={handleCorrelationSubmit}
-                sx={{ gridColumn: "span 1" }}
+                sx={{
+                  width: "80vw",
+                }}
+                type="submit"
+                variant="contained"
               >
                 Add/Remove
               </Button>
             </Box>
             {correlationResult ? (
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <Typography variant="h5">
+              <Box
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                  marginTop: "1rem",
+                }}
+              >
+                <Typography sx={{ display: "flex" }} variant="h5">
                   {` The correlation between ${
                     userData[correlationSelection].id
-                  } 
-                                       and 
-                                        ${chartData[0].id} 
-                                       is 
-                                        ${correlationResult.correlation.toFixed(
-                                          3
-                                        )} `}
+                  } and ${
+                    chartData[0].id
+                  } is ${correlationResult.correlation.toFixed(3)}`}
                   &#40;{correlationResult.relation}&#41;
                 </Typography>
-
-                <Box display="flex">
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
                   <StatBox
-                    title={chartData[0].id}
                     stats={chartData[0].data}
+                    title={chartData[0].id}
                     type={chartData[0].type}
                   />
                   <StatBox
-                    title={userData[correlationSelection].id}
                     stats={userData[correlationSelection].data}
+                    title={userData[correlationSelection].id}
                     type={userData[correlationSelection].type}
                   />
                 </Box>
               </Box>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </AccordionDetails>
         </Accordion>
       </Box>
