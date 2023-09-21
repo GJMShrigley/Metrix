@@ -30,6 +30,7 @@ import { tokens } from "../../theme";
 const Category = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const params = useParams();
   const id = parseInt(params.id);
@@ -152,7 +153,7 @@ const Category = () => {
       </Box>
       <Box>
         <Box>
-          <Box sx={{  padding: "1rem", width: "100vw" }}>
+          <Box sx={{ padding: "1rem", width: "100vw" }}>
             {data2.length > 0 ? (
               <BiaxialChart dataType="category" data1={data1} data2={data2} />
             ) : (
@@ -161,59 +162,64 @@ const Category = () => {
           </Box>
         </Box>
       </Box>
-      <Accordion disableGutters>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h5">ADD/REMOVE METRIC</Typography>
-        </AccordionSummary>
-        <AccordionDetails
-          sx={{
-            alignContent: "center",
-            display: "flex",
-            justifyContent: "center",
-            width: "100vw",
-          }}
-        >
-          <FormControl>
-            <InputLabel>Add/Remove Metric</InputLabel>
-            <Select
-              label="Metrics"
-              multiple
-              onChange={handleChange}
-              sx={{
-                maxWidth: "70vw",
-                width: "15rem",
-              }}
-              value={selection}
-            >
-              {selectionItems}
-            </Select>
-          </FormControl>
-          <Button
-            color="secondary"
-            onClick={handleSubmit}
-            type="submit"
-            variant="contained"
-          >
-            Add/Remove
-          </Button>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion disableGutters>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h5">VIEW STATS</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: isLandscape ? "row" : "column",
+        }}
+      >
+        <Accordion disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h5">ADD/REMOVE METRIC</Typography>
+          </AccordionSummary>
+          <AccordionDetails
             sx={{
-              display: "grid",
-              gap: "1rem",
-              justifyItems: "center",
+              alignContent: "center",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
-            {statBoxes}
-          </Box>
-        </AccordionDetails>
-      </Accordion>
+            <FormControl>
+              <InputLabel>Add/Remove Metric</InputLabel>
+              <Select
+                label="Metrics"
+                multiple
+                onChange={handleChange}
+                sx={{
+                  width: isLandscape ? "30vw" : "50vw",
+                }}
+                value={selection}
+              >
+                {selectionItems}
+              </Select>
+            </FormControl>
+            <Button
+              color="secondary"
+              onClick={handleSubmit}
+              type="submit"
+              variant="contained"
+            >
+              Add/Remove
+            </Button>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h5">VIEW STATS</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              sx={{
+                display: "grid",
+                gap: "1rem",
+                justifyItems: "center",
+              }}
+            >
+              {statBoxes}
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
     </Box>
   );
 };

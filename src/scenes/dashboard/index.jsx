@@ -16,6 +16,7 @@ const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("max-width: 800px");
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const userData = useSelector((state) => state.userData.metrics);
   const userCategories = useSelector((state) => state.userData.categories);
   const [selectedCategory, setSelectedCategory] = useState(userCategories[0]);
@@ -86,8 +87,8 @@ const Dashboard = () => {
   return (
     <Box
       sx={{
-        display: "grid",
-        gap: ".5rem",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Box
@@ -102,14 +103,14 @@ const Dashboard = () => {
           <LineChart dataType="category" chartData={chartData.contents} />
         )}
       </Box>
+      <QuickUpdate userData={userData} />
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
+          flexDirection: isLandscape ? "row" : "column",
           position: "relative",
         }}
       >
-        <QuickUpdate userData={userData} />
         <RecentActivity userData={userData} />
         <AddData />
       </Box>

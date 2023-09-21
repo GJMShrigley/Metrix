@@ -12,10 +12,11 @@ import { tokens } from "../theme";
 const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const originalData = props.chartData;
   const [chartData, setChartData] = useState(props.chartData);
   const [maxY, setMaxY] = useState("auto");
-  const height = 50;
+  const height = isLandscape ? 90 : 50;
 
   useEffect(() => {
     if (chartData.every((val, i, chartData) => val.type === "Scale")) {
@@ -106,7 +107,6 @@ const LineChart = (props) => {
         width: "100%",
       }}
     >
-      <DateSlice sliceDate={sliceDate} />
       <ResponsiveLine
         data={chartData}
         tooltip={({ point }) => {
@@ -264,6 +264,7 @@ const LineChart = (props) => {
           );
         }}
       />
+      <DateSlice sliceDate={sliceDate} />
     </Box>
   );
 };

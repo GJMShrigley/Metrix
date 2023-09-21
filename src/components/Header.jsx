@@ -15,6 +15,7 @@ const Header = ({ title, isCategory, permanent }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const [isEdit, setIsEdit] = useState(false);
 
@@ -47,7 +48,7 @@ const Header = ({ title, isCategory, permanent }) => {
         gap: ".5rem",
         justifyContent: "center",
         textAlign: "center",
-        width: "100%",
+        width: isLandscape ? "auto" : "100%",
       }}
     >
       {isEdit ? (

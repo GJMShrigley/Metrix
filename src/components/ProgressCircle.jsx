@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
 import { Box, Typography, useTheme } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Marquee from "react-fast-marquee";
 
 import { tokens } from "../theme";
@@ -8,6 +9,7 @@ import { tokens } from "../theme";
 const ProgressCircle = ({ goal, latest }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const progress = 360 / goal;
   const angle = progress * latest;
   const textRef = useRef(undefined);
@@ -49,7 +51,7 @@ const ProgressCircle = ({ goal, latest }) => {
           justifyItems: "center",
           overflow: "hidden",
           position: "relative",
-          top: "-10px",
+          top: isLandscape ? "0" : "-10px",
           width: "80px",
         }}
       >

@@ -20,6 +20,7 @@ import {
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { HexColorPicker } from "react-colorful";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -63,6 +64,7 @@ const userSchema = yup.object().shape({
 const ChartPage = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const params = useParams();
   const chartId = parseInt(params.id);
@@ -202,7 +204,7 @@ const ChartPage = () => {
           alignItems: "center",
           backgroundColor: colors.primary[400],
           display: "flex",
-          flexDirection: "column",
+          flexDirection: isLandscape ? "row" : "column",
           gap: ".5rem",
           justifyContent: "center",
         }}
@@ -212,231 +214,254 @@ const ChartPage = () => {
           <ProgressBox goal={goal} latest={latest} title={chartData[0].id} />
         ) : null}
       </Box>
-      <Box sx={{ height: "64vh", padding: "1rem", width: "100vw" }}>
+      <Box
+        sx={{
+          height: isLandscape ? "125vh" : "64vh",
+          padding: "1rem",
+          width: "100vw",
+        }}
+      >
         <LineChart chartData={chartData} dataType="metric" />
       </Box>
       <Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Accordion disableGutters>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">ADD DATA</Typography>
-            </AccordionSummary>
-            <AccordionDetails
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <Formik
-                initialValues={initialValues}
-                onSubmit={handleFormSubmit}
-                validationSchema={userSchema}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: isLandscape ? "row" : "column",
+            }}
+          >
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h5">ADD DATA</Typography>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
-                {({
-                  errors,
-                  handleBlur,
-                  handleChange,
-                  handleSubmit,
-                  touched,
-                  values,
-                }) => (
-                  <form onSubmit={handleSubmit}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "1rem",
-                      }}
-                    >
-                      <TextField
-                        error={!!touched.x && !!errors.x}
-                        fullWidth
-                        helperText={touched.x && errors.x}
-                        label="Time Logged"
-                        name="x"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        type="text"
-                        value={values.x}
-                        variant="filled"
-                      />
-                      {typeSelection === "Scale" ? (
-                        <FormControl>
-                          <FormLabel id="scale-buttons-group-label">
-                            Value
-                          </FormLabel>
-                          <RadioGroup
-                            aria-labelledby="scale-buttons-group-label"
-                            name="y"
-                            onChange={handleChange}
-                            row
-                          >
-                            {radioButtons}
-                          </RadioGroup>
-                        </FormControl>
-                      ) : (
+                <Formik
+                  initialValues={initialValues}
+                  onSubmit={handleFormSubmit}
+                  validationSchema={userSchema}
+                >
+                  {({
+                    errors,
+                    handleBlur,
+                    handleChange,
+                    handleSubmit,
+                    touched,
+                    values,
+                  }) => (
+                    <form onSubmit={handleSubmit}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "1rem",
+                        }}
+                      >
                         <TextField
-                          error={!!touched.y && !!errors.y}
+                          error={!!touched.x && !!errors.x}
                           fullWidth
-                          helperText={touched.y && errors.y}
-                          label="Value"
-                          name="y"
+                          helperText={touched.x && errors.x}
+                          label="Time Logged"
+                          name="x"
                           onBlur={handleBlur}
                           onChange={handleChange}
                           type="text"
-                          value={values.y}
+                          value={values.x}
+                          variant="filled"
+                        />
+                        {typeSelection === "Scale" ? (
+                          <FormControl>
+                            <FormLabel id="scale-buttons-group-label">
+                              Value
+                            </FormLabel>
+                            <RadioGroup
+                              aria-labelledby="scale-buttons-group-label"
+                              name="y"
+                              onChange={handleChange}
+                              row
+                            >
+                              {radioButtons}
+                            </RadioGroup>
+                          </FormControl>
+                        ) : (
+                          <TextField
+                            error={!!touched.y && !!errors.y}
+                            fullWidth
+                            helperText={touched.y && errors.y}
+                            label="Value"
+                            name="y"
+                            onBlur={handleBlur}
+                            onChange={handleChange}
+                            type="text"
+                            value={values.y}
+                            variant="filled"
+                          />
+                        )}
+                        <FormControl>
+                          <InputLabel>Select Measurement Type</InputLabel>
+                          <Select
+                            id="type"
+                            label="type"
+                            name="type"
+                            onChange={handleTypeChange}
+                            value={typeSelection}
+                          >
+                            <MenuItem value={"Scale"}>Scale</MenuItem>
+                            <MenuItem value={"Number"}>Number</MenuItem>
+                          </Select>
+                        </FormControl>
+                        <Button
+                          color="secondary"
+                          sx={{ height: "3rem" }}
+                          type="submit"
+                          variant="contained"
+                        >
+                          Add Measurement
+                        </Button>
+                      </Box>
+                    </form>
+                  )}
+                </Formik>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h5">COLOUR</Typography>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <HexColorPicker color={color} onChange={setColor} />
+              </AccordionDetails>
+            </Accordion>
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h5">SET GOAL</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Formik
+                  initialValues={initialValues}
+                  onSubmit={handleGoalSubmit}
+                  validationSchema={userSchema}
+                >
+                  {({
+                    errors,
+                    handleBlur,
+                    handleChange,
+                    handleSubmit,
+                    touched,
+                    values,
+                  }) => (
+                    <form onSubmit={handleSubmit}>
+                      {typeSelection === "Scale" ? (
+                        <FormControl fullWidth>
+                          <InputLabel>GOAL</InputLabel>
+                          <Select
+                            label="goal"
+                            name="goal"
+                            onChange={handleChange}
+                            value={values.goal}
+                          >
+                            {menuItems}
+                          </Select>
+                        </FormControl>
+                      ) : (
+                        <TextField
+                          error={!!touched.goal && !!errors.goal}
+                          fullWidth
+                          helperText={touched.goal && errors.goal}
+                          label="goal"
+                          name="goal"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          type="text"
+                          value={values.goal}
                           variant="filled"
                         />
                       )}
-                      <FormControl>
-                        <InputLabel>Select Measurement Type</InputLabel>
-                        <Select
-                          id="type"
-                          label="type"
-                          name="type"
-                          onChange={handleTypeChange}
-                          value={typeSelection}
-                        >
-                          <MenuItem value={"Scale"}>Scale</MenuItem>
-                          <MenuItem value={"Number"}>Number</MenuItem>
-                        </Select>
-                      </FormControl>
+
                       <Button
                         color="secondary"
-                        sx={{ height: "3rem" }}
+                        fullWidth
                         type="submit"
                         variant="contained"
                       >
-                        Add Measurement
+                        SET GOAL
                       </Button>
-                    </Box>
-                  </form>
-                )}
-              </Formik>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion disableGutters>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">COLOUR</Typography>
-            </AccordionSummary>
-            <AccordionDetails
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <HexColorPicker color={color} onChange={setColor} />
-            </AccordionDetails>
-          </Accordion>
-          <Accordion disableGutters>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">SET GOAL</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Formik
-                initialValues={initialValues}
-                onSubmit={handleGoalSubmit}
-                validationSchema={userSchema}
-              >
-                {({
-                  errors,
-                  handleBlur,
-                  handleChange,
-                  handleSubmit,
-                  touched,
-                  values,
-                }) => (
-                  <form onSubmit={handleSubmit}>
-                    {typeSelection === "Scale" ? (
-                      <FormControl fullWidth>
-                        <InputLabel>GOAL</InputLabel>
-                        <Select
-                          label="goal"
-                          name="goal"
+                    </form>
+                  )}
+                </Formik>
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: isLandscape ? "row" : "column",
+              width: "100vw",
+            }}
+          >
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h5">ADD NOTE</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Formik
+                  initialValues={initialValues}
+                  onSubmit={handleNoteSubmit}
+                  validationSchema={userSchema}
+                >
+                  {({
+                    errors,
+                    handleBlur,
+                    handleChange,
+                    handleSubmit,
+                    touched,
+                    values,
+                  }) => (
+                    <form onSubmit={handleSubmit}>
+                      <Box sx={{ width: "50vw" }}>
+                        <TextField
+                          error={!!touched.note && !!errors.note}
+                          fullWidth
+                          helperText={touched.note && errors.note}
+                          label=""
+                          name="note"
+                          onBlur={handleBlur}
                           onChange={handleChange}
-                          value={values.goal}
+                          value={values.note}
+                          variant="filled"
+                          type="text"
+                        />
+                        <Button
+                          color="secondary"
+                          fullWidth
+                          type="submit"
+                          variant="contained"
                         >
-                          {menuItems}
-                        </Select>
-                      </FormControl>
-                    ) : (
-                      <TextField
-                        error={!!touched.goal && !!errors.goal}
-                        fullWidth
-                        helperText={touched.goal && errors.goal}
-                        label="goal"
-                        name="goal"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        type="text"
-                        value={values.goal}
-                        variant="filled"
-                      />
-                    )}
-
-                    <Button
-                      color="secondary"
-                      fullWidth
-                      type="submit"
-                      variant="contained"
-                    >
-                      SET GOAL
-                    </Button>
-                  </form>
-                )}
-              </Formik>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion disableGutters>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">ADD NOTE</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Formik
-                initialValues={initialValues}
-                onSubmit={handleNoteSubmit}
-                validationSchema={userSchema}
-              >
-                {({
-                  errors,
-                  handleBlur,
-                  handleChange,
-                  handleSubmit,
-                  touched,
-                  values,
-                }) => (
-                  <form onSubmit={handleSubmit}>
-                    <TextField
-                      error={!!touched.note && !!errors.note}
-                      fullWidth
-                      helperText={touched.note && errors.note}
-                      label=""
-                      name="note"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.note}
-                      variant="filled"
-                      type="text"
-                    />
-                    <Button
-                      color="secondary"
-                      fullWidth
-                      type="submit"
-                      variant="contained"
-                    >
-                      Add Note
-                    </Button>
-                  </form>
-                )}
-              </Formik>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion disableGutters>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h5">HISTORY</Typography>
-            </AccordionSummary>
-            <AccordionDetails>{statBoxes}</AccordionDetails>
-          </Accordion>
+                          Add Note
+                        </Button>
+                      </Box>
+                    </form>
+                  )}
+                </Formik>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h5">HISTORY</Typography>
+              </AccordionSummary>
+              <AccordionDetails>{statBoxes}</AccordionDetails>
+            </Accordion>
+          </Box>
         </Box>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -444,7 +469,12 @@ const ChartPage = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Box
-              sx={{ display: "flex", flexDirection: "column", width: "100vw" }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: "100vw",
+              }}
             >
               <FormControl>
                 <InputLabel>Add/Remove Metric</InputLabel>
@@ -492,7 +522,8 @@ const ChartPage = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection: isLandscape ? "row" : "column",
+                    gap: "1rem",
                   }}
                 >
                   <StatBox

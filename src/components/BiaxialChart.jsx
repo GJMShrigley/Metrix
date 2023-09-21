@@ -13,12 +13,13 @@ export default function BiaxialChart(props) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width: 800px)");
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const originalData1 = props.data1;
   const originalData2 = props.data2;
   const [data1, setData1] = useState(props.data1);
   const [data2, setData2] = useState(props.data2);
   const [maxY, setMaxY] = useState("auto");
-  const height = 50;
+  const height = isLandscape ? 90 : 50;
 
   //If all data types are of type 'Scale', set the maxY variable to '10'. Otherwise, set the maxY variable to the highest value of the dataset.
   useEffect(() => {
@@ -390,7 +391,6 @@ export default function BiaxialChart(props) {
   const Wrapper = () => {
     return (
       <Box sx={{ width: "100%" }}>
-        <DateSlice changeDate={props.changeDate} sliceDate={sliceDate} />
         <Box
           sx={{
             display: "flex",
@@ -430,6 +430,7 @@ export default function BiaxialChart(props) {
             {customLegend(data2)}
           </Box>
         </Box>
+        <DateSlice changeDate={props.changeDate} sliceDate={sliceDate}/>
       </Box>
     );
   };

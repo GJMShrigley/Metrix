@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -13,6 +14,7 @@ import { tokens } from "../../theme";
 const Journal = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isLandscape = useMediaQuery("(orientation: landscape)");
   const journalData = useSelector((state) => state.userData.journal);
   const [page, setPage] = useState(1);
   const [displayedEntries, setDisplayedEntries] = useState([
@@ -90,7 +92,7 @@ const Journal = () => {
               backgroundColor: colors.blueAccent[800],
               borderRadius: "8px",
               display: "flex",
-              minHeight: "5rem",
+              minHeight: isLandscape ? "50vh" : "5rem",
               minWidth: "90vw",
               padding: ".5rem",
             }}
@@ -112,7 +114,7 @@ const Journal = () => {
           borderRadius: "8px",
           cursor: "pointer",
           display: "flex",
-          padding: ".5rem",
+          padding: "1rem",
         }}
         onClick={(e) => {
           setPage(parseInt(e.target.textContent));
@@ -194,7 +196,14 @@ const Journal = () => {
       >
         {pageContent}
       </Box>
-      <Box sx={{ display: "flex", gap: ".5rem" }}>{pageNumbers}</Box>
+      <Box
+        sx={{
+          display: "flex",
+          gap: ".5rem",
+        }}
+      >
+        {pageNumbers}
+      </Box>
     </Box>
   );
 };
