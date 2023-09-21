@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+
 import * as moment from "moment";
+import { Box, Typography, useTheme } from "@mui/material";
 
 import { tokens } from "../theme";
 
-const findRange = function (statsSlice, title) {
+const findRange = function (statsSlice) {
   let max = 0;
   let min = 0;
   for (let i = 0; i < statsSlice.length; i++) {
@@ -122,8 +123,8 @@ const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
     <Box
       sx={{
         backgroundColor: colors.primary[400],
-        m: "0",
-        p: "1rem",
+        margin: "0",
+        padding: "1rem",
         width: "100%",
       }}
     >

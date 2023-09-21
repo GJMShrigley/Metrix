@@ -117,14 +117,18 @@ const Category = () => {
   };
 
   const statBoxes = chartData.contents.map((data, i) => {
-
     return (
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">{data.id}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-        <StatBox isCategory={true} key={i} stats={data.data} title={data.id} />
+          <StatBox
+            isCategory={true}
+            key={i}
+            stats={data.data}
+            title={data.id}
+          />
         </AccordionDetails>
       </Accordion>
     );
@@ -140,64 +144,60 @@ const Category = () => {
       <Box
         sx={{
           display: "flex",
-          backgroundColor: colors.primary[400],
           justifyContent: "center",
           width: "100vw",
         }}
       >
         <Header isCategory={true} title={chartData.categoryId} />
       </Box>
-      <Box
-        sx={{
-          backgroundColor: colors.primary[400],
-        }}
-      >
+      <Box>
         <Box>
-          {data2.length > 0 ? (
-            <BiaxialChart dataType="category" data1={data1} data2={data2} />
-          ) : (
-            <LineChart chartData={chartData.contents} dataType="category" />
-          )}
-          <Box
-            sx={{
-              display: "flex",
-              width: "50%",
-            }}
-          ></Box>
-          <Box
-            sx={{
-              alignContent: "center",
-              display: "flex",
-              justifyContent: "center",
-              width: "100vw",
-            }}
-          >
-            <FormControl>
-              <InputLabel>Add/Remove Metric</InputLabel>
-              <Select
-                label="Metrics"
-                multiple
-                onChange={handleChange}
-                sx={{
-                  maxWidth: "70vw",
-                  width: "15rem",
-                }}
-                value={selection}
-              >
-                {selectionItems}
-              </Select>
-            </FormControl>
-            <Button
-              color="secondary"
-              onClick={handleSubmit}
-              type="submit"
-              variant="contained"
-            >
-              Add/Remove
-            </Button>
+          <Box sx={{  padding: "1rem", width: "100vw" }}>
+            {data2.length > 0 ? (
+              <BiaxialChart dataType="category" data1={data1} data2={data2} />
+            ) : (
+              <LineChart chartData={chartData.contents} dataType="category" />
+            )}
           </Box>
         </Box>
       </Box>
+      <Accordion disableGutters>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h5">ADD/REMOVE METRIC</Typography>
+        </AccordionSummary>
+        <AccordionDetails
+          sx={{
+            alignContent: "center",
+            display: "flex",
+            justifyContent: "center",
+            width: "100vw",
+          }}
+        >
+          <FormControl>
+            <InputLabel>Add/Remove Metric</InputLabel>
+            <Select
+              label="Metrics"
+              multiple
+              onChange={handleChange}
+              sx={{
+                maxWidth: "70vw",
+                width: "15rem",
+              }}
+              value={selection}
+            >
+              {selectionItems}
+            </Select>
+          </FormControl>
+          <Button
+            color="secondary"
+            onClick={handleSubmit}
+            type="submit"
+            variant="contained"
+          >
+            Add/Remove
+          </Button>
+        </AccordionDetails>
+      </Accordion>
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">VIEW STATS</Typography>

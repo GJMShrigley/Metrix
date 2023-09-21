@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 import { Formik } from "formik";
+import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Box, Button, Typography, useTheme, TextField } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -11,7 +11,7 @@ import { HexColorPicker } from "react-colorful";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 
-import { addMetric, saveFile, addCategory } from "../store/userDataSlice";
+import { addCategory, addMetric, saveFile } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
 const AddData = () => {
@@ -54,62 +54,72 @@ const AddData = () => {
   });
 
   return (
-    <Box display="grid" alignItems="flex-start" width="100vw">
+    <Box
+      sx={{
+        alignItems: "flex-start",
+        display: "grid",
+        width: "100vw",
+      }}
+    >
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h5" textAlign="center">
+          <Typography sx={{ textAlign: "center" }} variant="h5">
             ADD DATA
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box
-            display="flex"
-            flexDirection="column"
-            width="100%"
-            overflow="hidden"
-            p="10px"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              padding: ".5rem",
+              width: "100%",
+            }}
           >
             <Box
-            backgroundColor={colors.primary[400]}
-              p="20px"
               sx={{
-                "& > .react-colorful": { width: "99%", margin: "20px 0" },
+                backgroundColor: colors.primary[400],
+                padding: "1rem",
+                "& > .react-colorful": { margin: "1rem 0", width: "99%" },
                 ".react-colorful__saturation": { height: "100%" },
                 ".react-colorful__hue": { height: "50%" },
                 ".react-colorful__hue-pointer, .react-colorful__saturation-pointer":
-                  { width: "25px", height: "25px" },
+                  { height: "1rem", width: "1rem" },
               }}
             >
-              <Typography variant="h4" fontWeight="bold" textAlign="center">
+              <Typography
+                sx={{ fontWeight: "bold", textAlign: "center" }}
+                variant="h4"
+              >
                 ADD NEW METRIC
               </Typography>
               <Formik
-                onSubmit={newMetric}
                 initialValues={initialValues}
+                onSubmit={newMetric}
                 validationSchema={userSchema}
               >
                 {({
-                  values,
                   errors,
-                  touched,
                   handleBlur,
                   handleChange,
                   handleSubmit,
+                  touched,
+                  values,
                 }) => (
                   <form onSubmit={handleSubmit}>
-                    <Box display="grid">
+                    <Box sx={{ display: "grid" }}>
                       <TextField
+                        error={!!touched.metric && !!errors.metric}
                         fullWidth
-                        variant="filled"
-                        type="text"
+                        helperText={touched.metric && errors.metric}
                         label="Metric Name"
+                        name="metric"
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        type="text"
                         value={values.metric}
-                        name="metric"
-                        error={!!touched.metric && !!errors.metric}
-                        helperText={touched.metric && errors.metric}
-                        sx={{ gridColumn: "span 1" }}
+                        variant="filled"
                       />
                       <TextField
                         fullWidth
@@ -125,21 +135,20 @@ const AddData = () => {
                         sx={{ gridColumn: "span 1" }}
                       />
                       <TextField
+                        error={!!touched.y && !!errors.y}
                         fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Value"
+                        helperText={touched.y && errors.y}
+                        label="value"
+                        name="y"
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        type="text"
                         value={values.y}
-                        name="y"
-                        error={!!touched.y && !!errors.y}
-                        helperText={touched.y && errors.y}
-                        sx={{ gridColumn: "span 1" }}
+                        variant="filled"
                       />
                       <Button
-                        type="submit"
                         color="secondary"
+                        type="submit"
                         variant="contained"
                       >
                         Track New Metric
@@ -151,52 +160,55 @@ const AddData = () => {
               <HexColorPicker color={color} onChange={setColor} />
             </Box>
             <Box
-              height="auto"
-              m="20px 0 0 0"
-              gap="10px"
-              p="20px"
-              backgroundColor={colors.primary[400]}
+              sx={{
+                backgroundColor: colors.primary[400],
+                gap: ".5rem",
+                height: "auto",
+                margin: "1rem 0 0 0",
+                padding: "1rem",
+              }}
             >
               <Typography
                 variant="h4"
-                fontWeight="bold"
-                textAlign="center"
-                m="2px"
-                sx={{ color: colors.grey[100] }}
+                sx={{
+                  color: colors.grey[100],
+                  fontWeight: "bold",
+                  m: ".2rem",
+                  textAlign: "center",
+                }}
               >
                 ADD NEW CATEGORY
               </Typography>
               <Formik
-                onSubmit={newCategory}
                 initialValues={initialValues}
+                onSubmit={newCategory}
                 validationSchema={categorySchema}
               >
                 {({
-                  values,
                   errors,
-                  touched,
                   handleBlur,
                   handleChange,
                   handleSubmit,
+                  touched,
+                  values,
                 }) => (
                   <form onSubmit={handleSubmit}>
-                    <Box display="grid">
+                    <Box sx={{ display: "grid" }}>
                       <TextField
+                        error={!!touched.category && !!errors.category}
                         fullWidth
-                        variant="filled"
-                        type="text"
+                        helperText={touched.category && errors.category}
                         label="Category Name"
+                        name="metric"
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        type="text"
                         value={values.category}
-                        name="category"
-                        error={!!touched.category && !!errors.category}
-                        helperText={touched.category && errors.category}
-                        sx={{ gridColumn: "span 1" }}
+                        variant="filled"
                       />
                       <Button
-                        type="submit"
                         color="secondary"
+                        type="submit"
                         variant="contained"
                       >
                         Track New Category

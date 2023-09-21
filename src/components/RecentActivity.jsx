@@ -70,43 +70,60 @@ const RecentActivity = (props) => {
     return (
       <Box
         component={Link}
+        key={i}
         to={`/activity/${i}`}
         state={{ startDate: date.x }}
-        key={i}
-        sx={{ textDecoration: "none" }}
-        // key={date.x}
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-        alignItems="center"
-        borderBottom={`4px solid ${colors.primary[500]}`}
-        p="15px"
-        
+        sx={{
+          alignItems: "center",
+          borderBottom: `4px solid ${colors.primary[500]}`,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "1rem",
+          textDecoration: "none",
+        }}
       >
         <Typography
-          color={colors.greenAccent[500]}
+          sx={{
+            color: colors.greenAccent[500],
+            fontWeight: "900",
+            margin: "0 0 1rem 0",
+          }}
           variant="h3"
-          fontWeight="900"
-          m="0 0 20px 0"
         >
           {date.x}
         </Typography>
-        <Box width="100%" p="20px">
+        <Box
+          sx={{
+            padding: "1rem",
+            width: "100%",
+          }}
+        >
           {entries.map((metric, i) => {
             if (metric[1].y > 0) {
               return (
-                <Box display="flex" justifyContent="space-between" key={i}>
+                <Box
+                  key={i}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
                   <Typography
-                    color={colors.grey[100]}
+                    sx={{
+                      color: colors.grey[100],
+                      fontWeight: "700",
+                    }}
                     variant="h4"
-                    fontWeight="700"
                   >
                     {metric[1].id}
                   </Typography>
                   <Typography
-                    color={colors.greenAccent[500]}
+                    sx={{
+                      color: colors.greenAccent[500],
+                      fontWeight: "700",
+                    }}
                     variant="h4"
-                    fontWeight="700"
                   >
                     {metric[1].y}
                   </Typography>
@@ -121,32 +138,42 @@ const RecentActivity = (props) => {
 
   return (
     <Box
-      display="grid"
-      gridColumn="span 12"
-      alignItems="flex-start"
-      overflow="auto"
-      backgroundColor={colors.primary[400]}
-      width="100vw"
+      sx={{
+        alignItems: "flex-start",
+        backgroundColor: colors.primary[400],
+        display: "grid",
+        overflow: "auto",
+        width: "100vw",
+      }}
     >
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">RECENT ACTIVITY</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Box height="auto" backgroundColor={colors.primary[400]}>
+          <Box
+            sx={{
+              backgroundColor: colors.primary[400],
+              height: "auto",
+            }}
+          >
             <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              borderBottom={`4px solid ${colors.primary[500]}`}
-              colors={colors.grey[100]}
-              p="5px"
+              sx={{
+                alignItems: "center",
+                borderBottom: `4px solid ${colors.primary[500]}`,
+                colors: colors.grey[100],
+                display: "flex",
+                justifyContent: "center",
+                padding: ".2rem",
+              }}
             >
               <Typography
+                sx={{
+                  color: colors.grey[100],
+                  fontWeight: "bold",
+                  m: ".2rem 0 0 0",
+                }}
                 variant="h4"
-                fontWeight="bold"
-                m="5px 0 0 0"
-                sx={{ color: colors.grey[100] }}
               >
                 RECENT ACTIVITY
               </Typography>

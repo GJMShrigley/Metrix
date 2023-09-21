@@ -1,9 +1,13 @@
-import { ResponsiveLine } from "@nivo/line";
-import { Box, Typography, useTheme } from "@mui/material";
-import { tokens } from "../theme";
 import { useEffect, useState } from "react";
+
+import * as moment from "moment";
+import { Box, Typography, useTheme } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { ResponsiveLine } from "@nivo/line";
+
 import DateSlice from "../components/DateSlice";
-import moment from "moment";
+
+import { tokens } from "../theme";
 
 const LineChart = (props) => {
   const theme = useTheme();
@@ -11,7 +15,7 @@ const LineChart = (props) => {
   const originalData = props.chartData;
   const [chartData, setChartData] = useState(props.chartData);
   const [maxY, setMaxY] = useState("auto");
-  const height = props.dataType === "Dashboard" ? 50 : 50;
+  const height = 50;
 
   useEffect(() => {
     if (chartData.every((val, i, chartData) => val.type === "Scale")) {
@@ -61,11 +65,45 @@ const LineChart = (props) => {
     sliceDate(lastWeek, currentDate);
   }, [props]);
 
+  const graphTheme = {
+    axis: {
+      domain: {
+        line: {
+          stroke: colors.grey[100],
+        },
+      },
+      legend: {
+        text: {
+          fill: colors.grey[100],
+        },
+      },
+      ticks: {
+        line: {
+          stroke: colors.grey[100],
+          strokeWidth: 1,
+        },
+        text: {
+          fill: colors.grey[100],
+        },
+      },
+    },
+    legends: {
+      text: {
+        fill: colors.grey[100],
+      },
+    },
+    tooltip: {
+      container: {
+        color: colors.primary[500],
+      },
+    },
+  };
+
   return (
     <Box
       sx={{
         height: `${height}vh`,
-        width: "100vw",
+        width: "100%",
       }}
     >
       <DateSlice sliceDate={sliceDate} />
@@ -76,28 +114,28 @@ const LineChart = (props) => {
             <Box
               style={{
                 background: "white",
-                padding: "5px 5px",
+                padding: ".2rem",
                 border: "1px solid #ccc",
                 color: "#000",
               }}
             >
-              <Typography fontWeight="bold" sx={{ mr: "5px" }}>
+              <Typography sx={{ fontWeight: "bold", marginRight: ".2rem" }}>
                 {point.serieId}
               </Typography>
               <Box display="flex">
-                <Typography fontWeight="bold" sx={{ mr: "5px" }}>
+                <Typography sx={{ fontWeight: "bold", marginRight: ".2rem" }}>
                   Date:
                 </Typography>
                 {point.data.x}
               </Box>
               <Box display="flex">
-                <Typography fontWeight="bold" sx={{ mr: "5px" }}>
+                <Typography sx={{ fontWeight: "bold", marginRight: ".2rem" }}>
                   Value:
                 </Typography>
                 {point.data.y}
               </Box>
               <Box display="flex">
-                <Typography fontWeight="bold" sx={{ mr: "5px" }}>
+                <Typography sx={{ fontWeight: "bold", marginRight: ".2rem" }}>
                   Note:
                 </Typography>
                 {point.data.note}
@@ -105,41 +143,9 @@ const LineChart = (props) => {
             </Box>
           );
         }}
-        theme={{
-          axis: {
-            domain: {
-              line: {
-                stroke: colors.grey[100],
-              },
-            },
-            legend: {
-              text: {
-                fill: colors.grey[100],
-              },
-            },
-            ticks: {
-              line: {
-                stroke: colors.grey[100],
-                strokeWidth: 1,
-              },
-              text: {
-                fill: colors.grey[100],
-              },
-            },
-          },
-          legends: {
-            text: {
-              fill: colors.grey[100],
-            },
-          },
-          tooltip: {
-            container: {
-              color: colors.primary[500],
-            },
-          },
-        }}
+        theme={graphTheme}
         colors={{ datum: "color" }} // added
-        margin={{ top: 10, right: 80, bottom: 90, left: 40 }}
+        margin={{ top: 10, right: 20, bottom: 90, left: 20 }}
         xScale={{ type: "point" }}
         yScale={{
           type: "linear",
@@ -176,6 +182,87 @@ const LineChart = (props) => {
         pointBorderColor={{ from: "serieColor" }}
         pointLabelYOffset={-12}
         useMesh={true}
+        enableSlices="x"
+        sliceTooltip={({ slice }) => {
+          return (
+            <Box
+              sx={{
+                background: colors.blueAccent[800],
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                fontSize: "1.1rem",
+                padding: ".5rem",
+              }}
+            >
+              <Box
+                sx={{
+                  color: "#fff",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
+                {slice.points[0].data.x}
+              </Box>
+              {slice.points.map((point) => {
+                return (
+                  <Box
+                    key={point.id}
+                    sx={{
+                      color: point.serieColor,
+                      display: "grid",
+                      fontSize: "1.1rem",
+                      fontWeight: "bold",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      justifyContent: "space-between",
+                      padding: ".2rem 0",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: "1.1rem",
+                        fontWeight: "bold",
+                        marginRight: ".2rem",
+                      }}
+                    >
+                      {point.serieId}&#58;
+                    </Typography>
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Typography
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: "bold",
+                          marginRight: ".2rem",
+                        }}
+                      >
+                        {point.data.yFormatted}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex" }}>
+                      <Typography
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: "bold",
+                          marginRight: ".2rem",
+                        }}
+                      >
+                        Note&#58;
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: "bold",
+                          marginRight: ".2rem",
+                        }}
+                      >
+                        {point.data.note}
+                      </Typography>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+          );
+        }}
       />
     </Box>
   );

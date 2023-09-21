@@ -1,8 +1,9 @@
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Box, Typography, useTheme } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import EntryBox from "../components/EntryBox";
 
@@ -14,30 +15,38 @@ const QuickUpdate = (props) => {
 
   const inputItems = props.userData.map((data, i) => (
     <Box
-      backgroundColor={colors.primary[400]}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
       key={`${i}`}
+      sx={{
+        alignItems: "center",
+        backgroundColor: colors.primary[400],
+        display: "flex",
+        justifyContent: "center",
+      }}
     >
       <EntryBox
+        lineColor={`${data.color}`}
         title={`${data.id}`}
         type={`${data.type}`}
-        lineColor={`${data.color}`}
       />
     </Box>
   ));
 
   return (
-    <Box width="100vw">
+    <Box sx={{ width: "100vw" }}>
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h5" textAlign="center">
+          <Typography sx={{ textAlign: "center" }} variant="h5">
             QUICK UPDATE
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Box display="flex" alignItems="center" width="100%" overflow="auto">
+          <Box
+            sx={{
+              alignItems: "center",
+              display: "flex",
+              overflow: "auto",
+            }}
+          >
             {inputItems}
           </Box>
         </AccordionDetails>

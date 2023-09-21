@@ -88,15 +88,20 @@ const Dashboard = () => {
       sx={{
         display: "grid",
         gap: ".5rem",
-        width: "95vw",
       }}
     >
-      {/* ROW 1 */}
-      {data2.length > 0 ? (
-        <BiaxialChart dataType="Dashboard" data1={data1} data2={data2} />
-      ) : (
-        <LineChart dataType="category" chartData={chartData.contents} />
-      )}
+      <Box
+        sx={{
+          padding: "1rem",
+          width: "100vw",
+        }}
+      >
+        {data2.length > 0 ? (
+          <BiaxialChart dataType="Dashboard" data1={data1} data2={data2} />
+        ) : (
+          <LineChart dataType="category" chartData={chartData.contents} />
+        )}
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -104,11 +109,8 @@ const Dashboard = () => {
           position: "relative",
         }}
       >
-        {/* ROW 2 */}
         <QuickUpdate userData={userData} />
-        {/* ROW 3 */}
         <RecentActivity userData={userData} />
-        {/* ROW 4 */}
         <AddData />
       </Box>
     </Box>

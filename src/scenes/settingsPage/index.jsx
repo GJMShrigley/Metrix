@@ -1,195 +1,242 @@
-import { Box, useTheme, IconButton, Typography, Button } from "@mui/material";
-import Header from "../../components/Header";
+import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import { MuiFileInput } from "mui-file-input";
+import { useDispatch, useSelector } from "react-redux";
+
+import Header from "../../components/Header";
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+
+import {
+  deleteAll,
+  deleteCategory,
+  deleteJournal,
+  deleteMetric,
+  exportFile,
+  importFile,
+  saveFile,
+} from "../../store/userDataSlice";
 import { tokens } from "../../theme";
-import { useDispatch, useSelector } from "react-redux"
-import { deleteMetric, deleteCategory, deleteJournal, deleteAll, saveFile, exportFile, importFile } from "../../store/userDataSlice";
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import UploadOutlinedIcon from '@mui/icons-material/UploadOutlined';
-import { MuiFileInput } from 'mui-file-input'
 
 const SettingsPage = () => {
-    const dispatch = useDispatch();
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const userMetrics = useSelector((state) => state.userData.metrics);
-    const userCategories = useSelector((state) => state.userData.categories)
-    const userJournal = useSelector((state) => state.userData.journal);
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const userMetrics = useSelector((state) => state.userData.metrics);
+  const userCategories = useSelector((state) => state.userData.categories);
+  const userJournal = useSelector((state) => state.userData.journal);
 
-    const handleDeleteMetric = (e) => {
-        dispatch(deleteMetric(e.id));
-        dispatch(saveFile());
+  const handleDeleteMetric = (e) => {
+    dispatch(deleteMetric(e.id));
+    dispatch(saveFile());
+  };
+
+  const handleDeleteCategory = (e) => {
+    dispatch(deleteCategory(e.categoryId));
+    dispatch(saveFile());
+  };
+
+  const handleDeleteJournal = (e) => {
+    dispatch(deleteJournal(e.x));
+    dispatch(saveFile());
+  };
+
+  const handleClearAll = () => {
+    dispatch(deleteAll());
+    dispatch(saveFile());
+  };
+
+  const fileLoad = (e) => {
+    const file = e;
+    const reader = new FileReader();
+
+    if (file.length > 1) {
+      alert("Please select a single file to load");
+      return;
     }
 
-    const handleDeleteCategory = (e) => {
-        dispatch(deleteCategory(e.categoryId));
-        dispatch(saveFile());
-    }
+    reader.addEventListener(
+      "load",
+      () => {
+        const loadedFile = JSON.parse(reader.result);
+        dispatch(importFile(loadedFile));
+      },
+      false
+    );
+    reader.readAsText(file);
+  };
 
-    const handleDeleteJournal = (e) => {
-        dispatch(deleteJournal(e.x));
-        dispatch(saveFile());
-    }
+  const metricsList = userMetrics.map((metric, i) => {
+    return (
+      <IconButton
+        key={i}
+        onClick={() => {
+          handleDeleteMetric(metric);
+        }}
+        sx={{ textAlign: "left" }}
+      >
+        <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
+        DELETE {metric.id.toUpperCase()}
+      </IconButton>
+    );
+  });
 
-    const handleClearAll = () => {
-        dispatch(deleteAll());
-        dispatch(saveFile());
-    }
+  const categoriesList = userCategories.map((category, i) => {
+    return (
+      <IconButton
+        key={i}
+        onClick={() => {
+          handleDeleteCategory(category);
+        }}
+        sx={{ textAlign: "left" }}
+      >
+        <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
+        DELETE {category.categoryId.toUpperCase()}
+      </IconButton>
+    );
+  });
 
-    const fileLoad = (e) => {
-        const file = e;
-        const reader = new FileReader();
+  const journalList = userJournal.map((journal, i) => {
+    return (
+      <IconButton
+        key={i}
+        onClick={() => {
+          handleDeleteJournal(journal);
+        }}
+        sx={{ textAlign: "left" }}
+      >
+        <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
+        DELETE {journal.x.toUpperCase()}
+      </IconButton>
+    );
+  });
 
-        if (file.length > 1) {
-            alert("Please select a single file to load");
-            return;
-        }
-
-        reader.addEventListener("load", () => {
-            const loadedFile = JSON.parse(reader.result);
-            dispatch(importFile(loadedFile));
-        }, false);
-        reader.readAsText(file);
-    }
-
-    const metricsList = userMetrics.map((metric, i) => {
-        return (
-            <Typography key={i}>
-                <IconButton onClick={() => {
-                    handleDeleteMetric(metric);
-                }} >
-                    <DeleteForeverOutlinedIcon fontSize="large" />DELETE {metric.id.toUpperCase()} DATA
-                </IconButton>
-            </Typography >
-        )
-    })
-
-    const categoriesList = userCategories.map((category, i) => {
-        return (
-            <Typography key={i}>
-                <IconButton onClick={() => {
-                    handleDeleteCategory(category);
-                }} >
-                    <DeleteForeverOutlinedIcon fontSize="large" />DELETE {category.categoryId.toUpperCase()} DATA
-                </IconButton>
+  return (
+    <Box sx={{ margin: "1rem", textAlign: "center" }}>
+      <Header permanent title="Settings" />
+      <Box sx={{ margin: "1rem" }}>
+        <Typography variant="h4">DELETE DATA</Typography>
+        <Accordion disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+              METRICS
             </Typography>
-        )
-    })
-
-    const journalList = userJournal.map((journal, i) => {
-        return (
-            <Typography key={i}>
-                <IconButton onClick={() => {
-                    handleDeleteJournal(journal);
-                }} >
-                    <DeleteForeverOutlinedIcon fontSize="large" />DELETE {journal.x.toUpperCase()}
-                </IconButton>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              alignItems="flex-start"
+              display="flex"
+              flexDirection="column"
+              maxHeight="40vh"
+              overflow="auto"
+            >
+              {metricsList}
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+              CATEGORIES
             </Typography>
-        )
-    })
-
-    return <Box m="20px">
-        <Header title="Settings" permanent />
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                DELETE DATA
-            </AccordionSummary>
-            <AccordionDetails>
-                <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography color={colors.greenAccent[500]} variant="h5">
-                            METRICS
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Box maxHeight="40vh" overflow="auto">
-                            {metricsList}
-                        </Box>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography color={colors.greenAccent[500]} variant="h5">
-                            CATEGORIES
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Box maxHeight="40vh" overflow="auto">
-                            {categoriesList}
-                        </Box>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography color={colors.greenAccent[500]} variant="h5">
-                            JOURNAL
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            <Box maxHeight="40vh" overflow="auto">
-                                {journalList}
-                            </Box>
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography color={colors.greenAccent[500]} variant="h5">
-                            ALL
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            <IconButton onClick={handleClearAll} >
-                                <DeleteForeverOutlinedIcon fontSize="large" />DELETE ALL DATA
-                            </IconButton>
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-            </AccordionDetails>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              alignItems="flex-start"
+              display="flex"
+              flexDirection="column"
+              maxHeight="40vh"
+              overflow="auto"
+            >
+              {categoriesList}
+            </Box>
+          </AccordionDetails>
         </Accordion>
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                IMPORT/EXPORT DATA
-            </AccordionSummary>
-            <AccordionDetails>
-                <MuiFileInput
-                    fullWidth
-                    size="small"
-                    sx={{
-                        borderRadius: "5px",
-                        backgroundColor: colors.blueAccent[700],
-                        color: colors.grey[100],
-                        margin: "5px 0",
-                        padding: "6px",
-                    }}
-                    onChange={fileLoad}
-                    inputProps={{ accept: '.txt' }} />
-                <Button
-                    fullWidth
-                    sx={{
-                        backgroundColor: colors.blueAccent[700],
-                        color: colors.grey[100],
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        margin: "5px 0",
-                        padding: "10px 78px",
-                    }}
-                    onClick={() => {
-                        dispatch(exportFile());
-                    }}
-                >
-                    <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-                    Export User Data
-                </Button>
-            </AccordionDetails>
+        <Accordion disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+              JOURNAL
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              alignItems="flex-start"
+              display="flex"
+              flexDirection="column"
+              maxHeight="40vh"
+              overflow="auto"
+            >
+              {journalList}
+            </Box>
+          </AccordionDetails>
         </Accordion>
+        <Accordion disableGutters>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+              ALL
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>
+              <IconButton onClick={handleClearAll}>
+                <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
+                DELETE ALL DATA
+              </IconButton>
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
+      <Box sx={{ margin: "1rem" }}>
+        <Typography variant="h4">IMPORT/EXPORT DATA</Typography>
+        <MuiFileInput
+          fullWidth
+          inputProps={{ accept: ".txt" }}
+          onChange={fileLoad}
+          placeholder={"IMPORT DATA"}
+          size="small"
+          sx={{
+            backgroundColor: colors.blueAccent[700],
+            borderRadius: "8px",
+            color: "#fff",
+            cursor: "pointer",
+            margin: ".5rem 0",
+            padding: ".5rem",
+            "& .MuiFileInput-placeholder": {
+              color: "#fff !important",
+              cursor: "pointer !important",
+              display: "flex",
+              fontSize: 23,
+              justifyContent: "center",
+            },
+            "& .MuiSvgIcon-root": {
+              color: "transparent",
+            },
+          }}
+          value={null}
+        />
+        <Button
+          fullWidth
+          onClick={() => {
+            dispatch(exportFile());
+          }}
+          sx={{
+            backgroundColor: colors.redAccent[700],
+            border: `solid 10px ${colors.redAccent[700]}`,
+            boxShadow: `inset 0 0 0 1px #777`,
+            color: colors.grey[100],
+            fontWeight: "700",
+            margin: ".5rem 0",
+            padding: ".5rem",
+          }}
+        >
+          <Typography variant="h4">EXPORT DATA</Typography>
+        </Button>
+      </Box>
     </Box>
-}
+  );
+};
 
 export default SettingsPage;

@@ -1,98 +1,103 @@
-import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, FormLabel, RadioGroup, FormControlLabel, Radio, Typography, useTheme } from "@mui/material";
-import { tokens } from "../theme";
 import { Formik } from "formik";
-import { useDispatch } from "react-redux";
-import * as yup from "yup";
+import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import * as moment from "moment";
-import { Link } from 'react-router-dom';
-
+import { Link } from "react-router-dom";
+import * as yup from "yup";
 
 const DateSearch = () => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const isNonMobile = useMediaQuery("(min-width:600px)");
-    const dispatch = useDispatch();
-    const currentDate = (new Date()).toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    });
+  const isNonMobile = useMediaQuery("(min-width:600px)");
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
-    const lastWeek = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
+  const lastWeek = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
 
-    const initialValues = {
-        startDate: `${lastWeek}`,
-        endDate: `${currentDate}`,
-    };
+  const initialValues = {
+    startDate: `${lastWeek}`,
+    endDate: `${currentDate}`,
+  };
 
-    const userSchema = yup.object().shape({
-        startDate: yup.date().required("required"),
-        endDate: yup.date(),
-    });
+  const userSchema = yup.object().shape({
+    startDate: yup.date().required("required"),
+    endDate: yup.date(),
+  });
 
+  const handleFormSubmit = (values) => {};
 
-    const handleFormSubmit = (values) => {
-    };
-
-    return (
-        <Box width="auto" minWidth="100px" m="0 10px">
-            <Box display="flex" flexDirection="column" gap="0" justifyContent="center" overflow="hidden">
+  return (
+    <Box sx={{ margin: "0 .5rem", minWidth: "5rem" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      ></Box>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleFormSubmit}
+        validationSchema={userSchema}
+      >
+        {({
+          errors,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          touched,
+          values,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Box
+                sx={{
+                  columnGap: ".2rem",
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                <TextField
+                  error={!!touched.startDate && !!errors.startDate}
+                  fullWidth
+                  helperText={touched.startDate && errors.startDate}
+                  label="Start Date"
+                  name="startDate"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.startDate}
+                  variant="filled"
+                />
+                <TextField
+                  error={!!touched.endDate && !!errors.endDate}
+                  fullWidth
+                  helperText={touched.endDate && errors.endDate}
+                  label="End Date"
+                  name="endDate"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.endDate}
+                  variant="filled"
+                />
+              </Box>
+              <Button
+                color="secondary"
+                component={Link}
+                state={{ endDate: values.endDate, startDate: values.startDate }}
+                to={`/activity/0`}
+                type="submit"
+                variant="contained"
+              >
+                Go To Date
+              </Button>
             </Box>
-            <Formik
-                onSubmit={handleFormSubmit}
-                initialValues={initialValues}
-                validationSchema={userSchema}
-            >
-                {({ values, errors, touched, handleBlur, handleChange, handleSubmit }) => (
-                    <form onSubmit={handleSubmit}>
-                        <Box
-                            display="flex"
-                            flexDirection="column"
-                        >
-                            <Box
-                                display="flex"
-                                flexDirection="row"
-                                columnGap={"5px"}
-                            >
-                                <TextField
-                                    fullWidth
-                                    variant="filled"
-                                    type="text"
-                                    size="small"
-                                    label="startDate"
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    value={values.startDate}
-                                    name="startDate"
-                                    error={!!touched.startDate && !!errors.startDate}
-                                    helperText={touched.startDate && errors.startDate}
-                                    sx={{ gridRow: "span 1", gridColumn: "span 1" }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    variant="filled"
-                                    type="text"
-                                    size="small"
-                                    label="endDate"
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    value={values.endDate}
-                                    name="endDate"
-                                    error={!!touched.endDate && !!errors.endDate}
-                                    helperText={touched.endDate && errors.endDate}
-                                    sx={{ gridRow: "span 1", gridColumn: "span 1" }}
-                                />
-                            </Box>
-                            <Button component={Link} to={`/activity/0`} state={{ startDate: values.startDate, endDate: values.endDate }} type="submit" color="secondary" variant="contained" >
-                                Go To Date
-                            </Button>
-                        </Box>
-                    </form>
-                )}
-            </Formik>
-        </Box >
-    );
-}
+          </form>
+        )}
+      </Formik>
+    </Box>
+  );
+};
 
-export default DateSearch
+export default DateSearch;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Formik } from "formik";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -18,8 +18,11 @@ import LineChart from "../../components/LineChart";
 import StatBox from "../../components/StatBox";
 
 import { addJournal, saveFile } from "../../store/userDataSlice";
+import { tokens } from "../../theme";
 
 const ActivityPage = () => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
   const location = useLocation().state;
   const categoryArray = useSelector((state) => state.userData.categories);
@@ -145,6 +148,7 @@ const ActivityPage = () => {
       <Box
         sx={{
           alignItems: "center",
+          backgroundColor: colors.primary[400],
           display: "flex",
           justifyContent: "center",
         }}
@@ -167,7 +171,7 @@ const ActivityPage = () => {
         >
           Previous
         </Button>
-        <Header isDate={true} title={pageTitle} />
+        <Header permanent title={pageTitle} />
         <Button
           color="secondary"
           component={Link}
@@ -187,8 +191,7 @@ const ActivityPage = () => {
       </Box>
       <Box
         sx={{
-          gridColumn: "span 12",
-          height: "65vh",
+          padding: "1rem",
         }}
       >
         {data2.length > 0 ? (

@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
-import { tokens } from "../theme";
-import { ResponsiveLine } from "@nivo/line";
-import useMediaQuery from "@mui/material/useMediaQuery";
+
 import * as moment from "moment";
+import { Box, Typography, useTheme } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { ResponsiveLine } from "@nivo/line";
+
 import DateSlice from "../components/DateSlice";
+
+import { tokens } from "../theme";
 
 export default function BiaxialChart(props) {
   const theme = useTheme();
@@ -15,8 +18,9 @@ export default function BiaxialChart(props) {
   const [data1, setData1] = useState(props.data1);
   const [data2, setData2] = useState(props.data2);
   const [maxY, setMaxY] = useState("auto");
-  const height = props.dataType === "Dashboard" ? 50 : 50;
+  const height = 50;
 
+  //If all data types are of type 'Scale', set the maxY variable to '10'. Otherwise, set the maxY variable to the highest value of the dataset.
   useEffect(() => {
     if (data2.every((val, i, data2) => val.type === "Scale")) {
       setMaxY(10);
@@ -29,6 +33,9 @@ export default function BiaxialChart(props) {
     }
   }, [data1, data2]);
 
+  //If no start date is specified, set the chart data to the week ending on the current date.
+  //If a start date is specified but not an end date, set the chart data to the day prior to and following the start date.
+  //If both a start date and end date are specified, set the chart data to display the data within those dates.
   useEffect(() => {
     if (!props.startDate) {
       const endDate = new Date().toLocaleDateString("en-US", {
@@ -57,6 +64,7 @@ export default function BiaxialChart(props) {
     }
   }, [props.startDate, props.endDate]);
 
+  //Take a start date, and end date for setting the chart data, and two data sets to recover color data for transparent data.
   function sliceDate(
     startDate,
     endDate,
@@ -150,6 +158,7 @@ export default function BiaxialChart(props) {
     },
   };
 
+  //Toggle the display of chart data by setting line colors to/from transparent.
   function handleClick(e) {
     const data1Copy = [...data1];
     const data2Copy = [...data2];
@@ -171,25 +180,26 @@ export default function BiaxialChart(props) {
     const legendItems = legendData.map((item, i) => {
       return (
         <Box
-          display="flex"
-          alignItems="center"
-          height="1rem"
-          width="auto"
-          gap="5px"
           onClick={handleClick}
           data-key={i}
           key={i}
           sx={{
-            backgroundColor: colors.grey[800],
+            alignItems: "center",
             cursor: "pointer",
+            display: "flex",
+            gap: ".2rem",
+            height: "1rem",
             whiteSpace: "nowrap",
+            width: "auto",
           }}
         >
           <Box
-            borderRadius="8px"
-            width="10px"
-            height="10px"
-            sx={{ backgroundColor: item.color }}
+            sx={{
+              backgroundColor: item.color,
+              borderRadius: "8px",
+              height: ".5rem",
+              width: ".5rem",
+            }}
             data-key={i}
           ></Box>
           {item.id}
@@ -199,11 +209,11 @@ export default function BiaxialChart(props) {
 
     return (
       <Box
-        display="flex"
-        gap="10px"
         sx={{
-          margin: "0 1rem",
+          display: "flex",
+          gap: "10px",
           height: "2.5rem",
+          margin: "0 1rem",
           overflowX: "auto",
           overflowY: "hidden",
         }}
@@ -219,7 +229,7 @@ export default function BiaxialChart(props) {
         data={data1}
         theme={graphTheme}
         colors={{ datum: "color" }}
-        margin={{ top: 10, right: 40, bottom: 90, left: 40 }}
+        margin={{ top: 10, right: 20, bottom: 90, left: 20 }}
         layers={["grid", "mesh", "points", "axes", "lines", "markers"]}
         xScale={{ type: "point" }}
         yScale={{
@@ -266,7 +276,7 @@ export default function BiaxialChart(props) {
         colors={(d) => {
           return d.type === data1[0].type ? "transparent" : d.color;
         }}
-        margin={{ top: 10, right: 40, bottom: 90, left: 40 }}
+        margin={{ top: 10, right: 20, bottom: 90, left: 20 }}
         yScale={{
           type: "linear",
           min: 0,
@@ -290,19 +300,19 @@ export default function BiaxialChart(props) {
         sliceTooltip={({ slice }) => {
           return (
             <Box
-              style={{
+              sx={{
                 background: colors.blueAccent[800],
-                padding: "9px 12px",
                 border: "1px solid #ccc",
-                fontSize: "1.1rem",
                 borderRadius: "8px",
+                fontSize: "1.1rem",
+                padding: ".5rem",
               }}
             >
               <Box
-                style={{
+                sx={{
                   color: "#fff",
-                  textAlign: "center",
                   fontWeight: "bold",
+                  textAlign: "center",
                 }}
               >
                 {slice.points[0].data.x}
@@ -314,43 +324,55 @@ export default function BiaxialChart(props) {
                 return (
                   <Box
                     key={point.id}
-                    style={{
+                    sx={{
                       color:
                         point.serieColor === "transparent"
                           ? originalColor
                           : point.serieColor, // use original color for tooltip
-                      padding: "3px 0",
+                      display: "grid",
                       fontSize: "1.1rem",
                       fontWeight: "bold",
-                      display: "grid",
                       gridTemplateColumns: "repeat(3, 1fr)",
                       justifyContent: "space-between",
+                      padding: ".2rem 0",
                     }}
                   >
                     <Typography
-                      fontWeight="bold"
-                      sx={{ fontSize: "1.1rem", mr: "5px" }}
+                      sx={{
+                        fontSize: "1.1rem",
+                        fontWeight: "bold",
+                        marginRight: ".2rem",
+                      }}
                     >
                       {point.serieId}&#58;
                     </Typography>
-                    <Box display="flex" justifyContent="center">
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <Typography
-                        fontWeight="bold"
-                        sx={{ fontSize: "1.1rem", mr: "5px" }}
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: "bold",
+                          marginRight: ".2rem",
+                        }}
                       >
                         {point.data.yFormatted}
                       </Typography>
                     </Box>
-                    <Box display="flex">
+                    <Box sx={{ display: "flex" }}>
                       <Typography
-                        fontWeight="bold"
-                        sx={{ fontSize: "1.1rem", mr: "5px" }}
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: "bold",
+                          marginRight: ".2rem",
+                        }}
                       >
                         Note&#58;
                       </Typography>
                       <Typography
-                        fontWeight="bold"
-                        sx={{ fontSize: "1.1rem", mr: "5px" }}
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: "bold",
+                          marginRight: ".2rem",
+                        }}
                       >
                         {point.data.note}
                       </Typography>
@@ -367,43 +389,42 @@ export default function BiaxialChart(props) {
 
   const Wrapper = () => {
     return (
-      <Box backgroundColor={colors.primary[400]}>
-        <DateSlice sliceDate={sliceDate} changeDate={props.changeDate} />
+      <Box sx={{ width: "100%" }}>
+        <DateSlice changeDate={props.changeDate} sliceDate={sliceDate} />
         <Box
           sx={{
-            height: `${height + 10}vh`,
-            width: "100vw",
             display: "flex",
             flexDirection: "column",
+            height: `${height + 10}vh`,
           }}
         >
           <Box
             sx={{
-              width: "95vw",
               height: `${height}vh`,
               minHeight: `${height}vh`,
               position: "relative",
+              width: "100%",
             }}
           >
             <FirstGraph />
           </Box>
           <Box
             sx={{
-              width: "95vw",
               height: `${height}vh`,
               minHeight: `${height}vh`,
               position: "relative",
               top: `-${height}vh`,
+              width: "100%",
             }}
           >
             <SecondGraph />
           </Box>
           <Box
             sx={{
+              height: "5vh",
               position: "relative",
               top: `-${height}vh`,
-              width: "100vw",
-              height: "5vh",
+              width: "100%",
             }}
           >
             {customLegend(data2)}

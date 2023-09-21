@@ -153,7 +153,6 @@ const Journal = () => {
         display: "flex",
         flexDirection: "column",
         gap: "1rem",
-        margin: "1rem",
       }}
     >
       <Header permanent={true} title="JOURNAL" />

@@ -74,7 +74,7 @@ const userDataSlice = createSlice({
         let lastDate = state.metrics[i].data.at(-1).x;
 
         function incrementDate() {
-          if (lastDate != currentDate) {
+          if (lastDate !== currentDate) {
             let plusDay = moment(lastDate).add(1, "days").format("MM/DD/YYYY");
             state.metrics[i].data.push({ x: plusDay, y: 0 });
             lastDate = state.metrics[i].data.at(-1).x;
@@ -102,7 +102,7 @@ const userDataSlice = createSlice({
             (data) => data === action.payload.selectionId
           );
           const index = state.categories[i].contents.indexOf(match);
-          if (index != -1) {
+          if (index !== -1) {
             state.categories[i].contents[index] = action.payload.values;
           }
         }
@@ -171,7 +171,7 @@ const userDataSlice = createSlice({
             (data) => data === action.payload
           );
           const index = state.categories[i].contents.indexOf(match);
-          if (index != -1) {
+          if (index !== -1) {
             state.categories[i].contents.splice(index, 1);
           }
         }
@@ -181,7 +181,7 @@ const userDataSlice = createSlice({
       for (let i = 0; i < state.categories.length; i++) {
         if (
           state.categories[i].categoryId === action.payload &&
-          action.payload != "Dashboard"
+          action.payload !== "Dashboard"
         ) {
           state.categories.splice(i, 1);
         }

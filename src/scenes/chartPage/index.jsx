@@ -15,6 +15,7 @@ import {
   Select,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -37,6 +38,7 @@ import {
   saveFile,
   updateValue,
 } from "../../store/userDataSlice";
+import { tokens } from "../../theme";
 
 const currentDate = new Date().toLocaleDateString("en-US", {
   day: "2-digit",
@@ -59,6 +61,8 @@ const userSchema = yup.object().shape({
 });
 
 const ChartPage = () => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
   const params = useParams();
   const chartId = parseInt(params.id);
@@ -192,104 +196,125 @@ const ChartPage = () => {
   };
 
   return (
-    <Box sx={{ margin: "0 1rem" }}>
+    <Box>
       <Box
-        sx={{ alignItems: "center", display: "flex", flexDirection:"column", gap:".5rem", justifyContent: "center" }}
+        sx={{
+          alignItems: "center",
+          backgroundColor: colors.primary[400],
+          display: "flex",
+          flexDirection: "column",
+          gap: ".5rem",
+          justifyContent: "center",
+        }}
       >
         <Header title={chartData[0].id} />
         {goal ? (
           <ProgressBox goal={goal} latest={latest} title={chartData[0].id} />
         ) : null}
       </Box>
-      <Box sx={{ height: "60vh", marginBottom: ".5rem"}}>
+      <Box sx={{ height: "64vh", padding: "1rem", width: "100vw" }}>
         <LineChart chartData={chartData} dataType="metric" />
       </Box>
       <Box>
-        <Box>
-          <Formik
-            initialValues={initialValues}
-            onSubmit={handleFormSubmit}
-            validationSchema={userSchema}
-          >
-            {({
-              errors,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              touched,
-              values,
-            }) => (
-              <form onSubmit={handleSubmit}>
-                <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-                >
-                  <TextField
-                    error={!!touched.x && !!errors.x}
-                    fullWidth
-                    helperText={touched.x && errors.x}
-                    label="Time Logged"
-                    name="x"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    type="text"
-                    value={values.x}
-                    variant="filled"
-                  />
-                  {typeSelection === "Scale" ? (
-                    <FormControl>
-                      <FormLabel id="scale-buttons-group-label">
-                        Value
-                      </FormLabel>
-                      <RadioGroup
-                        aria-labelledby="scale-buttons-group-label"
-                        name="y"
-                        onChange={handleChange}
-                        row
-                      >
-                        {radioButtons}
-                      </RadioGroup>
-                    </FormControl>
-                  ) : (
-                    <TextField
-                      error={!!touched.y && !!errors.y}
-                      fullWidth
-                      helperText={touched.y && errors.y}
-                      label="Value"
-                      name="y"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="text"
-                      value={values.y}
-                      variant="filled"
-                    />
-                  )}
-                  <FormControl>
-                    <InputLabel>Select Measurement Type</InputLabel>
-                    <Select
-                      id="type"
-                      label="type"
-                      name="type"
-                      onChange={handleTypeChange}
-                      value={typeSelection}
-                    >
-                      <MenuItem value={"Scale"}>Scale</MenuItem>
-                      <MenuItem value={"Number"}>Number</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <Button
-                    color="secondary"
-                    sx={{ height: "3rem" }}
-                    type="submit"
-                    variant="contained"
-                  >
-                    Add Measurement
-                  </Button>
-                </Box>
-              </form>
-            )}
-          </Formik>
-        </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <Accordion disableGutters>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="h5">ADD DATA</Typography>
+            </AccordionSummary>
+            <AccordionDetails
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Formik
+                initialValues={initialValues}
+                onSubmit={handleFormSubmit}
+                validationSchema={userSchema}
+              >
+                {({
+                  errors,
+                  handleBlur,
+                  handleChange,
+                  handleSubmit,
+                  touched,
+                  values,
+                }) => (
+                  <form onSubmit={handleSubmit}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                      }}
+                    >
+                      <TextField
+                        error={!!touched.x && !!errors.x}
+                        fullWidth
+                        helperText={touched.x && errors.x}
+                        label="Time Logged"
+                        name="x"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        type="text"
+                        value={values.x}
+                        variant="filled"
+                      />
+                      {typeSelection === "Scale" ? (
+                        <FormControl>
+                          <FormLabel id="scale-buttons-group-label">
+                            Value
+                          </FormLabel>
+                          <RadioGroup
+                            aria-labelledby="scale-buttons-group-label"
+                            name="y"
+                            onChange={handleChange}
+                            row
+                          >
+                            {radioButtons}
+                          </RadioGroup>
+                        </FormControl>
+                      ) : (
+                        <TextField
+                          error={!!touched.y && !!errors.y}
+                          fullWidth
+                          helperText={touched.y && errors.y}
+                          label="Value"
+                          name="y"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          type="text"
+                          value={values.y}
+                          variant="filled"
+                        />
+                      )}
+                      <FormControl>
+                        <InputLabel>Select Measurement Type</InputLabel>
+                        <Select
+                          id="type"
+                          label="type"
+                          name="type"
+                          onChange={handleTypeChange}
+                          value={typeSelection}
+                        >
+                          <MenuItem value={"Scale"}>Scale</MenuItem>
+                          <MenuItem value={"Number"}>Number</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Button
+                        color="secondary"
+                        sx={{ height: "3rem" }}
+                        type="submit"
+                        variant="contained"
+                      >
+                        Add Measurement
+                      </Button>
+                    </Box>
+                  </form>
+                )}
+              </Formik>
+            </AccordionDetails>
+          </Accordion>
           <Accordion disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h5">COLOUR</Typography>
