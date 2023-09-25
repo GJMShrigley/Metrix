@@ -1,22 +1,24 @@
+import { useRef, useLayoutEffect, useState } from "react";
+
+import { Formik } from "formik";
 import {
   Box,
   Button,
-  TextField,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
+  Select,
+  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
-import { tokens } from "../theme";
-import { Formik } from "formik";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Marquee from "react-fast-marquee";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
-import useMediaQuery from "@mui/material/useMediaQuery";
+
 import { updateValue, saveFile } from "../store/userDataSlice";
-import Marquee from "react-fast-marquee";
-import { useRef, useState, useLayoutEffect } from "react";
+import { tokens } from "../theme";
 
 const EntryBox = ({ title, lineColor, type }) => {
   const theme = useTheme();
@@ -59,7 +61,7 @@ const EntryBox = ({ title, lineColor, type }) => {
 
   const userSchema = yup.object().shape({
     x: yup.date().required("required"),
-    y: yup.string().required("required"),
+    y: yup.number().required("required"),
   });
 
   const handleFormSubmit = (values) => {
@@ -73,6 +75,14 @@ const EntryBox = ({ title, lineColor, type }) => {
     );
     dispatch(saveFile());
   };
+
+  const menuItems = Array.from({ length: 10 }, (_, i) => {
+    return (
+      <MenuItem key={i + 1} value={`${i + 1}`}>
+        {`${i + 1}`}
+      </MenuItem>
+    );
+  });
 
   return (
     <Box
@@ -131,64 +141,38 @@ const EntryBox = ({ title, lineColor, type }) => {
             >
               {type === "Scale" ? (
                 <FormControl>
-                  <InputLabel>Value</InputLabel>
-                  <Select
-                    label="Value"
-                    name="y"
-                    onChange={handleChange}
-                    size="small"
-                    value={values.y}
-                  >
-                    <MenuItem key={0} value={0}>
-                      0
-                    </MenuItem>
-                    <MenuItem key={1} value={1}>
-                      1
-                    </MenuItem>
-                    <MenuItem key={2} value={2}>
-                      2
-                    </MenuItem>
-                    <MenuItem key={3} value={3}>
-                      3
-                    </MenuItem>
-                    <MenuItem key={4} value={4}>
-                      4
-                    </MenuItem>
-                    <MenuItem key={5} value={5}>
-                      5
-                    </MenuItem>
-                    <MenuItem key={6} value={6}>
-                      6
-                    </MenuItem>
-                    <MenuItem key={7} value={7}>
-                      7
-                    </MenuItem>
-                    <MenuItem key={8} value={8}>
-                      8
-                    </MenuItem>
-                    <MenuItem key={9} value={9}>
-                      9
-                    </MenuItem>
-                    <MenuItem key={10} value={10}>
-                      10
-                    </MenuItem>
-                  </Select>
+                  <Box sx={{ height: "2.5rem", width: "6rem" }}>
+                    <InputLabel>Value</InputLabel>
+                    <Select
+                      fullWidth
+                      label="Value"
+                      name="y"
+                      onChange={handleChange}
+                      size="small"
+                      value={values.y}
+                    >
+                      {menuItems}
+                    </Select>
+                  </Box>
                 </FormControl>
               ) : (
-                <TextField
-                  error={!!touched.y && !!errors.y}
-                  fullWidth
-                  helperText={touched.y && errors.y}
-                  label="Value"
-                  name="y"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  type="text"
-                  value={values.y}
-                  variant="filled"
-                />
+                <Box sx={{ height: "2.5rem", width: "6rem" }}>
+                  <TextField
+                    error={!!touched.y && !!errors.y}
+                    fullWidth
+                    helperText={touched.y && errors.y}
+                    label="Value"
+                    name="y"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    size="small"
+                    type="text"
+                    value={values.y}
+                    variant="filled"
+                  />
+                </Box>
               )}
-              <Button color="secondary" type="submit" variant="contained">
+              <Button color="secondary" sx={{ height: "2.5rem", width: "6rem" }} type="submit" variant="contained">
                 Add
               </Button>
             </Box>

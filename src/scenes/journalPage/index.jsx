@@ -92,7 +92,7 @@ const Journal = () => {
               backgroundColor: colors.blueAccent[800],
               borderRadius: "8px",
               display: "flex",
-              minHeight: isLandscape ? "50vh" : "5rem",
+              minHeight: isLandscape ? "25vh" : "5rem",
               minWidth: "90vw",
               padding: ".5rem",
             }}
@@ -157,7 +157,14 @@ const Journal = () => {
         gap: "1rem",
       }}
     >
-      <Header permanent={true} title="JOURNAL" />
+      <Box
+        sx={{
+          backgroundColor: colors.primary[400],
+          width: "100vw",
+        }}
+      >
+        <Header permanent title="JOURNAL" />
+      </Box>
       <Box
         sx={{
           backgroundColor: colors.primary[400],

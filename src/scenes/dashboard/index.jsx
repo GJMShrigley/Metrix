@@ -12,10 +12,15 @@ import RecentActivity from "../../components/RecentActivity";
 
 import { tokens } from "../../theme";
 
+const currentDate = new Date().toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const isMobile = useMediaQuery("max-width: 800px");
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const userData = useSelector((state) => state.userData.metrics);
   const userCategories = useSelector((state) => state.userData.categories);
@@ -28,7 +33,7 @@ const Dashboard = () => {
         color: "#ffff",
         data: [
           {
-            x: "07/20/2023",
+            x: currentDate,
             y: "0",
           },
         ],
@@ -38,6 +43,8 @@ const Dashboard = () => {
   });
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
+  const [startDate, setStartDate] = useState(currentDate);
+  const [endDate, setEndDate] = useState(null);
 
   //Find the 'Dashboard' category.
   useEffect(() => {
@@ -84,6 +91,11 @@ const Dashboard = () => {
     }
   }, [chartData, userCategories, selectedCategory]);
 
+  function handleDate(newStartDate, newEndDate) {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+  }
+
   return (
     <Box
       sx={{
@@ -98,9 +110,18 @@ const Dashboard = () => {
         }}
       >
         {data2.length > 0 ? (
-          <BiaxialChart dataType="Dashboard" data1={data1} data2={data2} />
+          <BiaxialChart
+            dataType="Dashboard"
+            data1={data1}
+            data2={data2}
+            handleDate={handleDate}
+          />
         ) : (
-          <LineChart dataType="category" chartData={chartData.contents} />
+          <LineChart
+            chartData={chartData.contents}
+            dataType="category"
+            handleDate={handleDate}
+          />
         )}
       </Box>
       <QuickUpdate userData={userData} />

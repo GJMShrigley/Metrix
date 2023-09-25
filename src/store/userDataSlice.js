@@ -234,6 +234,7 @@ const userDataSlice = createSlice({
       }
     },
     addNote: (state, action) => {
+      console.log(action)
       for (let i = 0; i < state.metrics.length; i++) {
         if (state.metrics[i].id === action.payload.chartId) {
           for (let e = 0; e < state.metrics[i].data.length; e++) {

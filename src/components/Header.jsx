@@ -14,7 +14,6 @@ import { tokens } from "../theme";
 const Header = ({ title, isCategory, permanent }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const isNonMobile = useMediaQuery("(min-width:600px)");
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const [isEdit, setIsEdit] = useState(false);
@@ -76,7 +75,7 @@ const Header = ({ title, isCategory, permanent }) => {
                   error={!!touched.title && !!errors.title}
                   fullWidth
                   helperText={touched.title && errors.title}
-                  label="Value"
+                  label="New Title"
                   name="title"
                   onBlur={handleBlur}
                   onChange={handleChange}

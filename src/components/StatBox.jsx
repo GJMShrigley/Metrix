@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import * as moment from "moment";
 import { Box, Typography, useTheme } from "@mui/material";
+import Marquee from "react-fast-marquee";
 
 import { tokens } from "../theme";
 
@@ -21,7 +22,6 @@ const findRange = function (statsSlice) {
 const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
   const [statsSlice, setStatsSlice] = useState(stats);
 
   const sum = statsSlice.reduce((acc, obj) => acc + parseInt(obj.y), 0);
@@ -51,6 +51,7 @@ const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
   }, [stats, endDate]);
 
   const statsList = statsSlice.map((day, i) => {
+   
     if (i === 0) {
       return null;
     } else {
@@ -114,6 +115,19 @@ const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
           >
             {percent}&#37;
           </Typography>
+          <Box sx={{ width: "7rem" }}>
+            <Typography
+              component={Marquee}
+              speed={30}
+              sx={{
+                color: colors.greenAccent[100],
+                overflowY: "hidden"
+              }}
+              variant="h4"
+            >
+              {day.note}
+            </Typography>
+          </Box>
         </Box>
       );
     }

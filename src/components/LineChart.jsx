@@ -9,14 +9,41 @@ import DateSlice from "../components/DateSlice";
 
 import { tokens } from "../theme";
 
+const currentDate = new Date().toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isNonMobile = useMediaQuery("(min-width: 992px)");
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const originalData = props.chartData;
-  const [chartData, setChartData] = useState(props.chartData);
+  const [chartData, setChartData] = useState([
+    {
+      id: "",
+      color: "#ffff",
+      data: [
+        {
+          x: currentDate,
+          y: "0",
+        },
+      ],
+      type: "Scale",
+    },
+  ]);
   const [maxY, setMaxY] = useState("auto");
-  const height = isLandscape ? 90 : 50;
+  let height;
+
+  if (isNonMobile) {
+    height = 60;
+  } else if (!isNonMobile && isLandscape) {
+    height = 90;
+  } else if (!isNonMobile && !isLandscape) {
+     height = 50;
+  }
 
   useEffect(() => {
     if (chartData.every((val, i, chartData) => val.type === "Scale")) {
@@ -65,6 +92,10 @@ const LineChart = (props) => {
 
     sliceDate(lastWeek, currentDate);
   }, [props]);
+
+  useEffect(() => {
+    props.handleDate(chartData[0].data[0].x, chartData[0].data.at(-1).x)
+  },[chartData])
 
   const graphTheme = {
     axis: {
@@ -214,6 +245,7 @@ const LineChart = (props) => {
                       fontWeight: "bold",
                       gridTemplateColumns: "repeat(3, 1fr)",
                       justifyContent: "space-between",
+                      maxWidth: "80vw",
                       padding: ".2rem 0",
                     }}
                   >
@@ -252,6 +284,8 @@ const LineChart = (props) => {
                           fontSize: "1.1rem",
                           fontWeight: "bold",
                           marginRight: ".2rem",
+                          maxWidth: "50vw",
+                          wordBreak: "break-all"
                         }}
                       >
                         {point.data.note}

@@ -56,14 +56,15 @@ const initialValues = {
 
 const userSchema = yup.object().shape({
   x: yup.date().required("required"),
-  y: yup.string().required("required"),
-  goal: yup.string(),
+  y: yup.number().required("required"),
+  goal: yup.number(),
   note: yup.string(),
 });
 
 const ChartPage = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isNonMobile = useMediaQuery("(min-width: 992px)");
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const params = useParams();
@@ -76,6 +77,17 @@ const ChartPage = () => {
   const [latest, setLatest] = useState(0);
   const [correlationSelection, setCorrelationSelection] = useState([]);
   const [correlationResult, setCorrelationResult] = useState();
+  const [startDate, setStartDate] = useState(currentDate);
+  const [endDate, setEndDate] = useState(null);
+  let height;
+
+  if (isNonMobile) {
+    height = 80;
+  } else if (!isNonMobile && isLandscape) {
+    height = 125;
+  } else if (!isNonMobile && !isLandscape) {
+    height = 64;
+  }
 
   //Set the chart data
   useEffect(() => {
@@ -94,8 +106,21 @@ const ChartPage = () => {
     setLatest(parseInt(chartData[0].data[chartData[0].data.length - 1].y));
   }, [chartData]);
 
+  function handleDate(newStartDate, newEndDate) {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+  }
+
   const statBoxes = chartData.map((data, i) => {
-    return <StatBox key={i} stats={data.data} type={data.type} />;
+    return (
+      <StatBox
+        key={i}
+        endDate={endDate}
+        startDate={startDate}
+        stats={data.data}
+        type={data.type}
+      />
+    );
   });
 
   const selectionItems = userData.map((metric, i) => {
@@ -109,6 +134,7 @@ const ChartPage = () => {
   const radioButtons = Array.from({ length: 10 }, (_, i) => {
     return (
       <FormControlLabel
+        key={i}
         control={
           <Radio
             sx={{
@@ -216,15 +242,24 @@ const ChartPage = () => {
       </Box>
       <Box
         sx={{
-          height: isLandscape ? "125vh" : "64vh",
+          height: `${height}vh`,
           padding: "1rem",
           width: "100vw",
         }}
       >
-        <LineChart chartData={chartData} dataType="metric" />
+        <LineChart
+          chartData={chartData}
+          dataType="metric"
+          handleDate={handleDate}
+        />
       </Box>
       <Box>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -239,6 +274,7 @@ const ChartPage = () => {
                 sx={{
                   display: "flex",
                   justifyContent: "center",
+                  width: isNonMobile ? "50vw" : "100%",
                 }}
               >
                 <Formik
@@ -337,6 +373,7 @@ const ChartPage = () => {
                 sx={{
                   display: "flex",
                   justifyContent: "center",
+                  width: isLandscape ? "25vw" : "90vw",
                 }}
               >
                 <HexColorPicker color={color} onChange={setColor} />
@@ -346,7 +383,10 @@ const ChartPage = () => {
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h5">SET GOAL</Typography>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails
+              sx={{
+                width: isLandscape ? "25vw" : "90vw",
+              }}>
                 <Formik
                   initialValues={initialValues}
                   onSubmit={handleGoalSubmit}
@@ -428,7 +468,11 @@ const ChartPage = () => {
                     values,
                   }) => (
                     <form onSubmit={handleSubmit}>
-                      <Box sx={{ width: "50vw" }}>
+                      <Box
+                        sx={{
+                          width: isLandscape ? "48vw" : "90vw",
+                        }}
+                      >
                         <TextField
                           error={!!touched.note && !!errors.note}
                           fullWidth
@@ -459,7 +503,13 @@ const ChartPage = () => {
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h5">HISTORY</Typography>
               </AccordionSummary>
-              <AccordionDetails>{statBoxes}</AccordionDetails>
+              <AccordionDetails
+                sx={{
+                  width: isLandscape ? "48vw" : "90vw",
+                }}
+              >
+                {statBoxes}
+              </AccordionDetails>
             </Accordion>
           </Box>
         </Box>
@@ -527,11 +577,15 @@ const ChartPage = () => {
                   }}
                 >
                   <StatBox
+                    endDate={endDate}
+                    startDate={startDate}
                     stats={chartData[0].data}
                     title={chartData[0].id}
                     type={chartData[0].type}
                   />
                   <StatBox
+                    endDate={endDate}
+                    startDate={startDate}
                     stats={userData[correlationSelection].data}
                     title={userData[correlationSelection].id}
                     type={userData[correlationSelection].type}

@@ -1,6 +1,5 @@
 import { Formik } from "formik";
 import { Box, Button, TextField } from "@mui/material";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import * as moment from "moment";
 import * as yup from "yup";
 
@@ -53,7 +52,12 @@ const DateSlice = (props) => {
           values,
         }) => (
           <form onSubmit={handleSubmit}>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Box
                 sx={{
                   columnGap: ".2rem",

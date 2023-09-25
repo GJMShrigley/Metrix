@@ -12,14 +12,22 @@ import { tokens } from "../theme";
 export default function BiaxialChart(props) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const isMobile = useMediaQuery("(max-width: 800px)");
+  const isNonMobile = useMediaQuery("(min-width: 992px)");
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const originalData1 = props.data1;
   const originalData2 = props.data2;
   const [data1, setData1] = useState(props.data1);
   const [data2, setData2] = useState(props.data2);
   const [maxY, setMaxY] = useState("auto");
-  const height = isLandscape ? 90 : 50;
+  let height;
+
+  if (isNonMobile) {
+    height = 60;
+  } else if (!isNonMobile && isLandscape) {
+    height = 90;
+  } else if (!isNonMobile && !isLandscape) {
+    height = 50;
+  }
 
   //If all data types are of type 'Scale', set the maxY variable to '10'. Otherwise, set the maxY variable to the highest value of the dataset.
   useEffect(() => {
@@ -64,6 +72,10 @@ export default function BiaxialChart(props) {
       sliceDate(props.startDate, props.endDate, originalData1, originalData2);
     }
   }, [props.startDate, props.endDate]);
+
+  useEffect(() => {
+    props.handleDate(data2[0].data[0].x, data2[0].data.at(-1).x)
+  },[data2])
 
   //Take a start date, and end date for setting the chart data, and two data sets to recover color data for transparent data.
   function sliceDate(
@@ -123,8 +135,9 @@ export default function BiaxialChart(props) {
     }
     setData1(newData);
     setData2(newData2);
+    
   }
-
+  
   const graphTheme = {
     axis: {
       domain: {
@@ -306,6 +319,7 @@ export default function BiaxialChart(props) {
                 border: "1px solid #ccc",
                 borderRadius: "8px",
                 fontSize: "1.1rem",
+                maxWidth: "60vw",
                 padding: ".5rem",
               }}
             >
@@ -333,7 +347,8 @@ export default function BiaxialChart(props) {
                       display: "grid",
                       fontSize: "1.1rem",
                       fontWeight: "bold",
-                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gridTemplateColumns: "repeat(2, auto)",
+                      gridTemplateRows: point.data.note ? "repeat(2, 1fr)" : "1",
                       justifyContent: "space-between",
                       padding: ".2rem 0",
                     }}
@@ -347,7 +362,12 @@ export default function BiaxialChart(props) {
                     >
                       {point.serieId}&#58;
                     </Typography>
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
                       <Typography
                         sx={{
                           fontSize: "1.1rem",
@@ -358,26 +378,32 @@ export default function BiaxialChart(props) {
                         {point.data.yFormatted}
                       </Typography>
                     </Box>
-                    <Box sx={{ display: "flex" }}>
-                      <Typography
+                    {point.data.note ? (
+                      <Box
                         sx={{
-                          fontSize: "1.1rem",
-                          fontWeight: "bold",
-                          marginRight: ".2rem",
+                          display: "flex",
                         }}
                       >
-                        Note&#58;
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: "1.1rem",
-                          fontWeight: "bold",
-                          marginRight: ".2rem",
-                        }}
-                      >
-                        {point.data.note}
-                      </Typography>
-                    </Box>
+                        <Typography
+                          sx={{
+                            fontSize: "1.1rem",
+                            fontWeight: "bold",
+                            marginRight: ".2rem",
+                          }}
+                        >
+                          Note&#58;
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "1.1rem",
+                            fontWeight: "bold",
+                            marginRight: ".2rem",
+                          }}
+                        >
+                          {point.data.note}
+                        </Typography>
+                      </Box>
+                    ) : null}
                   </Box>
                 );
               })}
@@ -390,7 +416,11 @@ export default function BiaxialChart(props) {
 
   const Wrapper = () => {
     return (
-      <Box sx={{ width: "100%" }}>
+      <Box
+        sx={{
+          width: "100%",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -430,7 +460,7 @@ export default function BiaxialChart(props) {
             {customLegend(data2)}
           </Box>
         </Box>
-        <DateSlice changeDate={props.changeDate} sliceDate={sliceDate}/>
+        <DateSlice changeDate={props.changeDate} sliceDate={sliceDate} />
       </Box>
     );
   };

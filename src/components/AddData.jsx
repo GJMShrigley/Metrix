@@ -46,7 +46,7 @@ const AddData = () => {
   const userSchema = yup.object().shape({
     metric: yup.string().required("required"),
     x: yup.date().required("required"),
-    y: yup.string().required("required"),
+    y: yup.number().required("required"),
   });
 
   const categorySchema = yup.object().shape({

@@ -20,6 +20,12 @@ import StatBox from "../../components/StatBox";
 import { addJournal, saveFile } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
+const currentDate = new Date().toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const ActivityPage = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -32,16 +38,14 @@ const ActivityPage = () => {
   const [chartData, setChartData] = useState([
     {
       id: "",
-      color: "",
+      color: "#ffff",
       data: [
         {
-          x: "",
-          y: "",
-          goal: "",
+          x: currentDate,
+          y: "0",
         },
       ],
-      type: "",
-      goal: "",
+      type: "Scale",
     },
   ]);
   const [startDate, setStartDate] = useState(location.startDate);
@@ -110,13 +114,11 @@ const ActivityPage = () => {
     }
   }, [journalArray, initialValues, endDate]);
 
-  const changeDate = (newStartDate, newEndDate) => {
+  const handleDate = (newStartDate, newEndDate) => {
     if (newStartDate === newEndDate) {
-      setStartDate(newStartDate);
-      setEndDate(null);
+      setPageTitle(newStartDate);
     } else {
-      setStartDate(newStartDate);
-      setEndDate(newEndDate);
+      setPageTitle(`${newStartDate} - ${newEndDate}`);
     }
   };
 
@@ -196,7 +198,7 @@ const ActivityPage = () => {
       >
         {data2.length > 0 ? (
           <BiaxialChart
-            changeDate={changeDate}
+            handleDate={handleDate}
             dataType="date"
             data1={data1}
             data2={data2}
@@ -205,7 +207,7 @@ const ActivityPage = () => {
           />
         ) : (
           <LineChart
-            changeDate={changeDate}
+            handleDate={handleDate}
             chartData={chartData}
             dataType="date"
             endDate={endDate}

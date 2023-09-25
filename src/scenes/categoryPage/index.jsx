@@ -27,9 +27,16 @@ import StatBox from "../../components/StatBox";
 import { addMetricToCategory, saveFile } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
+const currentDate = new Date().toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const Category = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isNonMobile = useMediaQuery("(min-width: 992px)");
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const params = useParams();
@@ -58,6 +65,8 @@ const Category = () => {
   });
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
+  const [startDate, setStartDate] = useState(currentDate);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     setSelectedCategory(categoryArray[id]);
@@ -105,6 +114,11 @@ const Category = () => {
     );
   });
 
+  function handleDate(newStartDate, newEndDate) {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+  }
+
   const handleChange = (value) => {
     setSelection(value.target.value);
   };
@@ -119,7 +133,7 @@ const Category = () => {
 
   const statBoxes = chartData.contents.map((data, i) => {
     return (
-      <Accordion disableGutters>
+      <Accordion disableGutters key={i}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h5">{data.id}</Typography>
         </AccordionSummary>
@@ -144,6 +158,7 @@ const Category = () => {
     >
       <Box
         sx={{
+          backgroundColor: colors.primary[400],
           display: "flex",
           justifyContent: "center",
           width: "100vw",
@@ -153,11 +168,20 @@ const Category = () => {
       </Box>
       <Box>
         <Box>
-          <Box sx={{ padding: "1rem", width: "100vw" }}>
+          <Box
+            sx={{
+              padding: "1rem",
+              width: "100vw",
+            }}
+          >
             {data2.length > 0 ? (
               <BiaxialChart dataType="category" data1={data1} data2={data2} />
             ) : (
-              <LineChart chartData={chartData.contents} dataType="category" />
+              <LineChart
+                chartData={chartData.contents}
+                dataType="category"
+                handleDate={handleDate}
+              />
             )}
           </Box>
         </Box>
@@ -165,7 +189,7 @@ const Category = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: isLandscape ? "row" : "column",
+          flexDirection: !isNonMobile && isLandscape ? "row" : "column",
         }}
       >
         <Accordion disableGutters>
@@ -205,7 +229,7 @@ const Category = () => {
         </Accordion>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h5">VIEW STATS</Typography>
+            <Typography variant="h5">HISTORY</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box
@@ -213,6 +237,7 @@ const Category = () => {
                 display: "grid",
                 gap: "1rem",
                 justifyItems: "center",
+                gridTemplateColumns: isNonMobile ? "repeat(2, 1fr)" : "1",
               }}
             >
               {statBoxes}
