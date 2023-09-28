@@ -8,6 +8,7 @@
     "@fullcalendar/react": "^6.1.8",
     "@mui/icons-material": "^5.14.11",
     "@mui/material": "^5.14.11",
+    "@nivo/line": "^0.83.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
