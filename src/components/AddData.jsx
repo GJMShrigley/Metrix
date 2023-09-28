@@ -1,12 +1,22 @@
 import { useState } from "react";
 
 import { Formik } from "formik";
-import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
+import * as moment from "moment";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { HexColorPicker } from "react-colorful";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
@@ -14,44 +24,46 @@ import * as yup from "yup";
 import { addCategory, addMetric, saveFile } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
+const initialValues = {
+  metric: "",
+  x: `${currentDate}`,
+  y: 0,
+};
+
+const categorySchema = yup.object().shape({
+  category: yup.string().required("required"),
+});
+
+const metricSchema = yup.object().shape({
+  metric: yup.string().required("required"),
+  x: yup.date().required("required"),
+  y: yup.number().required("required"),
+});
+
 const AddData = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
-  const isMobile = useMediaQuery("max-width: 800px");
   const [color, setColor] = useState("#ffff");
-
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const newMetric = (values) => {
-    dispatch(addMetric(values));
-    dispatch(saveFile());
-  };
+  const [typeSelection, setTypeSelection] = useState("Scale");
 
   const newCategory = (values) => {
     dispatch(addCategory(values.category));
     dispatch(saveFile());
   };
 
-  const initialValues = {
-    metric: "",
-    x: `${currentDate}`,
-    y: 0,
+  const newMetric = (values) => {
+    dispatch(addMetric({values, color, typeSelection}));
+    dispatch(saveFile());
   };
 
-  const userSchema = yup.object().shape({
-    metric: yup.string().required("required"),
-    x: yup.date().required("required"),
-    y: yup.number().required("required"),
-  });
-
-  const categorySchema = yup.object().shape({
-    category: yup.string().required("required"),
-  });
+  const handleTypeChange = (value) => {
+    setTypeSelection(value.target.value);
+  };
 
   return (
     <Box
@@ -63,7 +75,12 @@ const AddData = () => {
     >
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography sx={{ textAlign: "center" }} variant="h5">
+          <Typography
+            sx={{
+              textAlign: "center",
+            }}
+            variant="h5"
+          >
             ADD DATA
           </Typography>
         </AccordionSummary>
@@ -89,7 +106,10 @@ const AddData = () => {
               }}
             >
               <Typography
-                sx={{ fontWeight: "bold", textAlign: "center" }}
+                sx={{
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
                 variant="h4"
               >
                 ADD NEW METRIC
@@ -97,7 +117,7 @@ const AddData = () => {
               <Formik
                 initialValues={initialValues}
                 onSubmit={newMetric}
-                validationSchema={userSchema}
+                validationSchema={metricSchema}
               >
                 {({
                   errors,
@@ -108,7 +128,13 @@ const AddData = () => {
                   values,
                 }) => (
                   <form onSubmit={handleSubmit}>
-                    <Box sx={{ display: "grid" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: ".5rem"
+                      }}
+                    >
                       <TextField
                         error={!!touched.metric && !!errors.metric}
                         fullWidth
@@ -132,7 +158,9 @@ const AddData = () => {
                         name="x"
                         error={!!touched.x && !!errors.x}
                         helperText={touched.x && errors.x}
-                        sx={{ gridColumn: "span 1" }}
+                        sx={{
+                          gridColumn: "span 1",
+                        }}
                       />
                       <TextField
                         error={!!touched.y && !!errors.y}
@@ -146,6 +174,19 @@ const AddData = () => {
                         value={values.y}
                         variant="filled"
                       />
+                      <FormControl>
+                        <InputLabel>Select Measurement Type</InputLabel>
+                        <Select
+                          id="type"
+                          label="type"
+                          name="type"
+                          onChange={handleTypeChange}
+                          value={typeSelection}
+                        >
+                          <MenuItem value={"Scale"}>Scale</MenuItem>
+                          <MenuItem value={"Number"}>Number</MenuItem>
+                        </Select>
+                      </FormControl>
                       <Button
                         color="secondary"
                         type="submit"
@@ -193,7 +234,11 @@ const AddData = () => {
                   values,
                 }) => (
                   <form onSubmit={handleSubmit}>
-                    <Box sx={{ display: "grid" }}>
+                    <Box
+                      sx={{
+                        display: "grid",
+                      }}
+                    >
                       <TextField
                         error={!!touched.category && !!errors.category}
                         fullWidth

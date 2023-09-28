@@ -3,29 +3,27 @@ import { Box, Button, TextField } from "@mui/material";
 import * as moment from "moment";
 import * as yup from "yup";
 
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
+const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
+
+const initialValues = {
+  startDate: `${lastWeek}`,
+  endDate: `${currentDate}`,
+};
+
+const userSchema = yup.object().shape({
+  startDate: yup.date().required("required"),
+  endDate: yup.date(),
+});
+
 const DateSlice = (props) => {
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
-
-  const initialValues = {
-    startDate: `${lastWeek}`,
-    endDate: `${currentDate}`,
-  };
-
-  const userSchema = yup.object().shape({
-    startDate: yup.date().required("required"),
-    endDate: yup.date(),
-  });
-
   const handleFormSubmit = (values) => {
     props.sliceDate(values.startDate, values.endDate);
-    if (props.changeDate) {
-      props.changeDate(values.startDate, values.endDate);
+    if (props.handleDate) {
+      props.handleDate(values.startDate, values.endDate);
     }
   };
 

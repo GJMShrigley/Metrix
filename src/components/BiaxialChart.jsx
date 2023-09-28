@@ -21,6 +21,7 @@ export default function BiaxialChart(props) {
   const [maxY, setMaxY] = useState("auto");
   let height;
 
+  //Set the height variable to the relevant value for desktop, landscape, and portrait viewports.
   if (isNonMobile) {
     height = 60;
   } else if (!isNonMobile && isLandscape) {
@@ -73,9 +74,10 @@ export default function BiaxialChart(props) {
     }
   }, [props.startDate, props.endDate]);
 
-  useEffect(() => {
-    props.handleDate(data2[0].data[0].x, data2[0].data.at(-1).x)
-  },[data2])
+  //If the activityPage's 'handleDate' prop exists, provide it with the first and last dates of the chart data.
+  // if (props.handleDate) {
+  //   props.handleDate(data2[0].data[0].x, data2[0].data.at(-1).x);
+  // }
 
   //Take a start date, and end date for setting the chart data, and two data sets to recover color data for transparent data.
   function sliceDate(
@@ -84,47 +86,47 @@ export default function BiaxialChart(props) {
     colorData1 = data1,
     colorData2 = data2
   ) {
-    let newData = [];
+    let newData1 = [];
     let newData2 = [];
-
+    //If the start date and end date are the same, change them to the dates either side of the original date.
     if (startDate === endDate) {
       endDate = moment(startDate).add(1, "days").format("MM/DD/YYYY");
       startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
     }
-
+    //Find all dates in 'originalData1' between the assigned start and end dates and assign them to the 'newData1' array.
     for (let i = 0; i < originalData1.length; i++) {
       let dateArray = [];
-      for (let e = 0; e < originalData1[i].data.length; e++) {
+      for (let j = 0; j < originalData1[i].data.length; j++) {
         if (
-          moment(originalData1[i].data[e].x).isBetween(
+          moment(originalData1[i].data[j].x).isBetween(
             startDate,
             endDate,
             "day",
             "[]"
           )
         ) {
-          dateArray.push(originalData1[i].data[e]);
+          dateArray.push(originalData1[i].data[j]);
         }
       }
-      newData.push({
+      newData1.push({
         ...originalData1[i],
         color: colorData1[i].color,
         data: dateArray,
       });
     }
-
+    //Find all dates in 'originalData2' between the assigned start and end dates and assign them to the 'newData2' array.
     for (let i = 0; i < originalData2.length; i++) {
       let dateArray = [];
-      for (let e = 0; e < originalData2[i].data.length; e++) {
+      for (let j = 0; j < originalData2[i].data.length; j++) {
         if (
-          moment(originalData2[i].data[e].x).isBetween(
+          moment(originalData2[i].data[j].x).isBetween(
             startDate,
             endDate,
             "day",
             "[]"
           )
         ) {
-          dateArray.push(originalData2[i].data[e]);
+          dateArray.push(originalData2[i].data[j]);
         }
       }
       newData2.push({
@@ -133,11 +135,11 @@ export default function BiaxialChart(props) {
         data: dateArray,
       });
     }
-    setData1(newData);
+    //Set the 'data1' and 'data2' states with the relevant arrays containing the new dates.
+    setData1(newData1);
     setData2(newData2);
-    
   }
-  
+
   const graphTheme = {
     axis: {
       domain: {
@@ -190,6 +192,7 @@ export default function BiaxialChart(props) {
     sliceDate(startDate, endDate, data1Copy, data2Copy);
   }
 
+  //Create a custom legend for the charts to allow for styling and onClick functionality.
   function customLegend(legendData) {
     const legendItems = legendData.map((item, i) => {
       return (
@@ -237,13 +240,14 @@ export default function BiaxialChart(props) {
     );
   }
 
+  //Create the first responsive line graph.
   const FirstGraph = () => {
     return (
       <ResponsiveLine
         data={data1}
         theme={graphTheme}
         colors={{ datum: "color" }}
-        margin={{ top: 10, right: 20, bottom: 90, left: 20 }}
+        margin={{ top: 10, right: 25, bottom: 90, left: 25 }}
         layers={["grid", "mesh", "points", "axes", "lines", "markers"]}
         xScale={{ type: "point" }}
         yScale={{
@@ -283,6 +287,7 @@ export default function BiaxialChart(props) {
     );
   };
 
+  //Create the second responsive line graph.
   const SecondGraph = () => {
     return (
       <ResponsiveLine
@@ -290,7 +295,7 @@ export default function BiaxialChart(props) {
         colors={(d) => {
           return d.type === data1[0].type ? "transparent" : d.color;
         }}
-        margin={{ top: 10, right: 20, bottom: 90, left: 20 }}
+        margin={{ top: 10, right: 25, bottom: 90, left: 25 }}
         yScale={{
           type: "linear",
           min: 0,
@@ -348,7 +353,9 @@ export default function BiaxialChart(props) {
                       fontSize: "1.1rem",
                       fontWeight: "bold",
                       gridTemplateColumns: "repeat(2, auto)",
-                      gridTemplateRows: point.data.note ? "repeat(2, 1fr)" : "1",
+                      gridTemplateRows: point.data.note
+                        ? "repeat(2, 1fr)"
+                        : "1",
                       justifyContent: "space-between",
                       padding: ".2rem 0",
                     }}
@@ -414,6 +421,7 @@ export default function BiaxialChart(props) {
     );
   };
 
+  //Create the wrapper and position the two graphs to overlap with the second graph on top.
   const Wrapper = () => {
     return (
       <Box
@@ -460,7 +468,7 @@ export default function BiaxialChart(props) {
             {customLegend(data2)}
           </Box>
         </Box>
-        <DateSlice changeDate={props.changeDate} sliceDate={sliceDate} />
+        <DateSlice handleDate={props.handleDate} sliceDate={sliceDate} />
       </Box>
     );
   };

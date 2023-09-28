@@ -1,45 +1,40 @@
 import { Formik } from "formik";
 import { Box, Button, TextField } from "@mui/material";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import * as moment from "moment";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
+const lastWeek = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
+
+const initialValues = {
+  startDate: `${lastWeek}`,
+  endDate: `${currentDate}`,
+};
+
+const userSchema = yup.object().shape({
+  startDate: yup.date().required("required"),
+  endDate: yup.date(),
+});
+
 const DateSearch = () => {
-  const isNonMobile = useMediaQuery("(min-width:600px)");
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const lastWeek = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
-
-  const initialValues = {
-    startDate: `${lastWeek}`,
-    endDate: `${currentDate}`,
-  };
-
-  const userSchema = yup.object().shape({
-    startDate: yup.date().required("required"),
-    endDate: yup.date(),
-  });
-
-  const handleFormSubmit = (values) => {};
-
   return (
-    <Box sx={{ margin: "0 .5rem", minWidth: "5rem" }}>
+    <Box
+      sx={{
+        margin: "0 .5rem",
+        minWidth: "5rem",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
         }}
       ></Box>
-      <Formik
-        initialValues={initialValues}
-        onSubmit={handleFormSubmit}
-        validationSchema={userSchema}
-      >
+      <Formik initialValues={initialValues} validationSchema={userSchema}>
         {({
           errors,
           handleBlur,
@@ -49,7 +44,12 @@ const DateSearch = () => {
           values,
         }) => (
           <form onSubmit={handleSubmit}>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Box
                 sx={{
                   columnGap: ".2rem",

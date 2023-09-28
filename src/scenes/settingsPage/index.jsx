@@ -115,23 +115,39 @@ const SettingsPage = () => {
   });
 
   return (
-    <Box sx={{ margin: "1rem", textAlign: "center" }}>
+    <Box
+      sx={{
+        margin: "1rem",
+        textAlign: "center",
+      }}
+    >
       <Header permanent title="Settings" />
-      <Box sx={{ margin: "1rem" }}>
+      <Box
+        sx={{
+          margin: "1rem",
+        }}
+      >
         <Typography variant="h4">DELETE DATA</Typography>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+              }}
+              variant="h5"
+            >
               METRICS
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box
-              alignItems="flex-start"
-              display="flex"
-              flexDirection="column"
-              maxHeight="40vh"
-              overflow="auto"
+              sx={{
+                alignItems: "flex-start",
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: "40vh",
+                overflow: "auto",
+              }}
             >
               {metricsList}
             </Box>
@@ -139,17 +155,24 @@ const SettingsPage = () => {
         </Accordion>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+              }}
+              variant="h5"
+            >
               CATEGORIES
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box
-              alignItems="flex-start"
-              display="flex"
-              flexDirection="column"
-              maxHeight="40vh"
-              overflow="auto"
+              sx={{
+                alignItems: "flex-start",
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: "40vh",
+                overflow: "auto",
+              }}
             >
               {categoriesList}
             </Box>
@@ -157,17 +180,24 @@ const SettingsPage = () => {
         </Accordion>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+              }}
+              variant="h5"
+            >
               JOURNAL
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box
-              alignItems="flex-start"
-              display="flex"
-              flexDirection="column"
-              maxHeight="40vh"
-              overflow="auto"
+              sx={{
+                alignItems: "flex-start",
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: "40vh",
+                overflow: "auto",
+              }}
             >
               {journalList}
             </Box>
@@ -175,21 +205,34 @@ const SettingsPage = () => {
         </Accordion>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography sx={{ color: colors.greenAccent[500] }} variant="h5">
+            <Typography
+              sx={{
+                color: colors.greenAccent[500],
+              }}
+              variant="h5"
+            >
               ALL
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
               <IconButton onClick={handleClearAll}>
-                <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
+                <DeleteForeverOutlinedIcon
+                  sx={{
+                    fontSize: "large",
+                  }}
+                />
                 DELETE ALL DATA
               </IconButton>
             </Typography>
           </AccordionDetails>
         </Accordion>
       </Box>
-      <Box sx={{ margin: "1rem" }}>
+      <Box
+        sx={{
+          margin: "1rem",
+        }}
+      >
         <Typography variant="h4">IMPORT/EXPORT DATA</Typography>
         <MuiFileInput
           fullWidth

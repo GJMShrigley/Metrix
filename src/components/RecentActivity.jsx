@@ -12,12 +12,14 @@ import DateSearch from "../components/DateSearch";
 
 import { tokens } from "../theme";
 
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
 const RecentActivity = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const userData = props.userData;
-  const date = new Date();
-  const currentDate = moment(date).format("MM/DD/YYYY");
   const [recentActivity, setRecentActivity] = useState([
     {
       x: 0,
@@ -28,6 +30,7 @@ const RecentActivity = (props) => {
     },
   ]);
 
+  //Get the last 7 days of data from each metric and collect them into the 'recentActivity' state. 
   useEffect(() => {
     const dataCopy = [...userData];
     const startDate = moment(currentDate)

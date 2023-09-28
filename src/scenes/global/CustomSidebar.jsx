@@ -22,9 +22,9 @@ const Item = ({ title, to, icon }) => {
       sx={{
         color: colors.grey[100],
         display: "flex",
-        width: "100%",
         gap: "1rem",
         marginLeft: "1.5rem",
+        width: "100%",
       }}
     >
       <SvgIcon component={icon} />
@@ -96,7 +96,6 @@ const CustomSidebar = () => {
             },
           }}
         >
-          {/* *LOGO AND MENU ICON */}
           <Box
             sx={{
               alignItems: "center",
@@ -109,36 +108,54 @@ const CustomSidebar = () => {
               onClick={() => dispatch(toggleSidebar())}
               sx={{
                 color: colors.grey[100],
-                width: "100%",
                 display: "flex",
                 justifyContent: "space-between",
+                width: "100%",
               }}
             >
-              <Typography sx={{ margin: "1rem" }} variant="h3">
+              <Typography
+                sx={{
+                  margin: "1rem",
+                }}
+                variant="h3"
+              >
                 NAVIGATION
               </Typography>
-              <SvgIcon component={MenuOutlinedIcon} sx={{ margin: "2rem" }} />
+              <SvgIcon
+                component={MenuOutlinedIcon}
+                sx={{
+                  margin: "2rem",
+                }}
+              />
             </MenuItem>
           </Box>
-          {/* MENU ITEMS */}
           <Box>
             <Item icon={HomeOutlinedIcon} title="Dashboard" to="/" />
             <Typography
-              sx={{ color: colors.grey[300], margin: "1.5rem 0 1rem 2rem" }}
+              sx={{
+                color: colors.grey[300],
+                margin: "1.5rem 0 1rem 2rem",
+              }}
               variant="h6"
             >
               Journal
             </Typography>
             <Item icon={MenuBookIcon} title="Journal" to="/journal" />
             <Typography
-              sx={{ color: colors.grey[300], margin: "1.5rem 0 1rem 2rem" }}
+              sx={{
+                color: colors.grey[300],
+                margin: "1.5rem 0 1rem 2rem",
+              }}
               variant="h6"
             >
               Categories
             </Typography>
             {categoryItems}
             <Typography
-              sx={{ color: colors.grey[300], margin: "1.5rem 0 1rem 2rem" }}
+              sx={{
+                color: colors.grey[300],
+                margin: "1.5rem 0 1rem 2rem",
+              }}
               variant="h6"
             >
               Metrics

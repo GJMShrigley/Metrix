@@ -1,6 +1,7 @@
 import { useRef, useLayoutEffect, useState } from "react";
 
 import { Formik } from "formik";
+import * as moment from "moment";
 import {
   Box,
   Button,
@@ -12,7 +13,6 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import Marquee from "react-fast-marquee";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
@@ -20,10 +20,23 @@ import * as yup from "yup";
 import { updateValue, saveFile } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
+const initialValues = {
+  x: `${currentDate}`,
+  y: 0,
+};
+
+const userSchema = yup.object().shape({
+  x: yup.date().required("required"),
+  y: yup.number().required("required"),
+});
+
 const EntryBox = ({ title, lineColor, type }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const isNonMobile = useMediaQuery("(min-width:600px)");
   const dispatch = useDispatch();
   const textRef = useRef(undefined);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -47,22 +60,6 @@ const EntryBox = ({ title, lineColor, type }) => {
 
     return isOverflowing;
   }
-
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const initialValues = {
-    x: `${currentDate}`,
-    y: 0,
-  };
-
-  const userSchema = yup.object().shape({
-    x: yup.date().required("required"),
-    y: yup.number().required("required"),
-  });
 
   const handleFormSubmit = (values) => {
     dispatch(
@@ -141,7 +138,12 @@ const EntryBox = ({ title, lineColor, type }) => {
             >
               {type === "Scale" ? (
                 <FormControl>
-                  <Box sx={{ height: "2.5rem", width: "6rem" }}>
+                  <Box
+                    sx={{
+                      height: "2.5rem",
+                      width: "6rem",
+                    }}
+                  >
                     <InputLabel>Value</InputLabel>
                     <Select
                       fullWidth
@@ -156,7 +158,12 @@ const EntryBox = ({ title, lineColor, type }) => {
                   </Box>
                 </FormControl>
               ) : (
-                <Box sx={{ height: "2.5rem", width: "6rem" }}>
+                <Box
+                  sx={{
+                    height: "2.5rem",
+                    width: "6rem",
+                  }}
+                >
                   <TextField
                     error={!!touched.y && !!errors.y}
                     fullWidth
@@ -172,7 +179,15 @@ const EntryBox = ({ title, lineColor, type }) => {
                   />
                 </Box>
               )}
-              <Button color="secondary" sx={{ height: "2.5rem", width: "6rem" }} type="submit" variant="contained">
+              <Button
+                color="secondary"
+                sx={{
+                  height: "2.5rem",
+                  width: "6rem",
+                }}
+                type="submit"
+                variant="contained"
+              >
                 Add
               </Button>
             </Box>

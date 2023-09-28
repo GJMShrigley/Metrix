@@ -20,10 +20,12 @@ import StatBox from "../../components/StatBox";
 import { addJournal, saveFile } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
-const currentDate = new Date().toLocaleDateString("en-US", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
+const userSchema = yup.object().shape({
+  journal: yup.string(),
 });
 
 const ActivityPage = () => {
@@ -34,7 +36,6 @@ const ActivityPage = () => {
   const categoryArray = useSelector((state) => state.userData.categories);
   const journalArray = useSelector((state) => state.userData.journal);
   const metricsArray = useSelector((state) => state.userData.metrics);
-
   const [chartData, setChartData] = useState([
     {
       id: "",
@@ -55,14 +56,6 @@ const ActivityPage = () => {
   const [pageTitle, setPageTitle] = useState(startDate);
   const [textData, setTextData] = useState("");
 
-  const userSchema = yup.object().shape({
-    journal: yup.string(),
-  });
-
-  const initialValues = {
-    journal: `${textData}`,
-  };
-
   //Set the start and end dates when provided by page selection.
   useEffect(() => {
     setStartDate(location.startDate);
@@ -70,12 +63,13 @@ const ActivityPage = () => {
   }, [location]);
 
   //Set the page title and chart data.
+  //If no end date given, set title to the start date.
+  //If an end date is given, set the title to the period between the start and end dates.
   useEffect(() => {
     setChartData(metricsArray);
-    //If no end date given, set title to the start date.
+
     if (!endDate) {
       setPageTitle(startDate);
-      //If an end date is given, set the title to the period between the start and end dates.
     } else {
       setPageTitle(startDate + " - " + endDate);
     }
@@ -107,19 +101,16 @@ const ActivityPage = () => {
     //If no end date given, set the journal text for the given start date.
     for (let i = 0; i < journalArray.length; i++) {
       if (journalArray[i].x === startDate) {
-        journalArray[i].journal != undefined
+        journalArray[i].journal !== undefined
           ? setTextData(journalArray[i].journal)
           : setTextData("");
       }
     }
-  }, [journalArray, initialValues, endDate]);
+  }, [journalArray, startDate, endDate]);
 
   const handleDate = (newStartDate, newEndDate) => {
-    if (newStartDate === newEndDate) {
-      setPageTitle(newStartDate);
-    } else {
-      setPageTitle(`${newStartDate} - ${newEndDate}`);
-    }
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
   };
 
   //When a journal is submitted, record it in global state with the 'x' value as the given start date.
@@ -165,6 +156,7 @@ const ActivityPage = () => {
           }}
           sx={{
             height: "2rem",
+            marginRight: "1rem",
             width: "5rem",
           }}
           to={`/activity/0`}
@@ -173,7 +165,10 @@ const ActivityPage = () => {
         >
           Previous
         </Button>
-        <Header permanent title={pageTitle} />
+        <Header
+          permanent
+          title={pageTitle}
+        />
         <Button
           color="secondary"
           component={Link}
@@ -182,6 +177,7 @@ const ActivityPage = () => {
           }}
           sx={{
             height: "2rem",
+            marginLeft: "1rem",
             width: "5rem",
           }}
           to={`/activity/0`}
@@ -223,7 +219,9 @@ const ActivityPage = () => {
           <AccordionDetails>
             <Formik
               enableReinitialize
-              initialValues={initialValues}
+              initialValues={{
+                journal: `${textData}`,
+              }}
               onSubmit={handleJournalSubmit}
               validationSchema={userSchema}
             >

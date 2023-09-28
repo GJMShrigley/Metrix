@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+import * as moment from "moment";
 import {
   Box,
   Button,
@@ -27,11 +28,11 @@ import StatBox from "../../components/StatBox";
 import { addMetricToCategory, saveFile } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
-const currentDate = new Date().toLocaleDateString("en-US", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
+
+const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
 
 const Category = () => {
   const theme = useTheme();
@@ -43,8 +44,6 @@ const Category = () => {
   const id = parseInt(params.id);
   const categoryArray = useSelector((state) => state.userData.categories);
   const metricsArray = useSelector((state) => state.userData.metrics);
-  const isMobile = useMediaQuery("(max-width: 800px)");
-
   const [selection, setSelection] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(categoryArray[0]);
   const [chartData, setChartData] = useState({
@@ -65,13 +64,15 @@ const Category = () => {
   });
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(lastWeek);
+  const [endDate, setEndDate] = useState(currentDate);
 
+  //Set the 'selectedCategory' state with the relevant category data.
   useEffect(() => {
     setSelectedCategory(categoryArray[id]);
   });
 
+  //Set the 'chartData' state with an object containing the relevant metrics for the selected category.
   useEffect(() => {
     let metricsData = [];
     for (let i = 0; i < selectedCategory.contents.length; i++) {
@@ -87,6 +88,8 @@ const Category = () => {
     setChartData(categoryData);
   }, [selectedCategory]);
 
+  //Check if all metrics are of the same data type.
+  //If metrics contain more than one data type, assign them to different state arrays.
   useEffect(() => {
     let tempData1 = [];
     let tempData2 = [];
@@ -114,13 +117,13 @@ const Category = () => {
     );
   });
 
-  function handleDate(newStartDate, newEndDate) {
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
-  }
-
   const handleChange = (value) => {
     setSelection(value.target.value);
+  };
+
+  const handleDate = (newStartDate, newEndDate) => {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
   };
 
   const handleSubmit = () => {
@@ -139,9 +142,10 @@ const Category = () => {
         </AccordionSummary>
         <AccordionDetails>
           <StatBox
-            isCategory={true}
+            endDate={endDate}
             key={i}
             stats={data.data}
+            startDate={startDate}
             title={data.id}
           />
         </AccordionDetails>
@@ -171,16 +175,26 @@ const Category = () => {
           <Box
             sx={{
               padding: "1rem",
+              height: isNonMobile ? "81vh" : "auto",
               width: "100vw",
             }}
           >
             {data2.length > 0 ? (
-              <BiaxialChart dataType="category" data1={data1} data2={data2} />
+              <BiaxialChart
+                dataType="category"
+                data1={data1}
+                data2={data2}
+                endDate={endDate}
+                handleDate={handleDate}
+                startDate={startDate}
+              />
             ) : (
               <LineChart
                 chartData={chartData.contents}
                 dataType="category"
+                endDate={endDate}
                 handleDate={handleDate}
+                startDate={startDate}
               />
             )}
           </Box>

@@ -34,8 +34,19 @@ const ProgressBox = ({ title, icon, latest, increase, goal }) => {
   }
 
   return (
-    <Box sx={{ display: "flex", gap: ".2rem", margin: "0 1rem" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Box
+      sx={{
+        display: "flex",
+        gap: ".2rem",
+        margin: "0 1rem",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Box>{icon}</Box>
         <Box>
           <ProgressCircle goal={goal} latest={latest} title={title} />
@@ -51,7 +62,10 @@ const ProgressBox = ({ title, icon, latest, increase, goal }) => {
           }}
         >
           <Typography
-            sx={{ color: colors.greenAccent[600], fontStyle: "italic" }}
+            sx={{
+              color: colors.greenAccent[600],
+              fontStyle: "italic",
+            }}
             variant="h5"
           >
             {increase}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import calculateCorrelation from "calculate-correlation";
 import { Formik } from "formik";
+import * as moment from "moment";
 import {
   Box,
   Button,
@@ -41,11 +42,9 @@ import {
 } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
-const currentDate = new Date().toLocaleDateString("en-US", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
 
 const initialValues = {
   x: `${currentDate}`,
@@ -53,6 +52,8 @@ const initialValues = {
   goal: "0",
   note: "",
 };
+
+const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
 
 const userSchema = yup.object().shape({
   x: yup.date().required("required"),
@@ -77,19 +78,20 @@ const ChartPage = () => {
   const [latest, setLatest] = useState(0);
   const [correlationSelection, setCorrelationSelection] = useState([]);
   const [correlationResult, setCorrelationResult] = useState();
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(lastWeek);
+  const [endDate, setEndDate] = useState(currentDate);
   let height;
 
+  //Set the height variable to the relevant value for desktop, landscape, and portrait viewports.
   if (isNonMobile) {
-    height = 80;
+    height = 72;
   } else if (!isNonMobile && isLandscape) {
     height = 125;
   } else if (!isNonMobile && !isLandscape) {
-    height = 64;
+    height = 67;
   }
 
-  //Set the chart data
+  //Set the chart data with the relevant metric.
   useEffect(() => {
     for (let i = 0; i < userData.length; i++) {
       if (i === chartId) {
@@ -100,22 +102,17 @@ const ChartPage = () => {
     }
   }, [userData, chartId]);
 
-  //Set the goal and latest chart data value
+  //Set the goal and latest chart data value.
   useEffect(() => {
     setGoal(parseInt(chartData[0].goal));
     setLatest(parseInt(chartData[0].data[chartData[0].data.length - 1].y));
   }, [chartData]);
 
-  function handleDate(newStartDate, newEndDate) {
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
-  }
-
   const statBoxes = chartData.map((data, i) => {
     return (
       <StatBox
-        key={i}
         endDate={endDate}
+        key={i}
         startDate={startDate}
         stats={data.data}
         type={data.type}
@@ -162,9 +159,14 @@ const ChartPage = () => {
     setCorrelationSelection(value.target.value);
   };
 
+  //Compare the currently displayed metric with another selected metric and push the selected metric.
+  //Push the values of the selected metrics into new arrays.
+  //Use the 'calculateCorrelation' library to find the correlation between the two arrays of values.
+  //Set the 'correlationResult' variable with the relation between the two arrays (between 'very low' and 'very high'.)
   const handleCorrelationSubmit = () => {
     let metric1 = [];
     let metric2 = [];
+
     for (let i = 0; i < chartData[0].data.length; i++) {
       metric1.push(parseInt(chartData[0].data[i].y));
     }
@@ -191,8 +193,15 @@ const ChartPage = () => {
 
     const correlationBracket = findCorrelationBracket(correlation);
 
-    const result = { correlation: correlation, relation: correlationBracket };
-    setCorrelationResult(result);
+    setCorrelationResult({
+      correlation: correlation,
+      relation: correlationBracket,
+    });
+  };
+
+  const handleDate = (newStartDate, newEndDate) => {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
   };
 
   const handleTypeChange = (value) => {
@@ -250,7 +259,9 @@ const ChartPage = () => {
         <LineChart
           chartData={chartData}
           dataType="metric"
+          endDate={endDate}
           handleDate={handleDate}
+          startDate={startDate}
         />
       </Box>
       <Box>
@@ -353,7 +364,9 @@ const ChartPage = () => {
                         </FormControl>
                         <Button
                           color="secondary"
-                          sx={{ height: "3rem" }}
+                          sx={{
+                            height: "3rem",
+                          }}
                           type="submit"
                           variant="contained"
                         >
@@ -384,9 +397,10 @@ const ChartPage = () => {
                 <Typography variant="h5">SET GOAL</Typography>
               </AccordionSummary>
               <AccordionDetails
-              sx={{
-                width: isLandscape ? "25vw" : "90vw",
-              }}>
+                sx={{
+                  width: isLandscape ? "25vw" : "90vw",
+                }}
+              >
                 <Formik
                   initialValues={initialValues}
                   onSubmit={handleGoalSubmit}
@@ -444,9 +458,10 @@ const ChartPage = () => {
           </Box>
           <Box
             sx={{
-              display: "flex",
+              display: "grid",
               flexDirection: isLandscape ? "row" : "column",
-              width: "100vw",
+              gridTemplateColumns: isLandscape ? "repeat(2, 1fr)" : "1",
+              width: "100%",
             }}
           >
             <Accordion disableGutters>
@@ -468,11 +483,7 @@ const ChartPage = () => {
                     values,
                   }) => (
                     <form onSubmit={handleSubmit}>
-                      <Box
-                        sx={{
-                          width: isLandscape ? "48vw" : "90vw",
-                        }}
-                      >
+                      <Box>
                         <TextField
                           error={!!touched.note && !!errors.note}
                           fullWidth
@@ -503,13 +514,7 @@ const ChartPage = () => {
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h5">HISTORY</Typography>
               </AccordionSummary>
-              <AccordionDetails
-                sx={{
-                  width: isLandscape ? "48vw" : "90vw",
-                }}
-              >
-                {statBoxes}
-              </AccordionDetails>
+              <AccordionDetails>{statBoxes}</AccordionDetails>
             </Accordion>
           </Box>
         </Box>

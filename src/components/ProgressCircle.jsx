@@ -71,7 +71,10 @@ const ProgressCircle = ({ goal, latest }) => {
           <Typography
             component={isOverflowing ? Marquee : Box}
             speed={30}
-            sx={{ height: "2.2rem", width: "auto" }}
+            sx={{
+              height: "2.2rem",
+              width: "auto",
+            }}
             variant="h2"
           >
             {isOverflowing && <Box width=".5rem"></Box>}

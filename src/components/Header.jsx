@@ -11,20 +11,20 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { changeTitle, saveFile } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
+const initialValues = {
+  title: "",
+};
+
+const userSchema = yup.object().shape({
+  title: yup.string().required("required"),
+});
+
 const Header = ({ title, isCategory, permanent }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const dispatch = useDispatch();
   const [isEdit, setIsEdit] = useState(false);
-
-  const initialValues = {
-    title: "",
-  };
-
-  const userSchema = yup.object().shape({
-    title: yup.string().required("required"),
-  });
 
   const openEdit = () => {
     setIsEdit(!isEdit);
@@ -93,7 +93,10 @@ const Header = ({ title, isCategory, permanent }) => {
       ) : (
         <Box>
           <Typography
-            sx={{ color: colors.grey[100], fontWeight: "bold" }}
+            sx={{
+              color: colors.grey[100],
+              fontWeight: "bold",
+            }}
             variant="h2"
           >
             {title}

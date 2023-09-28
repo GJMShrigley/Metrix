@@ -19,10 +19,10 @@ const findRange = function (statsSlice) {
   return max - min;
 };
 
-const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
+const StatBox = ({ title, stats, startDate, endDate }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [statsSlice, setStatsSlice] = useState(stats);
+  const [statsSlice, setStatsSlice] = useState([{}]);
 
   const sum = statsSlice.reduce((acc, obj) => acc + parseInt(obj.y), 0);
   const range = findRange(statsSlice, title);
@@ -34,8 +34,6 @@ const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
     if (!endDate) {
       endDate = moment(startDate).add(1, "days").format("MM/DD/YYYY");
       startDate = moment(startDate).subtract(2, "days").format("MM/DD/YYYY");
-    } else {
-      startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
     }
 
     for (let i = 0; i < stats.length; i++) {
@@ -43,94 +41,86 @@ const StatBox = ({ title, stats, startDate, endDate, isCategory }) => {
         statsArray.push(stats[i]);
       }
     }
+
     setStatsSlice(statsArray);
-
-    if (isCategory) {
-      setStatsSlice(stats);
-    }
-  }, [stats, endDate]);
-
+  }, [stats, endDate, startDate]);
+  
   const statsList = statsSlice.map((day, i) => {
-   
-    if (i === 0) {
-      return null;
-    } else {
-      let previous = i > 0 ? statsSlice[i - 1].y : 0;
-      const difference = (day.y - previous).toFixed(2);
-      const percent =
-        parseInt(day.y) === parseInt(difference)
-          ? 0
-          : Math.round((difference / previous) * 100);
-      const color =
-        difference >= 0
-          ? { color: colors.blueAccent[300] }
-          : { color: colors.redAccent[300] };
-      return (
-        <Box
-          key={i}
+    let previous = i > 0 ? statsSlice[i - 1].y : 0;
+    const difference = (day.y - previous).toFixed(2);
+    const percent =
+      parseInt(day.y) === parseInt(difference)
+        ? 0
+        : Math.round((difference / previous) * 100);
+    const color =
+      difference >= 0
+        ? { color: colors.blueAccent[300] }
+        : { color: colors.redAccent[300] };
+    return (
+      <Box
+        key={i}
+        sx={{
+          alignItems: "center",
+          display: "flex",
+          gap: "1rem",
+          justifyContent: "flex-start",
+        }}
+      >
+        <Typography
           sx={{
-            alignItems: "center",
-            display: "flex",
-            gap: "1rem",
-            justifyContent: "space-around",
+            color: colors.greenAccent[100],
           }}
+          variant="h4"
         >
+          {day.x}
+        </Typography>
+        <Typography
+          sx={{
+            color: colors.greenAccent[600],
+            display: "flex",
+            fontWeight: "bold",
+            justifyContent: "center",
+          }}
+          variant="h4"
+        >
+          {day.y}
+        </Typography>
+        <Typography
+          sx={{
+            color,
+            display: "flex",
+            justifyContent: "center",
+          }}
+          variant="h5"
+        >
+          {difference}
+        </Typography>
+        <Typography
+          sx={{
+            color,
+            display: "flex",
+            fontStyle: "italic",
+            justifyContent: "center",
+          }}
+          variant="h5"
+        >
+          {percent}&#37;
+        </Typography>
+        <Box>
           <Typography
+            component={Marquee}
+            speed={30}
             sx={{
               color: colors.greenAccent[100],
+              overflowY: "hidden",
             }}
             variant="h4"
           >
-            {day.x}
+            {day.note}
           </Typography>
-          <Typography
-            sx={{
-              color: colors.greenAccent[600],
-              display: "flex",
-              fontWeight: "bold",
-              justifyContent: "center",
-            }}
-            variant="h4"
-          >
-            {day.y}
-          </Typography>
-          <Typography
-            sx={{
-              color,
-              display: "flex",
-              justifyContent: "center",
-            }}
-            variant="h5"
-          >
-            {difference}
-          </Typography>
-          <Typography
-            sx={{
-              color,
-              display: "flex",
-              fontStyle: "italic",
-              justifyContent: "center",
-            }}
-            variant="h5"
-          >
-            {percent}&#37;
-          </Typography>
-          <Box sx={{ width: "7rem" }}>
-            <Typography
-              component={Marquee}
-              speed={30}
-              sx={{
-                color: colors.greenAccent[100],
-                overflowY: "hidden"
-              }}
-              variant="h4"
-            >
-              {day.note}
-            </Typography>
-          </Box>
         </Box>
-      );
-    }
+      </Box>
+    );
   });
 
   return (

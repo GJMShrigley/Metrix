@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { Box, useTheme } from "@mui/material";
+import * as moment from "moment";
+import { Box } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useSelector } from "react-redux";
 
@@ -10,17 +11,11 @@ import LineChart from "../../components/LineChart";
 import QuickUpdate from "../../components/QuickUpdate";
 import RecentActivity from "../../components/RecentActivity";
 
-import { tokens } from "../../theme";
+const date = new Date();
 
-const currentDate = new Date().toLocaleDateString("en-US", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
+const currentDate = moment(date).format("MM/DD/YYYY");
 
 const Dashboard = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
   const isLandscape = useMediaQuery("(orientation: landscape)");
   const userData = useSelector((state) => state.userData.metrics);
   const userCategories = useSelector((state) => state.userData.categories);
@@ -43,8 +38,6 @@ const Dashboard = () => {
   });
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(null);
 
   //Find the 'Dashboard' category.
   useEffect(() => {
@@ -90,12 +83,7 @@ const Dashboard = () => {
       setData2([]);
     }
   }, [chartData, userCategories, selectedCategory]);
-
-  function handleDate(newStartDate, newEndDate) {
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
-  }
-
+  
   return (
     <Box
       sx={{
@@ -114,13 +102,11 @@ const Dashboard = () => {
             dataType="Dashboard"
             data1={data1}
             data2={data2}
-            handleDate={handleDate}
           />
         ) : (
           <LineChart
             chartData={chartData.contents}
             dataType="category"
-            handleDate={handleDate}
           />
         )}
       </Box>

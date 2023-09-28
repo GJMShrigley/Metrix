@@ -32,10 +32,19 @@ const QuickUpdate = (props) => {
   ));
 
   return (
-    <Box sx={{ width: "100vw" }}>
+    <Box
+      sx={{
+        width: "100vw",
+      }}
+    >
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography sx={{ textAlign: "center" }} variant="h5">
+          <Typography
+            sx={{
+              textAlign: "center",
+            }}
+            variant="h5"
+          >
             QUICK UPDATE
           </Typography>
         </AccordionSummary>
