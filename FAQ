@@ -87,18 +87,27 @@ Enter a new title into the entry field and click the 'confirm' button to rename 
 
 As with the category page, the metric page contains the same chart you will already be familiar with.
 
-At the bottom of the screen, the 'add data' bar allows you to enter a value and choose the day for that value to be assigned to, so you can go back and edit previous days if you need to. However, you cannot currently edit days before the first entry in the app. This option is planned for later versions.
+At the bottom of the screen, the 'add data' bar allows you to enter a value and choose the day for that value to be assigned to, so you can go back and edit previous days if you need to. 
+However, you cannot currently edit days before the first entry in the app. This option is planned for later versions.
 
 The 'colour' bar lets you select a new colour for your metric. To change colour, select your new colour and click the 'add measurement' button in the 'add data' bar.
 
-The 'set goal' bar allows you to add a goal to work towards for each metric. To add a goal enter a value into the entry field and click the 'set goal' button. Once set your goal will be displayed as a ring containing a number by the title. 
-Entering a value for the current day will measure your progress against your goal and display as the ring filling with a green colour. You will also be able to see your current progress compared to your goal as measured by the numbers inside the ring.
+The 'set goal' bar allows you to add a goal to work towards for each metric. 
+To add a goal enter a value into the entry field and click the 'set goal' button. Once set your goal will be displayed as a ring containing a number by the title. 
+Entering a value for the current day will measure your progress against your goal and display as the ring filling with a green colour. 
+You will also be able to see your current progress compared to your goal as measured by the numbers inside the ring.
 
 The 'add note' bar allows you to add extra information to the current day's entry. In later versions it is planned to allow for notes to be added to previous days.
 
 The 'history' bar acts the same as the version you've already seen on the category page.
 
-Lastly, the 'correlation' bar allows you to directly compare the currently displayed metric with another. Select the metric you wish to compare with and click the 'add/remove' button. The bar will display two history boxes for the selected metrics. It will also provide a value for the correlation between the two metrics, so you can see if they share any pattern in their relationship. Values range from Very Low to Very High.
+Lastly, the 'correlation' bar allows you to directly compare the currently displayed metric with another. Select the metric you wish to compare with and click the 'add/remove' button. 
+The bar will display two history boxes for the selected metrics. It will also provide a value for the correlation between the two metrics, so you can see if they share any pattern in their relationship. 
+Values range from Very Low to Very High.
+
+Return to the dashboard and click a date in the 'recent activity' bar.
+
+
 
 
 
