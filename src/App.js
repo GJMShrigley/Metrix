@@ -11,6 +11,7 @@ import ActivityPage from "./scenes/activityPage";
 import CategoryPage from "./scenes/categoryPage";
 import ChartPage from "./scenes/chartPage";
 import Dashboard from "./scenes/dashboard";
+import FaqPage from "./scenes/FaqPage";
 import Topbar from "./scenes/global/Topbar";
 import CustomSidebar from "./scenes/global/CustomSidebar";
 import JournalPage from "./scenes/journalPage";
@@ -66,6 +67,7 @@ function App() {
                   />
                   <Route path="/journal" element={<JournalPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/faq" element={<FaqPage />} />
                 </Route>
               </Routes>
             </Box>

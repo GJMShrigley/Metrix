@@ -2,6 +2,7 @@ import { Box, IconButton } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
@@ -32,6 +33,9 @@ const Topbar = () => {
           <MenuOutlinedIcon />
         </IconButton>
         <Box>
+        <IconButton component={Link} to={"/faq"}>
+            <HelpOutlineIcon />
+          </IconButton>
           <IconButton component={Link} to={"/settings"}>
             <SettingsOutlinedIcon />
           </IconButton>

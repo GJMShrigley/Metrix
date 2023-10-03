@@ -13,8 +13,6 @@ const date = new Date();
 
 const currentDate = moment(date).format("MM/DD/YYYY");
 
-const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
-
 const LineChart = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);

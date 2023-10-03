@@ -51,6 +51,9 @@ const RecentActivity = (props) => {
               id: dataCopy[i].id,
             };
             activityData.push(newObj);
+            return null;
+          } else {
+            return null;
           }
         });
       }
@@ -102,7 +105,7 @@ const RecentActivity = (props) => {
             width: "100%",
           }}
         >
-          {entries.map((metric, i) => {
+          {entries.forEach((metric, i) => {
             if (metric[1].y > 0) {
               return (
                 <Box
@@ -132,6 +135,8 @@ const RecentActivity = (props) => {
                   </Typography>
                 </Box>
               );
+            } else {
+              return null;
             }
           })}
         </Box>
