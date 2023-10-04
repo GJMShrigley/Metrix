@@ -72,7 +72,7 @@ const ProgressCircle = ({ goal, latest }) => {
             component={isOverflowing ? Marquee : Box}
             speed={30}
             sx={{
-              height: "3rem",
+              height: "4rem",
               width: "auto",
             }}
             variant="h2"

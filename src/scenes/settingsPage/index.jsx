@@ -3,6 +3,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { MuiFileInput } from "mui-file-input";
+import { confirmAlert } from "react-confirm-alert";
 import { useDispatch, useSelector } from "react-redux";
 
 import Header from "../../components/Header";
@@ -29,25 +30,25 @@ const SettingsPage = () => {
   const userCategories = useSelector((state) => state.userData.categories);
   const userJournal = useSelector((state) => state.userData.journal);
 
-  const handleDeleteMetric = (e) => {
-    dispatch(deleteMetric(e.id));
-    dispatch(saveFile());
-  };
+  // const handleDeleteMetric = (e) => {
+  //   dispatch(deleteMetric(e.id));
+  //   dispatch(saveFile());
+  // };
 
-  const handleDeleteCategory = (e) => {
-    dispatch(deleteCategory(e.categoryId));
-    dispatch(saveFile());
-  };
+  // const handleDeleteCategory = (e) => {
+  //   dispatch(deleteCategory(e.categoryId));
+  //   dispatch(saveFile());
+  // };
 
-  const handleDeleteJournal = (e) => {
-    dispatch(deleteJournal(e.x));
-    dispatch(saveFile());
-  };
+  // const handleDeleteJournal = (e) => {
+  //   dispatch(deleteJournal(e.x));
+  //   dispatch(saveFile());
+  // };
 
-  const handleClearAll = () => {
-    dispatch(deleteAll());
-    dispatch(saveFile());
-  };
+  // const handleClearAll = () => {
+  //   dispatch(deleteAll());
+  //   dispatch(saveFile());
+  // };
 
   const fileLoad = (e) => {
     const file = e;
@@ -69,13 +70,49 @@ const SettingsPage = () => {
     reader.readAsText(file);
   };
 
+  const submit = (e) => {
+    confirmAlert({
+      title: "Confirm delete",
+      message: "Are you sure you want to delete this item?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => {
+            switch (e.target.dataset.type) {
+              case "metric":
+                dispatch(deleteMetric(e.target.dataset.value));
+                dispatch(saveFile());
+                break;
+              case "category":
+                dispatch(deleteCategory(e.target.dataset.value));
+                dispatch(saveFile());
+                break;
+              case "journal":
+                dispatch(deleteJournal(e.target.dataset.value));
+                dispatch(saveFile());
+                break;
+              case "all":
+                dispatch(deleteAll());
+                dispatch(saveFile());
+                break;
+            }
+          },
+        },
+        {
+          label: "No",
+          onClick: () => null,
+        },
+      ],
+    });
+  };
+
   const metricsList = userMetrics.map((metric, i) => {
     return (
       <IconButton
+        data-type="metric"
+        data-value={metric.id}
         key={i}
-        onClick={() => {
-          handleDeleteMetric(metric);
-        }}
+        onClick={submit}
         sx={{ textAlign: "left" }}
       >
         <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
@@ -87,10 +124,10 @@ const SettingsPage = () => {
   const categoriesList = userCategories.map((category, i) => {
     return (
       <IconButton
+        data-type="category"
+        data-value={category.categoryId}
         key={i}
-        onClick={() => {
-          handleDeleteCategory(category);
-        }}
+        onClick={submit}
         sx={{ textAlign: "left" }}
       >
         <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
@@ -102,10 +139,10 @@ const SettingsPage = () => {
   const journalList = userJournal.map((journal, i) => {
     return (
       <IconButton
+        data-type="journal"
+        data-value={journal.x}
         key={i}
-        onClick={() => {
-          handleDeleteJournal(journal);
-        }}
+        onClick={submit}
         sx={{ textAlign: "left" }}
       >
         <DeleteForeverOutlinedIcon sx={{ fontSize: "large" }} />
@@ -216,7 +253,7 @@ const SettingsPage = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
-              <IconButton onClick={handleClearAll}>
+              <IconButton data-type="all" onClick={submit}>
                 <DeleteForeverOutlinedIcon
                   sx={{
                     fontSize: "large",

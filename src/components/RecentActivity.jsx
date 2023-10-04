@@ -105,7 +105,7 @@ const RecentActivity = (props) => {
             width: "100%",
           }}
         >
-          {entries.forEach((metric, i) => {
+          {entries.map((metric, i) => {
             if (metric[1].y > 0) {
               return (
                 <Box
