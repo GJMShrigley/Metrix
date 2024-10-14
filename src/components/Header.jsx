@@ -8,7 +8,7 @@ import * as yup from "yup";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
-import { changeTitle, saveFile } from "../store/userDataSlice";
+import { changeTitle } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
 const initialValues = {
@@ -35,7 +35,6 @@ const Header = ({ title, isCategory, permanent }) => {
       changeTitle({ isCategory, selectionId: title, values: values.title })
     );
     openEdit();
-    dispatch(saveFile());
   };
 
   return (

@@ -1,101 +1,58 @@
-import { Formik } from "formik";
-import { Box, Button, TextField } from "@mui/material";
+import { useState } from "react";
+
+import { Box, Button } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 import * as moment from "moment";
-import * as yup from "yup";
 
 const date = new Date();
 
-const currentDate = moment(date).format("MM/DD/YYYY");
+const currentDate = moment(date);
 
-const lastWeek = moment(currentDate).subtract(6, "days").format("MM/DD/YYYY");
-
-const initialValues = {
-  startDate: `${lastWeek}`,
-  endDate: `${currentDate}`,
-};
-
-const userSchema = yup.object().shape({
-  startDate: yup.date().required("required"),
-  endDate: yup.date(),
-});
+const lastWeek = moment(currentDate).subtract(6, "days");
 
 const DateSlice = (props) => {
-  const handleFormSubmit = (values) => {
-    props.sliceDate(values.startDate, values.endDate);
+  const isLandscape = useMediaQuery("(orientation: landscape)");
+  const [startDate, setStartDate] = useState(lastWeek);
+  const [endDate, setEndDate] = useState(currentDate);
+  const handleSubmit = () => {
+    props.sliceDate(moment.utc(startDate).format("MM/DD/YYYY"), moment.utc(endDate).format("MM/DD/YYYY"));
     if (props.handleDate) {
-      props.handleDate(values.startDate, values.endDate);
+      props.handleDate(moment.utc(startDate).format("MM/DD/YYYY"), moment.utc(endDate).format("MM/DD/YYYY"));
     }
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        width: "95%"
+      }}>
       <Box
-        display="flex"
-        flexDirection="column"
-        gap="0"
-        justifyContent="center"
-        overflow="hidden"
-      ></Box>
-      <Formik
-        onSubmit={handleFormSubmit}
-        initialValues={initialValues}
-        validationSchema={userSchema}
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "1rem",
+          justifyContent: "space-between",
+          width: isLandscape ? "75%" : "95%"
+        }}
       >
-        {({
-          errors,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          touched,
-          values,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Box
-                sx={{
-                  columnGap: ".2rem",
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <TextField
-                  error={!!touched.startDate && !!errors.startDate}
-                  fullWidth
-                  helperText={touched.startDate && errors.startDate}
-                  label="Start Date"
-                  name="startDate"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  type="text"
-                  value={values.startDate}
-                  variant="filled"
-                />
-                <TextField
-                  error={!!touched.endDate && !!errors.endDate}
-                  fullWidth
-                  helperText={touched.endDate && errors.endDate}
-                  label="End Date"
-                  name="endDate"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  type="text"
-                  value={values.endDate}
-                  variant="filled"
-                />
-              </Box>
-              <Button color="secondary" type="submit" variant="contained">
-                Go To Date
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
-    </Box>
+        <DatePicker label="Start Date"
+          value={startDate}
+          onChange={(newValue) => setStartDate(newValue)} />
+        <DatePicker label="End Date"
+          value={endDate}
+          onChange={(newValue) => setEndDate(newValue)} />
+      </Box>
+      <Button color="secondary" onClick={() => {
+        handleSubmit({ startDate: startDate, endDate: endDate });
+      }} sx={{ width: isLandscape ? "75%" : "100%" }} type="submit" variant="contained">
+        Go To Date
+      </Button>
+    </Box >
   );
 };
 

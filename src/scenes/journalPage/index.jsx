@@ -26,10 +26,10 @@ const Journal = () => {
   const [searchResult, setSearchResult] = useState(journalData);
   let pageContent;
 
-  //Set displayed entries with full journal data.
-  useEffect(() => {
-    setDisplayedEntries(journalData);
-  }, [journalData]);
+    //Set displayed entries with full journal data.
+    useEffect(() => {
+      setDisplayedEntries(journalData);
+    });
 
   //Filter journal data for search results and set displayed entries with results.
   useEffect(() => {
@@ -147,7 +147,7 @@ const Journal = () => {
     }
     setSearchResult(journalCopy);
   }
-
+  
   return (
     <Box
       sx={{

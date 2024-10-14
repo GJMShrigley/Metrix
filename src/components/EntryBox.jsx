@@ -15,14 +15,15 @@ import {
 } from "@mui/material";
 import Marquee from "react-fast-marquee";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import * as yup from "yup";
 
-import { updateValue, saveFile } from "../store/userDataSlice";
+import { updateValue } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
 const date = new Date();
 
-const currentDate = moment(date).format("MM/DD/YYYY");
+const currentDate = moment(date).format("MM/DD/YYYY kk:mm");
 
 const initialValues = {
   x: `${currentDate}`,
@@ -34,7 +35,7 @@ const userSchema = yup.object().shape({
   y: yup.number().required("required"),
 });
 
-const EntryBox = ({ title, lineColor, type }) => {
+const EntryBox = ({ id, lineColor, title, type }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
@@ -62,21 +63,22 @@ const EntryBox = ({ title, lineColor, type }) => {
   }
 
   const handleFormSubmit = (values) => {
-    dispatch(
-      updateValue({
-        color: lineColor,
-        selectedMetric: title,
-        type: type,
-        values: values,
-      })
-    );
-    dispatch(saveFile());
+    if (values.y != '') {
+      dispatch(
+        updateValue({
+          color: lineColor,
+          selectedMetric: title,
+          type: type,
+          values: values,
+        })
+      )
+    };
   };
 
-  const menuItems = Array.from({ length: 10 }, (_, i) => {
+  const menuItems = Array.from({ length: 11 }, (_, i) => {
     return (
-      <MenuItem key={i + 1} value={`${i + 1}`}>
-        {`${i + 1}`}
+      <MenuItem key={i} value={`${i}`}>
+        {`${i}`}
       </MenuItem>
     );
   });
@@ -90,14 +92,18 @@ const EntryBox = ({ title, lineColor, type }) => {
       }}
     >
       <Box
+        component={Link}
+        key={id}
         ref={textRef}
         sx={{
           display: "flex",
           flexDirection: "column",
           gap: "0",
+          height: "2.5rem",
           justifyContent: "center",
           overflow: "hidden",
         }}
+        to={`/chart/${id}`}
       >
         <Typography
           component={isOverflowing ? Marquee : Box}
@@ -105,7 +111,7 @@ const EntryBox = ({ title, lineColor, type }) => {
           sx={{
             color: colors.grey[100],
             fontWeight: "bold",
-            height: "1.3rem",
+            height: "2rem",
             textAlign: "center",
             width: "auto",
           }}
@@ -140,7 +146,7 @@ const EntryBox = ({ title, lineColor, type }) => {
                 <FormControl>
                   <Box
                     sx={{
-                      height: "2.5rem",
+                      height: "3.5rem",
                       width: "6rem",
                     }}
                   >
@@ -149,7 +155,7 @@ const EntryBox = ({ title, lineColor, type }) => {
                       fullWidth
                       label="Value"
                       name="y"
-                      onChange={handleChange}
+                      onChange={(e) => { handleChange(e); handleSubmit(); }}
                       size="small"
                       value={values.y}
                     >
@@ -160,7 +166,7 @@ const EntryBox = ({ title, lineColor, type }) => {
               ) : (
                 <Box
                   sx={{
-                    height: "2.5rem",
+                    height: "3.5rem",
                     width: "6rem",
                   }}
                 >
@@ -170,8 +176,8 @@ const EntryBox = ({ title, lineColor, type }) => {
                     helperText={touched.y && errors.y}
                     label="Value"
                     name="y"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
+                    onBlurCapture={handleBlur}
+                    onChange={(e) => { handleChange(e); handleSubmit() }}
                     size="small"
                     type="text"
                     value={values.y}
@@ -179,17 +185,6 @@ const EntryBox = ({ title, lineColor, type }) => {
                   />
                 </Box>
               )}
-              <Button
-                color="secondary"
-                sx={{
-                  height: "2.5rem",
-                  width: "6rem",
-                }}
-                type="submit"
-                variant="contained"
-              >
-                Add
-              </Button>
             </Box>
           </form>
         )}

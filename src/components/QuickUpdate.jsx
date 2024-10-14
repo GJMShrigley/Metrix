@@ -12,7 +12,6 @@ import { tokens } from "../theme";
 const QuickUpdate = (props) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
   const inputItems = props.userData.map((data, i) => (
     <Box
       key={`${i}`}
@@ -24,6 +23,7 @@ const QuickUpdate = (props) => {
       }}
     >
       <EntryBox
+        id={`${i}`}
         lineColor={`${data.color}`}
         title={`${data.id}`}
         type={`${data.type}`}

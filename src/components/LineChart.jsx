@@ -58,24 +58,46 @@ const LineChart = (props) => {
   }, [chartData]);
 
   //If no start date is specified, set the chart data to the week ending on the current date.
-  //If a start date is specified but not an end date, set the chart data to the day prior to and following the start date.
+  //If a start date is specified but not an end date, set the chart data to the sub-array of times on that date.
   //If both a start date and end date are specified, set the chart data to display the data within those dates.
   const sliceDate = (startDate, endDate) => {
-    startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
-    endDate = moment(endDate).add(1, "days").format("MM/DD/YYYY");
     let dateData = [];
     let metricData = [];
-    for (let i = 0; i < originalData.length; i++) {
-      for (let j = 0; j < originalData[i].data.length; j++) {
-        if (
-          moment(originalData[i].data[j].x).isAfter(startDate) &&
-          moment(originalData[i].data[j].x).isBefore(endDate)
-        ) {
-          metricData.push(originalData[i].data[j]);
+    if (!startDate) {
+      startDate = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
+      endDate = moment(currentDate).add(1, "days").format("MM/DD/YYYY");
+    }
+    else if (startDate && !endDate || endDate === startDate) {
+      startDate = moment(startDate).format("MM/DD/YYYY");
+      endDate = moment(startDate).format("MM/DD/YYYY");
+    }
+    else if (startDate && endDate) {
+      startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
+      endDate = moment(endDate).add(1, "days").format("MM/DD/YYYY");
+    }
+
+    if (originalData[0] !== undefined) {
+      for (let i = 0; i < originalData.length; i++) {
+        for (let j = 0; j < originalData[i].data.length; j++) {
+          if (
+            moment(originalData[i].data[j].x).isAfter(startDate) &&
+            moment(originalData[i].data[j].x).isBefore(endDate)
+          ) {
+            metricData.push(originalData[i].data[j]);
+          } else if (startDate === endDate) {
+            const dateMatch = originalData[i].data.find(
+              (data) => data.x === startDate);
+            if (dateMatch) {
+              if (dateMatch.times !== undefined) {
+                const indexOfDate = props.chartData[i].data.indexOf(dateMatch);
+                metricData = originalData[i].data[indexOfDate].times
+              }
+            }
+          }
         }
+        dateData.push({ ...originalData[i], data: metricData });
+        metricData = [];
       }
-      dateData.push({ ...originalData[i], data: metricData });
-      metricData = [];
     }
     setChartData(dateData);
   };
@@ -217,7 +239,7 @@ const LineChart = (props) => {
             orient: "left",
             tickValues: maxY > 10 ? 5 : maxY, // added
             tickSize: 1,
-            tickPadding: 5,
+            tickPadding: 0,
             tickRotation: 0,
             legend: "", // added
             legendOffset: -40,

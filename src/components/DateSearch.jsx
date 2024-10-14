@@ -1,102 +1,52 @@
+import { useState } from "react";
+
 import { Formik } from "formik";
 import { Box, Button, TextField } from "@mui/material";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import * as moment from "moment";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 
 const date = new Date();
 
-const currentDate = moment(date).format("MM/DD/YYYY");
+const currentDate = moment.utc(date);
 
-const lastWeek = moment(currentDate).subtract(7, "days").format("MM/DD/YYYY");
-
-const initialValues = {
-  startDate: `${lastWeek}`,
-  endDate: `${currentDate}`,
-};
-
-const userSchema = yup.object().shape({
-  startDate: yup.date().required("required"),
-  endDate: yup.date(),
-});
+const lastWeek = moment.utc(currentDate).subtract(6, "days")
 
 const DateSearch = () => {
+  const [startDate, setStartDate] = useState(lastWeek);
+  const [endDate, setEndDate] = useState(currentDate);
+
   return (
-    <Box
-      sx={{
-        margin: "0 .5rem",
-        minWidth: "5rem",
-      }}
-    >
+
+    <Box>
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "100%"
         }}
-      ></Box>
-      <Formik initialValues={initialValues} validationSchema={userSchema}>
-        {({
-          errors,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          touched,
-          values,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Box
-                sx={{
-                  columnGap: ".2rem",
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <TextField
-                  error={!!touched.startDate && !!errors.startDate}
-                  fullWidth
-                  helperText={touched.startDate && errors.startDate}
-                  label="Start Date"
-                  name="startDate"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  type="text"
-                  value={values.startDate}
-                  variant="filled"
-                />
-                <TextField
-                  error={!!touched.endDate && !!errors.endDate}
-                  fullWidth
-                  helperText={touched.endDate && errors.endDate}
-                  label="End Date"
-                  name="endDate"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  type="text"
-                  value={values.endDate}
-                  variant="filled"
-                />
-              </Box>
-              <Button
-                color="secondary"
-                component={Link}
-                state={{ endDate: values.endDate, startDate: values.startDate }}
-                to={`/activity/0`}
-                type="submit"
-                variant="contained"
-              >
-                Go To Date
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
-    </Box>
+      >
+        <DatePicker label="Start Date"
+          value={startDate}
+          onChange={(newValue) => setStartDate(newValue)} />
+        <DatePicker label="End Date"
+          value={endDate}
+          onChange={(newValue) => setEndDate(newValue)} />
+      </Box>
+
+      <Button
+        component={Link}
+        color="secondary"
+        fullWidth
+        state={{ startDate: startDate.format("MM/DD/YYYY"), endDate: endDate.format("MM/DD/YYYY") }}
+        to={`activity/0`}
+        variant="contained"
+      >
+        Go To Date
+      </Button>
+    </Box >
   );
 };
 

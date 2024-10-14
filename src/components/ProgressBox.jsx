@@ -2,7 +2,8 @@ import { Box } from "@mui/material";
 
 import ProgressCircle from "./ProgressCircle";
 
-const ProgressBox = ({ title, icon, latest, goal }) => {
+const ProgressBox = ({ title, icon, latest, goal, goalType }) => {
+
   return (
     <Box
       sx={{
@@ -19,7 +20,7 @@ const ProgressBox = ({ title, icon, latest, goal }) => {
       >
         <Box>{icon}</Box>
         <Box>
-          <ProgressCircle goal={goal} latest={latest} title={title} />
+          <ProgressCircle goal={goal} latest={latest} title={title} goalType={goalType} />
         </Box>
       </Box>
     </Box>

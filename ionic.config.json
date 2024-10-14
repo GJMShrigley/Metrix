@@ -1,0 +1,7 @@
+{
+  "name": "Metrix",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

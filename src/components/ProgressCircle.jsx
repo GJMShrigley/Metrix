@@ -6,7 +6,7 @@ import Marquee from "react-fast-marquee";
 
 import { tokens } from "../theme";
 
-const ProgressCircle = ({ goal, latest }) => {
+const ProgressCircle = ({ goal, latest, goalType }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isLandscape = useMediaQuery("(orientation: landscape)");
@@ -41,9 +41,11 @@ const ProgressCircle = ({ goal, latest }) => {
         sx={{
           alignContent: "center",
           alignItems: "center",
-          background: `radial-gradient(${colors.primary[400]} 55%, transparent 56%),
-            conic-gradient(transparent 0deg ${angle}deg, ${colors.blueAccent[500]} ${angle}deg 360deg),
-            ${colors.greenAccent[500]}`,
+          background: goalType === "Low" && angle > 360 ? `radial-gradient(${colors.primary[400]} 55%, transparent 56%),
+            conic-gradient(transparent 0deg ${angle - 360}deg, ${colors.greenAccent[500]} ${angle - 360}deg 360deg),
+            ${colors.redAccent[500]}` : `radial-gradient(${colors.primary[400]} 55%, transparent 56%),
+      conic-gradient(transparent 0deg ${angle}deg, ${colors.redAccent[500]} ${angle}deg 360deg),
+      ${colors.greenAccent[500]}`,
           borderRadius: "50%",
           display: "flex",
           height: "80px",
@@ -72,7 +74,7 @@ const ProgressCircle = ({ goal, latest }) => {
             component={isOverflowing ? Marquee : Box}
             speed={30}
             sx={{
-              height: "4rem",
+              height: "2.8rem",
               width: "auto",
             }}
             variant="h2"
@@ -82,7 +84,7 @@ const ProgressCircle = ({ goal, latest }) => {
           </Typography>
         </Box>
       </Box>
-    </Box>
+    </Box >
   );
 };
 

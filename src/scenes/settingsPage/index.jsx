@@ -1,3 +1,8 @@
+import {
+  Encoding,
+  Filesystem,
+  Directory
+} from '@capacitor/filesystem';
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -18,7 +23,6 @@ import {
   deleteMetric,
   exportFile,
   importFile,
-  saveFile,
 } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
@@ -30,44 +34,21 @@ const SettingsPage = () => {
   const userCategories = useSelector((state) => state.userData.categories);
   const userJournal = useSelector((state) => state.userData.journal);
 
-  // const handleDeleteMetric = (e) => {
-  //   dispatch(deleteMetric(e.id));
-  //   dispatch(saveFile());
-  // };
-
-  // const handleDeleteCategory = (e) => {
-  //   dispatch(deleteCategory(e.categoryId));
-  //   dispatch(saveFile());
-  // };
-
-  // const handleDeleteJournal = (e) => {
-  //   dispatch(deleteJournal(e.x));
-  //   dispatch(saveFile());
-  // };
-
-  // const handleClearAll = () => {
-  //   dispatch(deleteAll());
-  //   dispatch(saveFile());
-  // };
-
   const fileLoad = (e) => {
-    const file = e;
-    const reader = new FileReader();
-
-    if (file.length > 1) {
-      alert("Please select a single file to load");
-      return;
+    const fileContents = Filesystem.readFile({
+      path: e.name,
+      directory: Directory.Documents,
+      encoding: Encoding.UTF8,
+    }).then((contents) => {
+      return contents;
     }
-
-    reader.addEventListener(
-      "load",
-      () => {
-        const loadedFile = JSON.parse(reader.result);
-        dispatch(importFile(loadedFile));
-      },
-      false
     );
-    reader.readAsText(file);
+
+    const result = async () => {
+      const a = await fileContents;
+      dispatch(importFile(a));
+    }
+    result()
   };
 
   const submit = (e) => {
@@ -81,19 +62,15 @@ const SettingsPage = () => {
             switch (e.target.dataset.type) {
               case "metric":
                 dispatch(deleteMetric(e.target.dataset.value));
-                dispatch(saveFile());
                 break;
               case "category":
                 dispatch(deleteCategory(e.target.dataset.value));
-                dispatch(saveFile());
                 break;
               case "journal":
                 dispatch(deleteJournal(e.target.dataset.value));
-                dispatch(saveFile());
                 break;
               case "all":
                 dispatch(deleteAll());
-                dispatch(saveFile());
                 break;
             }
           },

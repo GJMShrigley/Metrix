@@ -18,7 +18,12 @@ export default function BiaxialChart(props) {
   const originalData2 = props.data2;
   const [data1, setData1] = useState(props.data1);
   const [data2, setData2] = useState(props.data2);
+  // const [maxX, setMaxX] = useState(24)
+  // const [minX, setMinX] = useState(0)
   const [maxY, setMaxY] = useState("auto");
+  const [startDateState, setStartDateState] = useState(props.startDate);
+  const [endDateState, setEndDateState] = useState(props.endDate);
+
   let height;
 
   //Set the height variable to the relevant value for desktop, landscape, and portrait viewports.
@@ -58,26 +63,16 @@ export default function BiaxialChart(props) {
         .subtract(6, "days")
         .format("MM/DD/YYYY");
 
-      sliceDate(startDate, endDate, originalData1, originalData2);
+      setStartDateState(startDate);
+      setEndDateState(endDate);
+      sliceDate(startDateState, endDateState, originalData1, originalData2);
     } else if (props.startDate && !props.endDate) {
-      const startDate = moment(props.startDate)
-        .subtract(1, "days")
-        .format("MM/DD/YYYY");
-
-      const endDate = moment(props.startDate)
-        .add(1, "days")
-        .format("MM/DD/YYYY");
-
-      sliceDate(startDate, endDate, originalData1, originalData2);
+      sliceDate(props.startDate, props.startDate, originalData1, originalData2);
     } else if (props.startDate && props.endDate) {
       sliceDate(props.startDate, props.endDate, originalData1, originalData2);
-    }
-  }, [props.startDate, props.endDate]);
 
-  //If the activityPage's 'handleDate' prop exists, provide it with the first and last dates of the chart data.
-  // if (props.handleDate) {
-  //   props.handleDate(data2[0].data[0].x, data2[0].data.at(-1).x);
-  // }
+    }
+  }, [props, startDateState, endDateState]);
 
   //Take a start date, and end date for setting the chart data, and two data sets to recover color data for transparent data.
   function sliceDate(
@@ -88,56 +83,152 @@ export default function BiaxialChart(props) {
   ) {
     let newData1 = [];
     let newData2 = [];
-    //If the start date and end date are the same, change them to the dates either side of the original date.
-    if (startDate === endDate) {
-      endDate = moment(startDate).add(1, "days").format("MM/DD/YYYY");
-      startDate = moment(startDate).subtract(1, "days").format("MM/DD/YYYY");
-    }
-    //Find all dates in 'originalData1' between the assigned start and end dates and assign them to the 'newData1' array.
-    for (let i = 0; i < originalData1.length; i++) {
-      let dateArray = [];
-      for (let j = 0; j < originalData1[i].data.length; j++) {
-        if (
-          moment(originalData1[i].data[j].x).isBetween(
-            startDate,
-            endDate,
-            "day",
-            "[]"
-          )
-        ) {
-          dateArray.push(originalData1[i].data[j]);
+    //If the start date and end date are the same, find the times for each metric on that day and display them.
+    //Find the times for the metrics in the 'originalData1' variable and push them to the 'newData1' variable for use in the chart. 
+    if (props.startDate && props.endDate === undefined || startDateState && endDateState == startDateState) {
+      let metricData = [];
+      for (let i = 0; i < originalData1.length; i++) {
+        const dateMatch = originalData1[i].data.find(
+          data => data.x === startDate);
+
+        if (dateMatch) {
+          if (dateMatch.times !== undefined) {
+            const indexOfDate = originalData1[i].data.indexOf(dateMatch);
+            metricData = originalData1[i].data[indexOfDate].times;
+
+            newData1.push({
+              ...originalData1[i],
+              color: colorData1[i].color,
+              data: metricData
+            });
+          }
         }
       }
-      newData1.push({
-        ...originalData1[i],
-        color: colorData1[i].color,
-        data: dateArray,
-      });
-    }
-    //Find all dates in 'originalData2' between the assigned start and end dates and assign them to the 'newData2' array.
-    for (let i = 0; i < originalData2.length; i++) {
-      let dateArray = [];
-      for (let j = 0; j < originalData2[i].data.length; j++) {
-        if (
-          moment(originalData2[i].data[j].x).isBetween(
-            startDate,
-            endDate,
-            "day",
-            "[]"
-          )
-        ) {
-          dateArray.push(originalData2[i].data[j]);
+      //Find the times for the metrics in the 'originalData2' variable and push them to the 'newData2' variable for use in the chart. 
+      for (let i = 0; i < originalData2.length; i++) {
+        const dateMatch = originalData2[i].data.find(
+          data => data.x === startDate);
+
+        if (dateMatch) {
+          if (dateMatch.times !== undefined) {
+            const indexOfDate = originalData2[i].data.indexOf(dateMatch);
+            metricData = originalData2[i].data[indexOfDate].times;
+
+            newData2.push({
+              ...originalData2[i],
+              color: colorData2[i].color,
+              data: metricData
+            });
+          }
         }
       }
-      newData2.push({
-        ...originalData2[i],
-        color: colorData2[i].color,
-        data: dateArray,
+      //Find each individual time listed in either 'newData1' or 'newData2' variables.
+      let times = [];
+      for (let i = 0; i < newData2.length; i++) {
+        for (let j = 0; j < newData2[i].data.length; j++) {
+          times.push(moment(newData2[i].data[j].x, 'kk:mm'))
+        }
+      }
+      //Find the unique times in the 'times' array and sort them.
+      const sortedTimes = [...new Set(times.sort((a, b) => a - b))];
+      const uniqueTimes = sortedTimes.map((timeObj) => {
+        return moment(timeObj).format('kk:mm');
       });
+      // setMinX(moment(sortedTimes[0]).format('kk:mm'))
+      // setMaxX(moment(sortedTimes[sortedTimes.length - 1]).format('kk:mm'))
+      let data1Copy = []
+      //Loop through the metrics contained in the 'newData1' and 'newData2' variables. If they are missing times contained within 'uniqueTimes' array, insert the missing time with 'null' as their 'y' value. 
+      for (let i = 0; i < newData1.length; i++) {
+        let metricCopy = []
+        for (let k = 0; k < uniqueTimes.length; k++) {
+          const timeMatch = newData1[i].data.find(data => data.x === uniqueTimes[k])
+          if (timeMatch) {
+            metricCopy.push(timeMatch)
+          }
+          if (!timeMatch) {
+            metricCopy.push({ x: uniqueTimes[k], y: "" })
+          }
+        }
+        const finalData = Object.assign(
+          {},
+          { ...newData1[i], data: metricCopy }
+        );
+        metricCopy = [];
+        data1Copy.push(finalData);
+      }
+      newData1 = data1Copy;
+
+      let data2Copy = [];
+      for (let i = 0; i < newData2.length; i++) {
+        let metricCopy = []
+        for (let k = 0; k < uniqueTimes.length; k++) {
+          const timeMatch = newData2[i].data.find(data => data.x === uniqueTimes[k])
+          if (timeMatch) {
+            metricCopy.push(timeMatch)
+          }
+          if (!timeMatch) {
+            metricCopy.push({ x: uniqueTimes[k], y: "" })
+          }
+        }
+        const finalData = Object.assign(
+          {},
+          { ...newData2[i], data: metricCopy }
+        );
+        metricCopy = [];
+        data2Copy.push(finalData)
+
+      }
+      newData2 = data2Copy;
+    } else {
+      //Find all dates in 'originalData1' between the assigned start and end dates and assign them to the 'newData1' array.
+      for (let i = 0; i < originalData1.length; i++) {
+        let dateArray = [];
+        for (let j = 0; j < originalData1[i].data.length; j++) {
+          if (
+            moment(originalData1[i].data[j].x).isBetween(
+              startDate,
+              endDate,
+              "day",
+              "[]"
+            )
+          ) {
+            dateArray.push(originalData1[i].data[j]);
+          }
+        }
+        newData1.push({
+          ...originalData1[i],
+          color: colorData1[i].color,
+          data: dateArray,
+        });
+      }
+      //Find all dates in 'originalData2' between the assigned start and end dates and assign them to the 'newData2' array.
+      for (let i = 0; i < originalData2.length; i++) {
+        let dateArray = [];
+        for (let j = 0; j < originalData2[i].data.length; j++) {
+          if (
+            moment(originalData2[i].data[j].x).isBetween(
+              startDate,
+              endDate,
+              "day",
+              "[]"
+            )
+          ) {
+            dateArray.push(originalData2[i].data[j]);
+          }
+        }
+        newData2.push({
+          ...originalData2[i],
+          color: colorData2[i].color,
+          data: dateArray,
+        });
+      }
     }
     //Set the 'data1' and 'data2' states with the relevant arrays containing the new dates.
     setData1(newData1);
     setData2(newData2);
+    if (startDate !== undefined) {
+      setStartDateState(startDate)
+    }
   }
 
   const graphTheme = {
@@ -179,8 +270,8 @@ export default function BiaxialChart(props) {
     const data1Copy = [...data1];
     const data2Copy = [...data2];
     const i = e.target.dataset.key;
-    const startDate = data1Copy[0].data[0].x;
-    const endDate = data1Copy[0].data.at(-1).x;
+
+
     if (i <= data1Copy.length - 1) {
       data1Copy[i].color === "transparent"
         ? (data1Copy[i] = { ...originalData1[i] })
@@ -189,7 +280,7 @@ export default function BiaxialChart(props) {
     data2Copy[i].color === "transparent"
       ? (data2Copy[i] = { ...originalData2[i] })
       : (data2Copy[i] = { ...data2[i], color: "transparent" });
-    sliceDate(startDate, endDate, data1Copy, data2Copy);
+    sliceDate(startDateState, endDateState, data1Copy, data2Copy);
   }
 
   //Create a custom legend for the charts to allow for styling and onClick functionality.
@@ -247,9 +338,16 @@ export default function BiaxialChart(props) {
         data={data1}
         theme={graphTheme}
         colors={{ datum: "color" }}
-        margin={{ top: 10, right: 25, bottom: 90, left: 25 }}
+        margin={{ top: 10, right: 40, bottom: 90, left: 25 }}
         layers={["grid", "mesh", "points", "axes", "lines", "markers"]}
-        xScale={{ type: "point" }}
+        // xScale={{
+        //   type: props.endDate && (props.endDate === props.startDate) ? "time" : "point",
+        //   min: 0,
+        //   max: "auto"
+        // }}
+        xFormat={function (value) {
+          return `time:${moment(value).format("HH:MM")}`
+        }}
         yScale={{
           type: "linear",
           min: 0,
@@ -262,15 +360,17 @@ export default function BiaxialChart(props) {
           tickSize: 0,
           tickPadding: 5,
           tickRotation: 90,
+          // tickValues: "time scale, every 15 minutes",
           legend: "Date", // added
           legendOffset: 76,
           legendPosition: "middle",
-        }}
+        }
+        }
         axisLeft={{
           orient: "left",
           tickValues: 10, // added
           tickSize: 1,
-          tickPadding: 5,
+          tickPadding: 0,
           tickRotation: 0,
           legend: "", // added
           legendOffset: -40,
@@ -280,7 +380,7 @@ export default function BiaxialChart(props) {
         pointColor={{ theme: "background" }}
         pointBorderWidth={2}
         pointBorderColor={{ from: "serieColor" }}
-        pointLabelYOffset={-12}
+        pointLabelYOffset={- 12}
         useMesh={true}
         animate={false}
       />
@@ -295,7 +395,15 @@ export default function BiaxialChart(props) {
         colors={(d) => {
           return d.type === data1[0].type ? "transparent" : d.color;
         }}
-        margin={{ top: 10, right: 25, bottom: 90, left: 25 }}
+        margin={{ top: 10, right: 40, bottom: 90, left: 25 }}
+        // xScale={{
+        //   type: props.endDate && (props.endDate === props.startDate) ? "linear" : "point",
+        //   min: 0,
+        //   max: "auto"
+        // }}
+        xFormat={function (value) {
+          return `time:${moment(value).format("HH:MM")}`
+        }}
         yScale={{
           type: "linear",
           min: 0,
@@ -306,7 +414,7 @@ export default function BiaxialChart(props) {
         axisRight={{
           tickValues: 10,
           tickSize: 1,
-          tickPadding: 5,
+          tickPadding: 2,
         }}
         axisLeft={null}
         axisTop={null}
@@ -367,7 +475,7 @@ export default function BiaxialChart(props) {
                         marginRight: ".2rem",
                       }}
                     >
-                      {point.serieId}&#58;
+                      {point.serieId}
                     </Typography>
                     <Box
                       sx={{
@@ -420,13 +528,12 @@ export default function BiaxialChart(props) {
       />
     );
   };
-
   //Create the wrapper and position the two graphs to overlap with the second graph on top.
   const Wrapper = () => {
     return (
       <Box
         sx={{
-          width: "100%",
+          width: "100%"
         }}
       >
         <Box
@@ -441,7 +548,7 @@ export default function BiaxialChart(props) {
               height: `${height}vh`,
               minHeight: `${height}vh`,
               position: "relative",
-              width: "100%",
+              width: "97%",
             }}
           >
             <FirstGraph />
@@ -452,7 +559,7 @@ export default function BiaxialChart(props) {
               minHeight: `${height}vh`,
               position: "relative",
               top: `-${height}vh`,
-              width: "100%",
+              width: "97%",
             }}
           >
             <SecondGraph />
@@ -462,7 +569,7 @@ export default function BiaxialChart(props) {
               height: "5vh",
               position: "relative",
               top: `-${height}vh`,
-              width: "100%",
+              width: "97%",
             }}
           >
             {customLegend(data2)}

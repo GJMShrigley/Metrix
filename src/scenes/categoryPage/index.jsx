@@ -23,9 +23,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BiaxialChart from "../../components/BiaxialChart";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
+import QuickUpdate from "../../components/QuickUpdate";
 import StatBox from "../../components/StatBox";
 
-import { addMetricToCategory, saveFile } from "../../store/userDataSlice";
+import { addMetricToCategory } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
 const date = new Date();
@@ -117,6 +118,11 @@ const Category = () => {
     );
   });
 
+
+  //Push the values of the selected metrics into new arrays.
+  //Use the 'calculateCorrelation' library to find the correlation between the two arrays of values.
+  //Set the 'correlationResult' variable with the relation between the two arrays (between 'very low' and 'very high'.)
+
   const handleChange = (value) => {
     setSelection(value.target.value);
   };
@@ -131,7 +137,6 @@ const Category = () => {
       addMetricToCategory({ selectionValues: selection, categoryId: id })
     );
     setSelection([]);
-    dispatch(saveFile());
   };
 
   const statBoxes = chartData.contents.map((data, i) => {
@@ -143,6 +148,7 @@ const Category = () => {
         <AccordionDetails>
           <StatBox
             endDate={endDate}
+            id={i}
             key={i}
             stats={data.data}
             startDate={startDate}
@@ -203,12 +209,13 @@ const Category = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: !isNonMobile && isLandscape ? "row" : "column",
+          flexDirection: "column",
         }}
       >
+        <QuickUpdate userData={metricsArray} />
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h5">ADD/REMOVE METRIC</Typography>
+            <Typography variant="h5">ADD/REMOVE METRIC FROM CATEGORY</Typography>
           </AccordionSummary>
           <AccordionDetails
             sx={{

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import * as moment from "moment";
 import { Box, Typography, useTheme } from "@mui/material";
 import Marquee from "react-fast-marquee";
+import { Link } from "react-router-dom";
 
 import { tokens } from "../theme";
 
@@ -19,7 +20,7 @@ const findRange = function (statsSlice) {
   return max - min;
 };
 
-const StatBox = ({ title, stats, startDate, endDate }) => {
+const StatBox = ({ id, title, stats, startDate, endDate }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [statsSlice, setStatsSlice] = useState([{}]);
@@ -32,19 +33,24 @@ const StatBox = ({ title, stats, startDate, endDate }) => {
     let statsArray = [];
 
     if (!endDate) {
-      endDate = moment(startDate).add(1, "days").format("MM/DD/YYYY");
-      startDate = moment(startDate).subtract(2, "days").format("MM/DD/YYYY");
-    }
-
-    for (let i = 0; i < stats.length; i++) {
-      if (moment(stats[i].x).isBetween(startDate, endDate, "day", "[]")) {
-        statsArray.push(stats[i]);
+      for (let i = 0; i < stats.length; i++) {
+        if (stats[i].x === startDate && stats[i].times) {
+          for (let j = 0; j < stats[i].times.length; j++) {
+            statsArray.push(stats[i].times[j])
+          }
+        }
+      }
+    } else {
+      for (let i = 0; i < stats.length; i++) {
+        if (moment(stats[i].x).isBetween(startDate, endDate, "day", "[]")) {
+          statsArray.push(stats[i]);
+        }
       }
     }
 
     setStatsSlice(statsArray);
   }, [stats, endDate, startDate]);
-  
+
   const statsList = statsSlice.map((day, i) => {
     let previous = i > 0 ? statsSlice[i - 1].y : 0;
     const difference = (day.y - previous).toFixed(2);
@@ -56,69 +62,115 @@ const StatBox = ({ title, stats, startDate, endDate }) => {
       difference >= 0
         ? { color: colors.blueAccent[300] }
         : { color: colors.redAccent[300] };
+    let result = true;
+
+    switch (day.y) {
+      case (day.y < day.goal && day.goalType === 'Low'):
+        result = true
+        break;
+      case (day.y > day.goal && day.goalType === 'Low'):
+        result = false
+        break;
+      case (day.y < day.goal && day.goalType === 'High'):
+        result = false
+        break;
+      case (day.y > day.goal && day.goalType === 'High'):
+        result = true
+        break;
+      default:
+        result = true
+    }
+
     return (
       <Box
         key={i}
         sx={{
           alignItems: "center",
           display: "flex",
+          flexDirection: "column",
           gap: "1rem",
           justifyContent: "flex-start",
-        }}
-      >
-        <Typography
+        }}>
+
+        <Box
+          key={i}
           sx={{
-            color: colors.greenAccent[100],
-          }}
-          variant="h4"
-        >
-          {day.x}
-        </Typography>
-        <Typography
-          sx={{
-            color: colors.greenAccent[600],
+            alignItems: "center",
             display: "flex",
-            fontWeight: "bold",
-            justifyContent: "center",
+            gap: "1rem",
+            justifyContent: "flex-start",
           }}
-          variant="h4"
         >
-          {day.y}
-        </Typography>
-        <Typography
-          sx={{
-            color,
-            display: "flex",
-            justifyContent: "center",
-          }}
-          variant="h5"
-        >
-          {difference}
-        </Typography>
-        <Typography
-          sx={{
-            color,
-            display: "flex",
-            fontStyle: "italic",
-            justifyContent: "center",
-          }}
-          variant="h5"
-        >
-          {percent}&#37;
-        </Typography>
-        <Box>
           <Typography
-            component={Marquee}
-            speed={30}
+            component={endDate ? Link : null}
             sx={{
               color: colors.greenAccent[100],
-              overflowY: "hidden",
+            }}
+            state={{ startDate: day.x }}
+            to={`/activity/0`}
+            variant="h4"
+          >
+            {day.x}
+          </Typography>
+          <Typography
+            sx={{
+              color: colors.greenAccent[600],
+              display: "flex",
+              fontWeight: "bold",
+              justifyContent: "center",
             }}
             variant="h4"
           >
-            {day.note}
+            {day.y}
           </Typography>
+          <Typography
+            sx={{
+              color,
+              display: "flex",
+              justifyContent: "center",
+            }}
+            variant="h5"
+          >
+            {difference}
+          </Typography>
+          <Typography
+            sx={{
+              color,
+              display: "flex",
+              fontStyle: "italic",
+              justifyContent: "center",
+            }}
+            variant="h5"
+          >
+            {percent}&#37;
+          </Typography>
+          {day.goal && day.goal != "" ? <Typography
+            sx={{
+              color: result === true ? colors.redAccent[300] : colors.blueAccent[300],
+              display: "flex",
+              fontStyle: "italic",
+              justifyContent: "center",
+            }}
+            variant="h5"
+          >
+            Goal: {day.goalType === 'Low' ? "Under" : "Over"} {day.goal}
+          </Typography> : null}
+          <Box>
+
+          </Box>
+
         </Box>
+        <Typography
+          component={Marquee}
+          speed={30}
+          sx={{
+            color: colors.greenAccent[100],
+            overflowY: "hidden",
+          }}
+          variant="h4"
+        >
+          {day.note}
+        </Typography>
       </Box>
     );
   });
@@ -141,11 +193,13 @@ const StatBox = ({ title, stats, startDate, endDate }) => {
         }}
       >
         <Typography
+          component={Link}
           sx={{
             color: colors.grey[100],
             fontWeight: "bold",
             marginBottom: "1rem",
           }}
+          to={`/chart/${id}`}
           variant="h3"
         >
           {title}
@@ -179,7 +233,7 @@ const StatBox = ({ title, stats, startDate, endDate }) => {
               }}
               variant="h4"
             >
-              {mean}
+              {mean === "NaN" ? "N/A" : mean}
             </Typography>
           </Box>
           <Box

@@ -38,11 +38,10 @@ const Dashboard = () => {
   });
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
-
   //Find the 'Dashboard' category.
   useEffect(() => {
     for (let i = 0; i < userCategories.length; i++) {
-      if (userCategories[i].categoryId === "Dashboard") {
+      if (userCategories[i].categoryId === 'Dashboard') {
         setSelectedCategory(userCategories[i]);
       }
     }
@@ -62,28 +61,30 @@ const Dashboard = () => {
       { categoryId: selectedCategory.categoryId, contents: metricsData }
     );
     setChartData(categoryData);
-  }, [selectedCategory]);
+    //Divide the chart data into 'number' or 'scale' data types. If both types exist, push them to separate state arrays.
+  }, [userData, selectedCategory]);
 
-  //Split the chart data into 'number' or 'scale' data types. If both types exist, push them to separate state arrays.
   useEffect(() => {
     let tempData1 = [];
     let tempData2 = [];
-    for (let i = 0; i < chartData.contents.length; i++) {
-      if (chartData.contents[i].type === chartData.contents[0].type) {
-        tempData1.push(chartData.contents[i]);
-      } else {
-        tempData2.push(chartData.contents[i]);
+    if (chartData.contents[0] !== undefined) {
+      for (let i = 0; i < chartData.contents.length; i++) {
+        if (chartData.contents[i].type === chartData.contents[0].type) {
+          tempData1.push(chartData.contents[i]);
+        } else {
+          tempData2.push(chartData.contents[i]);
+        }
       }
     }
-    if (tempData2.length) {
+    if (tempData2.length > 0) {
       setData1(tempData1);
       setData2(tempData1.concat(tempData2));
     } else {
       setData1([]);
       setData2([]);
     }
-  }, [chartData, userCategories, selectedCategory]);
-  
+  }, [chartData])
+
   return (
     <Box
       sx={{

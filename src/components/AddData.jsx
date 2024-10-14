@@ -6,8 +6,12 @@ import {
   Box,
   Button,
   FormControl,
+  FormControlLabel,
+  FormLabel,
   InputLabel,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
   TextField,
   Typography,
@@ -17,11 +21,12 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { HexColorPicker } from "react-colorful";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 
-import { addCategory, addMetric, saveFile } from "../store/userDataSlice";
+import { addCategory, addMetric } from "../store/userDataSlice";
 import { tokens } from "../theme";
 
 const date = new Date();
@@ -32,6 +37,7 @@ const initialValues = {
   metric: "",
   x: `${currentDate}`,
   y: 0,
+  category: ""
 };
 
 const categorySchema = yup.object().shape({
@@ -49,21 +55,44 @@ const AddData = () => {
   const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
   const [color, setColor] = useState("#ffff");
+  const [totalSelection, setTotalSelection] = useState("Average");
   const [typeSelection, setTypeSelection] = useState("Scale");
+  const [dateLog, setDateLog] = useState(currentDate);
 
-  const newCategory = (values) => {
+  const newCategory = async (values) => {
     dispatch(addCategory(values.category));
-    dispatch(saveFile());
   };
 
   const newMetric = (values) => {
-    dispatch(addMetric({values, color, typeSelection}));
-    dispatch(saveFile());
+    dispatch(addMetric({ values, color, typeSelection, totalSelection }));
   };
 
   const handleTypeChange = (value) => {
     setTypeSelection(value.target.value);
   };
+
+  const handleTotalChange = (value) => {
+    setTotalSelection(value.target.value);
+  };
+
+  const radioButtons = Array.from({ length: 11 }, (_, i) => {
+    return (
+      <FormControlLabel
+        key={i}
+        control={
+          <Radio
+            sx={{
+              "& .MuiSvgIcon-root": {
+                fontSize: 35,
+              },
+            }}
+          />
+        }
+        label={`${i}`}
+        value={`${i}`}
+      />
+    );
+  });
 
   return (
     <Box
@@ -98,11 +127,7 @@ const AddData = () => {
               sx={{
                 backgroundColor: colors.primary[400],
                 padding: "1rem",
-                "& > .react-colorful": { margin: "1rem 0", width: "99%" },
-                ".react-colorful__saturation": { height: "100%" },
-                ".react-colorful__hue": { height: "50%" },
-                ".react-colorful__hue-pointer, .react-colorful__saturation-pointer":
-                  { height: "1rem", width: "1rem" },
+                width: "100%"
               }}
             >
               <Typography
@@ -114,6 +139,11 @@ const AddData = () => {
               >
                 ADD NEW METRIC
               </Typography>
+              <DateTimePicker ampm={false} label="Date Logged"
+                onChange={(newValue) => (setDateLog(newValue))}
+                sx={{ width: "100%" }}
+                type="text"
+              />
               <Formik
                 initialValues={initialValues}
                 onSubmit={newMetric}
@@ -147,33 +177,34 @@ const AddData = () => {
                         value={values.metric}
                         variant="filled"
                       />
-                      <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Time Logged"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.x}
-                        name="x"
-                        error={!!touched.x && !!errors.x}
-                        helperText={touched.x && errors.x}
-                        sx={{
-                          gridColumn: "span 1",
-                        }}
-                      />
-                      <TextField
-                        error={!!touched.y && !!errors.y}
-                        fullWidth
-                        helperText={touched.y && errors.y}
-                        label="value"
-                        name="y"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        type="text"
-                        value={values.y}
-                        variant="filled"
-                      />
+                      {typeSelection === "Scale" ? (
+                        <FormControl>
+                          <FormLabel id="scale-buttons-group-label">
+                            Value
+                          </FormLabel>
+                          <RadioGroup
+                            aria-labelledby="scale-buttons-group-label"
+                            name="y"
+                            onChange={handleChange}
+                            row
+                          >
+                            {radioButtons}
+                          </RadioGroup>
+                        </FormControl>
+                      ) : (
+                        <TextField
+                          error={!!touched.y && !!errors.y}
+                          fullWidth
+                          helperText={touched.y && errors.y}
+                          label="Value"
+                          name="y"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          type="text"
+                          value={values.y}
+                          variant="filled"
+                        />
+                      )}
                       <FormControl>
                         <InputLabel>Select Measurement Type</InputLabel>
                         <Select
@@ -187,6 +218,32 @@ const AddData = () => {
                           <MenuItem value={"Number"}>Number</MenuItem>
                         </Select>
                       </FormControl>
+                      <FormControl>
+                        <InputLabel>Select Measurement Total</InputLabel>
+                        <Select
+                          id="type"
+                          label="type"
+                          name="type"
+                          onChange={handleTotalChange}
+                          value={totalSelection}
+                        >
+                          <MenuItem value={"Cumulative"}>Cumulative</MenuItem>
+                          <MenuItem value={"Average"}>Average</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Box
+                        sx={{
+                          backgroundColor: colors.primary[400],
+                          padding: "1rem",
+                          "& > .react-colorful": { margin: "1rem 0", width: "100%" },
+                          ".react-colorful__saturation": { height: "100%" },
+                          ".react-colorful__hue": { height: "50%" },
+                          ".react-colorful__hue-pointer, .react-colorful__saturation-pointer":
+                            { height: "1rem", width: "1rem" },
+                        }}
+                      >
+                        <HexColorPicker color={color} onChange={setColor} />
+                      </Box>
                       <Button
                         color="secondary"
                         type="submit"
@@ -198,25 +255,19 @@ const AddData = () => {
                   </form>
                 )}
               </Formik>
-              <HexColorPicker color={color} onChange={setColor} />
             </Box>
             <Box
               sx={{
                 backgroundColor: colors.primary[400],
-                gap: ".5rem",
-                height: "auto",
-                margin: "1rem 0 0 0",
                 padding: "1rem",
               }}
             >
               <Typography
-                variant="h4"
                 sx={{
-                  color: colors.grey[100],
                   fontWeight: "bold",
-                  m: ".2rem",
                   textAlign: "center",
                 }}
+                variant="h4"
               >
                 ADD NEW CATEGORY
               </Typography>
@@ -236,7 +287,9 @@ const AddData = () => {
                   <form onSubmit={handleSubmit}>
                     <Box
                       sx={{
-                        display: "grid",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: ".5rem"
                       }}
                     >
                       <TextField
@@ -244,7 +297,7 @@ const AddData = () => {
                         fullWidth
                         helperText={touched.category && errors.category}
                         label="Category Name"
-                        name="metric"
+                        name="category"
                         onBlur={handleBlur}
                         onChange={handleChange}
                         type="text"

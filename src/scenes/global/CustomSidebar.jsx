@@ -7,10 +7,18 @@ import ClassIcon from "@mui/icons-material/Class";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import TableChartIcon from '@mui/icons-material/TableChart';
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
+import * as moment from "moment";
+
+import DateSearch from "../../components/DateSearch";
 
 import { toggleSidebar } from "../../store/displaySlice";
 import { tokens } from "../../theme";
+
+const date = new Date();
+
+const currentDate = moment(date).format("MM/DD/YYYY");
 
 const Item = ({ title, to, icon }) => {
   const theme = useTheme();
@@ -131,16 +139,14 @@ const CustomSidebar = () => {
           </Box>
           <Box>
             <Item icon={HomeOutlinedIcon} title="Dashboard" to="/" />
-            <Typography
-              sx={{
-                color: colors.grey[300],
-                margin: "1.5rem 0 1rem 2rem",
-              }}
-              variant="h6"
-            >
-              Journal
-            </Typography>
             <Item icon={MenuBookIcon} title="Journal" to="/journal" />
+            <Item icon={TableChartIcon} title="Correlations" to="/correlation" />
+            <Box sx={{
+              margin: "1rem"
+            }}>
+              <DateSearch />
+            </Box>
+
             <Typography
               sx={{
                 color: colors.grey[300],

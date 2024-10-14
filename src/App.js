@@ -1,14 +1,20 @@
 import { useState } from "react";
 
+import { App as CapacitorApp } from '@capacitor/app';
+import { Plugins, Capacitor } from "@capacitor/core";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Provider } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 
+import { useStorage } from "./hooks/useStorage";
 import store from "./store/store";
 import { ColorModeContext, useMode } from "./theme";
 
 import ActivityPage from "./scenes/activityPage";
 import CategoryPage from "./scenes/categoryPage";
+import CorrelationPage from "./scenes/correlationPage";
 import ChartPage from "./scenes/chartPage";
 import Dashboard from "./scenes/dashboard";
 import FaqPage from "./scenes/FaqPage";
@@ -22,8 +28,17 @@ function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
 
+  CapacitorApp.addListener('backButton', ({canGoBack}) => {
+    if(!canGoBack){
+      CapacitorApp.exitApp();
+    } else {
+      window.history.back();
+    }
+  });
+ 
   return (
-    <Provider store={store}>
+    <Provider store={store} useStorage={useStorage}>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
@@ -66,6 +81,7 @@ function App() {
                     action={({ params }) => {}}
                   />
                   <Route path="/journal" element={<JournalPage />} />
+                  <Route path="/correlation" element={<CorrelationPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/faq" element={<FaqPage />} />
                 </Route>
@@ -74,6 +90,7 @@ function App() {
           </Box>
         </ThemeProvider>
       </ColorModeContext.Provider>
+      </LocalizationProvider>
     </Provider>
   );
 }

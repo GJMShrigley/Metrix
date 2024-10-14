@@ -17,7 +17,7 @@ import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
 import StatBox from "../../components/StatBox";
 
-import { addJournal, saveFile } from "../../store/userDataSlice";
+import { addJournal } from "../../store/userDataSlice";
 import { tokens } from "../../theme";
 
 const date = new Date();
@@ -116,7 +116,6 @@ const ActivityPage = () => {
   //When a journal is submitted, record it in global state with the 'x' value as the given start date.
   const handleJournalSubmit = (value) => {
     dispatch(addJournal({ journal: value.journal, x: startDate }));
-    dispatch(saveFile());
   };
 
   const statBoxes = chartData.map((data, i) => {
@@ -124,6 +123,7 @@ const ActivityPage = () => {
       <StatBox
         endDate={endDate}
         key={i}
+        id={i}
         startDate={startDate}
         stats={data.data}
         title={data.id}
@@ -211,7 +211,7 @@ const ActivityPage = () => {
           />
         )}
       </Box>
-      {!endDate ? (
+      {!endDate ? (<Box>
         <Accordion disableGutters>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h5">ADD JOURNAL ENTRY</Typography>
@@ -266,6 +266,7 @@ const ActivityPage = () => {
             </Formik>
           </AccordionDetails>
         </Accordion>
+      </Box>
       ) : null}
       <Accordion disableGutters>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
